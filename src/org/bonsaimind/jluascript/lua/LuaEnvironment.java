@@ -21,11 +21,14 @@ package org.bonsaimind.jluascript.lua;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.bonsaimind.jluascript.lua.libs.JLuaScriptLib;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LoadState;
+import org.luaj.vm2.LuaTable;
+import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.compiler.LuaC;
 import org.luaj.vm2.lib.Bit32Lib;
 import org.luaj.vm2.lib.CoroutineLib;
@@ -70,24 +73,26 @@ public class LuaEnvironment {
 		environment.load(new JLuaScriptLib(classLoader));
 	}
 	
-	public void execute(File file) {
+	public void execute(File file, List<String> args) {
 		updateEnvironmentVariables(
+				args,
 				file.getParentFile().getAbsoluteFile().toString(),
 				file.getAbsoluteFile().toString());
 		
 		environment.loadfile(file.getAbsoluteFile().toString()).call();
 	}
 	
-	public void execute(Path file) {
+	public void execute(Path file, List<String> args) {
 		updateEnvironmentVariables(
+				args,
 				file.getParent().toAbsolutePath().toString(),
 				file.toAbsolutePath().toString());
 		
 		environment.loadfile(file.toAbsolutePath().toString()).call();
 	}
 	
-	public void execute(String script) {
-		updateEnvironmentVariables("", "");
+	public void execute(String script, List<String> args) {
+		updateEnvironmentVariables(args, "", "");
 		
 		environment.load(script).call();
 	}
@@ -96,7 +101,17 @@ public class LuaEnvironment {
 		return environment;
 	}
 	
-	protected void updateEnvironmentVariables(String scriptDirectory, String scriptFile) {
+	protected void updateEnvironmentVariables(List<String> args, String scriptDirectory, String scriptFile) {
+		LuaTable argsTable = new LuaTable();
+		
+		if (args != null && !args.isEmpty()) {
+			for (String arg : args) {
+				argsTable.set(argsTable.length() + 1, LuaValue.valueOf(arg));
+			}
+		}
+		
+		environment.set("ARGS", argsTable);
+		
 		environment.set("HOME", System.getProperty("user.home"));
 		environment.set("SCRIPT_DIR", scriptDirectory);
 		environment.set("SCRIPT_FILE", scriptFile);

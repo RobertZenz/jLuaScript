@@ -83,6 +83,11 @@ dynamically.
 
 ### Global variables
 
+#### ARGS
+
+A table which holds all arguments for the script. Can be empty if theere are
+none.
+
 #### HOME
 
 The home directory of the user, as it exists in the process environment.

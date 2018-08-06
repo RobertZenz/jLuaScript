@@ -20,6 +20,9 @@
 package org.bonsaimind.jluascript;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
 
@@ -28,8 +31,15 @@ public final class Main {
 	}
 	
 	public static void main(String[] args) {
+		if (args.length == 0) {
+			System.out.println("jLuaScript SCRIPT [ARGUMENT,...]");
+		}
+		
+		List<String> arguments = new ArrayList<>(Arrays.asList(args));
+		String script = arguments.remove(0);
+		
 		LuaEnvironment environment = new LuaEnvironment();
 		
-		environment.execute(Paths.get("./test.jlua"));
+		environment.execute(Paths.get(script), arguments);
 	}
 }
