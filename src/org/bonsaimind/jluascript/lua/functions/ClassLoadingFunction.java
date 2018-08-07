@@ -47,7 +47,7 @@ public class ClassLoadingFunction extends OneArgFunction {
 		
 		try {
 			Class<?> clazz = classLoader.loadClass(className);
-			LuaValue coercedStaticClass = LuaUtil.coerceStaticObject(clazz);
+			LuaValue coercedStaticClass = LuaUtil.coerceStaticIstance(clazz);
 			
 			return coercedStaticClass;
 		} catch (ClassNotFoundException e) {

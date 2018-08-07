@@ -51,7 +51,7 @@ public class JLuaScriptLib extends TwoArgFunction {
 	}
 	
 	protected void importClass(LuaValue environment, Class<?> clazz) {
-		LuaValue coercedStaticInstance = LuaUtil.coerceStaticObject(clazz);
+		LuaValue coercedStaticInstance = LuaUtil.coerceStaticIstance(clazz);
 		
 		LuaUtil.addStaticInstanceDirect(environment, clazz, coercedStaticInstance);
 		LuaUtil.addStaticInstancePackage(environment, clazz, coercedStaticInstance);

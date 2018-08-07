@@ -88,7 +88,7 @@ public final class LuaUtil {
 		return null;
 	}
 	
-	public final static LuaValue coerceStaticObject(Class<?> clazz) {
+	public final static LuaValue coerceStaticIstance(Class<?> clazz) {
 		LuaTable staticTable = new LuaTable();
 		staticTable.set("class", CoerceJavaToLua.coerce(clazz));
 		staticTable.set("new", new ConstructorInvokingFunction(clazz));
