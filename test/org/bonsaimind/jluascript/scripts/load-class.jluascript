@@ -1,0 +1,14 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script tests the loading of classes.
+
+local BigNumber = loadClass("java.math.BigDecimal")
+
+if BigNumber == nil then
+	error("Local BigNumber load returned nil.")
+end
+
+-- The following line should execute without error if the class could be
+-- imported.
+BigNumber.valueOf(5);

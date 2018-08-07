@@ -1,0 +1,30 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script tests the import of classes.
+
+if import("java.math.BigDecimal") == nil then
+	error("import did not return an object.")
+end
+
+if BigDecimal == nil then
+	error("Global BigDecimal is missing.")
+end
+
+if java.math.BigDecimal == nil then
+	error("Global java.math.BigDecimal is missing.")
+end
+
+-- The following line should execute without error if the class could be
+-- imported.
+BigDecimal.valueOf(5);
+
+local BigNumber = import("java.math.BigDecimal")
+
+if BigNumber == nil then
+	error("Local BigDecimal import returned nil.")
+end
+
+-- The following line should execute without error if the class could be
+-- imported.
+BigNumber.valueOf(5);

@@ -1,0 +1,20 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script tests all the globally available variables.
+
+if HOME == nil then
+	error("HOME is not available.")
+end
+
+if SCRIPT_DIR == nil then
+	error("SCRIPT_DIR is not available.")
+end
+
+if SCRIPT_FILE == nil then
+	error("SCRIPT_FILE is not available.")
+end
+
+if WORKING_DIR == nil then
+	error("WORKING_DIR is not available.")
+end

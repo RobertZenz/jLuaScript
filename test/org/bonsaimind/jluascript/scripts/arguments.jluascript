@@ -1,0 +1,24 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script tests arguments passed to the script.
+
+if ARGS == nil then
+	error("ARGS is not available.")
+end
+
+if #ARGS == 0 then
+	error("ARGS is empty.")
+end
+
+if ARGS[1] ~= "aaa" then
+	error("First argument expected to be <aaa> but was <" .. ARGS[1] .. ">")
+end
+
+if ARGS[2] ~= "bbb" then
+	error("Second argument expected to be <bbb> but was <" .. ARGS[2] .. ">")
+end
+
+if ARGS[3] ~= "ccc" then
+	error("Third argument expected to be <ccc> but was <" .. ARGS[3] .. ">")
+end
