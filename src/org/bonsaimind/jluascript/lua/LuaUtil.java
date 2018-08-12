@@ -24,6 +24,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.bonsaimind.jluascript.lua.functions.ConstructorInvokingFunction;
+import org.bonsaimind.jluascript.lua.functions.ErrorThrowingFunction;
+import org.bonsaimind.jluascript.lua.functions.ProxyInstanceCreatingFunction;
 import org.bonsaimind.jluascript.lua.functions.StaticMethodInvokingFunction;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
@@ -91,20 +93,50 @@ public final class LuaUtil {
 	public final static LuaValue coerceStaticIstance(Class<?> clazz) {
 		LuaTable staticTable = new LuaTable();
 		staticTable.set("class", CoerceJavaToLua.coerce(clazz));
-		staticTable.set("new", new ConstructorInvokingFunction(clazz));
 		
+		coerceStaticFields(clazz, staticTable);
+		coerceStaticMethods(clazz, staticTable);
+		addSpecialMethods(clazz, staticTable);
+		
+		return staticTable;
+	}
+	
+	private static final void addSpecialMethods(Class<?> clazz, LuaTable staticTable) {
+		if (clazz.isInterface()) {
+			staticTable.set("implement", new ProxyInstanceCreatingFunction(clazz));
+			staticTable.set("extend", new ErrorThrowingFunction(clazz.getSimpleName() + " is an interface and cannot be extended."));
+			staticTable.set("new", new ErrorThrowingFunction(clazz.getSimpleName() + " is an interface and cannot be instantiated."));
+		} else {
+			staticTable.set("implement", new ErrorThrowingFunction(clazz.getSimpleName() + " is not an interface."));
+			
+			if (!Modifier.isFinal(clazz.getModifiers())) {
+				staticTable.set("extend", new ProxyInstanceCreatingFunction(clazz));
+			} else {
+				staticTable.set("extend", new ErrorThrowingFunction(clazz.getSimpleName() + " is marked as final and cannot be extended."));
+			}
+			
+			if (!Modifier.isAbstract(clazz.getModifiers())) {
+				staticTable.set("new", new ConstructorInvokingFunction(clazz));
+			} else {
+				staticTable.set("new", new ErrorThrowingFunction(clazz.getSimpleName() + " is an abstract class and cannot be instantiated."));
+			}
+		}
+	}
+	
+	private static final void coerceStaticFields(Class<?> clazz, LuaTable staticTable) {
 		for (Field field : clazz.getFields()) {
 			if (Modifier.isStatic(field.getModifiers())
 					&& Modifier.isPublic(field.getModifiers())) {
 				try {
 					staticTable.set(field.getName(), CoerceJavaToLua.coerce(field.get(null)));
 				} catch (IllegalArgumentException | IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					// Ignore possible errors, as they should not happen.
 				}
 			}
 		}
-		
+	}
+	
+	private static final void coerceStaticMethods(Class<?> clazz, LuaTable staticTable) {
 		for (Method method : clazz.getMethods()) {
 			if (Modifier.isStatic(method.getModifiers())
 					&& Modifier.isPublic(method.getModifiers())) {
@@ -113,7 +145,5 @@ public final class LuaUtil {
 				}
 			}
 		}
-		
-		return staticTable;
 	}
 }

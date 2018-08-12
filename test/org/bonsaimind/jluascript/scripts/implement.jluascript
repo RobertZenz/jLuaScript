@@ -1,0 +1,26 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script tests the implementation of interfaces.
+
+import("java.lang.Runnable")
+
+local ran = false
+local runnable = Runnable.implement({
+	run = function()
+		ran = true
+	end
+})
+
+runnable:run()
+
+if ran == false then
+	error("The run method was not executed.")
+end
+
+-- Now we test the error behavior.
+local runnable2 = Runnable.implement({})
+
+if pcall(function() runnable2:run() end) then
+	error("run() could be executed without an implementation.")
+end

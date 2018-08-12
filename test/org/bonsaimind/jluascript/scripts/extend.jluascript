@@ -1,0 +1,32 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script tests the extension of classes.
+
+local ran = false
+local object = Object.extend({
+	toString = function()
+		ran = true
+		
+		return "overridden"
+	end
+})
+
+local string = object:toString()
+
+if ran == false then
+	error("The toString() method was not executed.")
+end
+
+if string ~= "overridden" then
+	error("The toString() should return <overridden> but was <" .. string .. ">")
+end
+
+-- Test if we can still call non-overridden functions.
+if object:hashCode() == nil then
+	error("hasCode() has returned nil.")
+end
+
+if object:equals(nil) == nil then
+	error("equals(...) has returned nil.")
+end

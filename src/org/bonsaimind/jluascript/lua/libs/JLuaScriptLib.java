@@ -64,6 +64,7 @@ public class JLuaScriptLib extends TwoArgFunction {
 		importClass(environment, Float.class);
 		importClass(environment, Integer.class);
 		importClass(environment, Long.class);
+		importClass(environment, Object.class);
 		importClass(environment, Short.class);
 		importClass(environment, String.class);
 		importClass(environment, System.class);

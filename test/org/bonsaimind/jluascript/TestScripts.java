@@ -26,8 +26,18 @@ public class TestScripts {
 	}
 	
 	@Test
+	public void testExtend() {
+		testScript("extend");
+	}
+	
+	@Test
 	public void testGlobalVariables() {
 		testScript("global-variables");
+	}
+	
+	@Test
+	public void testImplement() {
+		testScript("implement");
 	}
 	
 	@Test
