@@ -58,6 +58,20 @@ public final class LuaUtil {
 		previousPackageTable.set(clazz.getSimpleName(), coercedStaticInstance);
 	}
 	
+	public final static LuaValue[] coerce(Object[] objects) {
+		if (objects == null) {
+			return new LuaValue[0];
+		}
+		
+		LuaValue[] luaValues = new LuaValue[objects.length];
+		
+		for (int index = 0; index < objects.length; index++) {
+			luaValues[index] = CoerceJavaToLua.coerce(objects[index]);
+		}
+		
+		return luaValues;
+	}
+	
 	public final static Object coerceAsJavaObject(LuaValue luaValue) {
 		if (luaValue == null || luaValue.isnil()) {
 			return null;

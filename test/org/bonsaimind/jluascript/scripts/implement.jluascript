@@ -4,6 +4,7 @@
 -- This script tests the implementation of interfaces.
 
 import("java.lang.Runnable")
+import("java.util.function.BiFunction")
 
 local ran = false
 local runnable = Runnable.implement({
@@ -19,8 +20,40 @@ if ran == false then
 end
 
 -- Now we test the error behavior.
-local runnable2 = Runnable.implement({})
+runnable = Runnable.implement({})
 
-if pcall(function() runnable2:run() end) then
+if pcall(function() runnable:run() end) then
 	error("run() could be executed without an implementation.")
+end
+
+-- Now we test the shortcut functionality.
+ran = false;
+runnable = Runnable.implement(function() ran = true end)
+
+runnable:run()
+
+if ran == false then
+	error("The run method was not executed.")
+end
+
+local a = "a"
+local b = "b"
+
+-- Now we will test if calling with parameters works.
+local operation = BiFunction.implement(function(paramA, paramB)
+		if paramA ~= a then
+			error("paramA was was expected to be <" .. a .. "> but was <" .. paramA .. ">")
+		end
+		
+		if paramB ~= b then
+			error("paramB was was expected to be <" .. b .. "> but was <" .. paramB .. ">")
+		end
+		
+		return true
+	end)
+
+local result = operation:apply(a, b)
+
+if result ~= true then
+	error("Operation should have returned <true> but was <" .. result .. ">")
 end
