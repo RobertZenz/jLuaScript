@@ -1,7 +1,7 @@
 
 package org.bonsaimind.jluascript.lua.functions;
 
-import org.bonsaimind.jluascript.javassist.filters.NonFinalFilter;
+import org.bonsaimind.jluascript.javassist.filters.HandleOnlyNonFinalFilter;
 import org.bonsaimind.jluascript.javassist.handlers.LuaInvokingMethodHandler;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
@@ -20,7 +20,7 @@ public class ProxyInstanceCreatingFunction extends OneArgFunction {
 		this.clazz = clazz;
 		
 		proxyFactory = new ProxyFactory();
-		proxyFactory.setFilter(NonFinalFilter.INSTANCE);
+		proxyFactory.setFilter(HandleOnlyNonFinalFilter.INSTANCE);
 		
 		if (clazz.isInterface()) {
 			proxyFactory.setSuperclass(Object.class);

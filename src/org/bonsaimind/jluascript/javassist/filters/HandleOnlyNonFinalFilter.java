@@ -6,10 +6,10 @@ import java.lang.reflect.Modifier;
 
 import javassist.util.proxy.MethodFilter;
 
-public class NonFinalFilter implements MethodFilter {
-	public static final NonFinalFilter INSTANCE = new NonFinalFilter();
+public class HandleOnlyNonFinalFilter implements MethodFilter {
+	public static final HandleOnlyNonFinalFilter INSTANCE = new HandleOnlyNonFinalFilter();
 	
-	public NonFinalFilter() {
+	public HandleOnlyNonFinalFilter() {
 		super();
 	}
 	
