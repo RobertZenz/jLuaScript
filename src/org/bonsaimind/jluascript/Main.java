@@ -32,7 +32,7 @@ public final class Main {
 	
 	public static void main(String[] args) {
 		if (args.length == 0) {
-			System.out.println("jLuaScript SCRIPT [ARGUMENT,...]");
+			System.out.println("jLuaScript SCRIPT [ARGUMENTS...]");
 		}
 		
 		List<String> arguments = new ArrayList<>(Arrays.asList(args));
