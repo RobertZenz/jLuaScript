@@ -20,6 +20,7 @@
 package org.bonsaimind.jluascript.lua;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -83,9 +84,17 @@ public class LuaEnvironment {
 	}
 	
 	public void execute(Path file, List<String> args) {
+		if (file == null) {
+			throw new IllegalArgumentException("file cannot be null.");
+		}
+		
+		if (!Files.isRegularFile(file)) {
+			throw new IllegalArgumentException(file.toString() + " is not a file.");
+		}
+		
 		updateEnvironmentVariables(
 				args,
-				file.getParent().toAbsolutePath().toString(),
+				file.toAbsolutePath().getParent().toString(),
 				file.toAbsolutePath().toString());
 		
 		environment.loadfile(file.toAbsolutePath().toString()).call();
