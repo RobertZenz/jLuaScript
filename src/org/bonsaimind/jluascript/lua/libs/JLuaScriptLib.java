@@ -23,6 +23,7 @@ import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.bonsaimind.jluascript.lua.functions.ClassImportingFunction;
 import org.bonsaimind.jluascript.lua.functions.ClassLoadingFunction;
 import org.bonsaimind.jluascript.lua.functions.JarLoadingFunction;
+import org.bonsaimind.jluascript.lua.functions.RunFunction;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
@@ -45,9 +46,12 @@ public class JLuaScriptLib extends TwoArgFunction {
 	}
 	
 	protected void addDefaultFunctions(LuaValue environment) {
+		environment.set("exec", new RunFunction());
+		environment.set("execWait", new RunFunction());
 		environment.set("loadClass", new ClassLoadingFunction(classLoader));
 		environment.set("loadJar", new JarLoadingFunction(classLoader));
 		environment.set("import", new ClassImportingFunction(environment, classLoader));
+		environment.set("run", new RunFunction());
 	}
 	
 	protected void importClass(LuaValue environment, Class<?> clazz) {
