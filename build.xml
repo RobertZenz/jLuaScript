@@ -1,0 +1,74 @@
+<project name="jLuaScript" default="dist" basedir=".">
+	<description>
+		A scripting system which makes the Java classes available in Lua scripts.
+	</description>
+
+	<property name="version" value="0" />
+
+	<property name="build" value="build/" />
+	<property name="dist" value="dist/" />
+	<property name="libs" value="libs/" />
+	<property name="src" value="src/" />
+
+	<property name="jar" value="jluascript" />
+
+	<property name="bcel.version" value="5.2" />
+	<property name="javassist.version" value="3.23.1" />
+	<property name="luaj.version" value="3.0.1" />
+
+	<target name="clean" description="Removes the build directories.">
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="init" description="Sets up the build directories.">
+		<mkdir dir="${build}" />
+		<mkdir dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="init" description="Compiles all source files.">
+		<javac srcdir="${src}" destdir="${build}" includeantruntime="false" target="1.8" source="1.8" debug="true" debuglevel="lines,source">
+			<classpath>
+				<fileset dir="${libs}" includes="**/*.jar" />
+			</classpath>
+		</javac>
+
+		<copy todir="${build}">
+			<fileset dir="${src}">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+
+		<manifest file="MANIFEST.MF">
+			<attribute name="Main-Class" value="org.bonsaimind.jluascript.Main" />
+			<attribute name="Implementation-Title" value="${ant.project.name}" />
+			<attribute name="Implementation-Version" value="${version}" />
+			<attribute name="Implementation-Vendor" value="Robert 'Bobby' Zenz" />
+		</manifest>
+	</target>
+
+	<target name="jar" depends="compile" description="Creates the jar.">
+		<jar jarfile="${dist}/${jar}-${version}.jar" basedir="${build}" manifest="MANIFEST.MF">
+			<zipfileset src="${libs}/javassist/javassist-${javassist.version}.jar" excludes="META-INF/**/*" />
+			<zipfileset src="${libs}/luaj/bcel-${bcel.version}.jar" excludes="META-INF/**/*" />
+			<zipfileset src="${libs}/luaj/luaj-jse-${luaj.version}.jar" excludes="META-INF/**/*" />
+		</jar>
+	</target>
+
+	<target name="dist" depends="jar" description="Creates the tar archive.">
+		<tar destfile="${dist}/${jar}-${version}.tar" basedir=".">
+			<include name="${libs}/**/*" />
+			<include name="${src}/**/*" />
+			<include name="${dist}/${jar}-${version}-*.jar" />
+			<include name="build.xml" />
+			<include name="CHANGES" />
+			<include name="CONTRIBUTE" />
+			<include name="CREDITS" />
+			<include name="LICENSE" />
+			<include name="README" />
+		</tar>
+		<bzip2 src="${dist}/${jar}-${version}.tar" destfile="${dist}/${jar}-${version}.tar.bz2" />
+	</target>
+
+	<target name="all" depends="clean,dist" />
+</project>
