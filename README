@@ -28,7 +28,7 @@ Usage
 -----
 
 The scripts executed by jLuaScript are Lua scripts which have all
-the capabilities of Lua scripts. The java classes can be accessed through
+the capabilities of Lua scripts. The Java classes can be accessed through
 various means as outlined below.
 
 Even though an `import`-like function is used to define classes, it is not
@@ -139,3 +139,17 @@ One can also access additional jars, for example EvalEx.
     local result = expression:eval()
     
     System.out:println(result)
+
+Implementing an interface:
+
+    import("java.lng.Runnable")
+    
+    local RunnableImpl = Runnable.implement({
+        run = function()
+            -- Put logic here.
+        end
+    })
+    
+    local runnableInstance = RunnableImpl.new()
+    
+    runnableInstance:run()
