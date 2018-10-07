@@ -4,7 +4,8 @@
 -- This script tests the extension of classes.
 
 local ran = false
-local object = Object.extend({
+
+local ObjectExt = Object.extend({
 	toString = function()
 		ran = true
 		
@@ -12,7 +13,29 @@ local object = Object.extend({
 	end
 })
 
+local object = ObjectExt.new();
+
 local string = object:toString()
+
+if ran == false then
+	error("The toString() method was not executed.")
+end
+
+if string ~= "overridden" then
+	error("The toString() should return <overridden> but was <" .. string .. ">")
+end
+
+ran = false;
+
+object = Object.extendNew({
+	toString = function()
+		ran = true
+		
+		return "overridden"
+	end
+})
+
+string = object:toString()
 
 if ran == false then
 	error("The toString() method was not executed.")

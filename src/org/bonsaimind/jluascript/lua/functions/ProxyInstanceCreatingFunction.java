@@ -12,12 +12,21 @@ import javassist.util.proxy.ProxyFactory;
 
 public class ProxyInstanceCreatingFunction extends OneArgFunction {
 	protected Class<?> clazz = null;
+	protected LuaInvokingMethodHandler defaultMethodHandler = null;
 	protected ProxyFactory proxyFactory = null;
 	
 	public ProxyInstanceCreatingFunction(Class<?> clazz) {
+		this(clazz, null);
+	}
+	
+	public ProxyInstanceCreatingFunction(Class<?> clazz, LuaValue defaultLuaFunctions) {
 		super();
 		
 		this.clazz = clazz;
+		
+		if (defaultLuaFunctions != null) {
+			this.defaultMethodHandler = new LuaInvokingMethodHandler(defaultLuaFunctions);
+		}
 		
 		proxyFactory = new ProxyFactory();
 		proxyFactory.setFilter(HandleOnlyNonFinalFilter.INSTANCE);
@@ -32,15 +41,21 @@ public class ProxyInstanceCreatingFunction extends OneArgFunction {
 	
 	@Override
 	public LuaValue call(LuaValue luaFunctions) {
-		if (luaFunctions == null || luaFunctions.isnil()) {
+		if (luaFunctions.isnil() && defaultMethodHandler == null) {
 			throw new LuaError("Table with functions has been expected.");
+		}
+		
+		LuaInvokingMethodHandler methodHandler = defaultMethodHandler;
+		
+		if (!luaFunctions.isnil()) {
+			methodHandler = new LuaInvokingMethodHandler(luaFunctions);
 		}
 		
 		try {
 			return CoerceJavaToLua.coerce(proxyFactory.create(
 					new Class<?>[0],
 					new Object[0],
-					new LuaInvokingMethodHandler(luaFunctions)));
+					methodHandler));
 		} catch (Exception e) {
 			throw new LuaError(e);
 		}

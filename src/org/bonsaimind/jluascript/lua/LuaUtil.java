@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import org.bonsaimind.jluascript.lua.functions.ClassCreatingFunction;
 import org.bonsaimind.jluascript.lua.functions.ConstructorInvokingFunction;
 import org.bonsaimind.jluascript.lua.functions.ErrorThrowingFunction;
 import org.bonsaimind.jluascript.lua.functions.ProxyInstanceCreatingFunction;
@@ -117,16 +118,21 @@ public final class LuaUtil {
 	
 	private static final void addSpecialMethods(Class<?> clazz, LuaTable staticTable) {
 		if (clazz.isInterface()) {
-			staticTable.set("implement", new ProxyInstanceCreatingFunction(clazz));
+			staticTable.set("implement", new ClassCreatingFunction(clazz));
+			staticTable.set("implementNew", new ProxyInstanceCreatingFunction(clazz));
 			staticTable.set("extend", new ErrorThrowingFunction(clazz.getSimpleName() + " is an interface and cannot be extended."));
+			staticTable.set("extendNew", new ErrorThrowingFunction(clazz.getSimpleName() + " is an interface and cannot be extended."));
 			staticTable.set("new", new ErrorThrowingFunction(clazz.getSimpleName() + " is an interface and cannot be instantiated."));
 		} else {
 			staticTable.set("implement", new ErrorThrowingFunction(clazz.getSimpleName() + " is not an interface."));
+			staticTable.set("implementNew", new ErrorThrowingFunction(clazz.getSimpleName() + " is not an interface."));
 			
 			if (!Modifier.isFinal(clazz.getModifiers())) {
-				staticTable.set("extend", new ProxyInstanceCreatingFunction(clazz));
+				staticTable.set("extend", new ClassCreatingFunction(clazz));
+				staticTable.set("extendNew", new ProxyInstanceCreatingFunction(clazz));
 			} else {
 				staticTable.set("extend", new ErrorThrowingFunction(clazz.getSimpleName() + " is marked as final and cannot be extended."));
+				staticTable.set("extendNew", new ErrorThrowingFunction(clazz.getSimpleName() + " is marked as final and cannot be extended."));
 			}
 			
 			if (!Modifier.isAbstract(clazz.getModifiers())) {

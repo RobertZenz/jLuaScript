@@ -7,7 +7,25 @@ import("java.lang.Runnable")
 import("java.util.function.BiFunction")
 
 local ran = false
-local runnable = Runnable.implement({
+
+local RunnableImpl = Runnable.implement({
+	run = function()
+		ran = true
+	end
+})
+
+local runnable = RunnableImpl.new()
+
+runnable:run()
+
+if ran == false then
+	error("The run method was not executed.")
+end
+
+-- Now we test the direct implementation.
+ran = false
+
+runnable = Runnable.implementNew({
 	run = function()
 		ran = true
 	end
@@ -20,7 +38,7 @@ if ran == false then
 end
 
 -- Now we test the error behavior.
-runnable = Runnable.implement({})
+runnable = Runnable.implementNew({})
 
 if pcall(function() runnable:run() end) then
 	error("run() could be executed without an implementation.")
@@ -28,7 +46,9 @@ end
 
 -- Now we test the shortcut functionality.
 ran = false;
-runnable = Runnable.implement(function() ran = true end)
+runnable = Runnable.implementNew(function()
+	ran = true
+end)
 
 runnable:run()
 
@@ -40,7 +60,7 @@ local a = "a"
 local b = "b"
 
 -- Now we will test if calling with parameters works.
-local operation = BiFunction.implement(function(paramA, paramB)
+local operation = BiFunction.implementNew(function(paramA, paramB)
 		if paramA ~= a then
 			error("paramA was was expected to be <" .. a .. "> but was <" .. paramA .. ">")
 		end
