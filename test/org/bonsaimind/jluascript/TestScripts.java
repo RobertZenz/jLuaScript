@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
+import org.bonsaimind.jluascript.lua.ScriptExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,41 +22,41 @@ public class TestScripts {
 	}
 	
 	@Test
-	public void testArguments() {
+	public void testArguments() throws ScriptExecutionException {
 		testScript("arguments", "aaa", "bbb", "ccc");
 	}
 	
 	@Test
-	public void testExtend() {
+	public void testExtend() throws ScriptExecutionException {
 		testScript("extend");
 	}
 	
 	@Test
-	public void testForLoop() {
+	public void testForLoop() throws ScriptExecutionException {
 		testScript("for-loop");
 	}
 	
 	@Test
-	public void testGlobalVariables() {
+	public void testGlobalVariables() throws ScriptExecutionException {
 		testScript("global-variables");
 	}
 	
 	@Test
-	public void testImplement() {
+	public void testImplement() throws ScriptExecutionException {
 		testScript("implement");
 	}
 	
 	@Test
-	public void testImport() {
+	public void testImport() throws ScriptExecutionException {
 		testScript("import");
 	}
 	
 	@Test
-	public void testLoadClass() {
+	public void testLoadClass() throws ScriptExecutionException {
 		testScript("load-class");
 	}
 	
-	private void testScript(String scriptName, String... arguments) {
+	private void testScript(String scriptName, String... arguments) throws ScriptExecutionException {
 		List<String> args = null;
 		
 		if (arguments != null) {

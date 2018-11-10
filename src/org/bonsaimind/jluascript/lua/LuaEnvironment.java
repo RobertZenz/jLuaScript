@@ -22,6 +22,7 @@ package org.bonsaimind.jluascript.lua;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bonsaimind.jluascript.lua.libs.JLuaScriptLib;
@@ -85,16 +86,15 @@ public class LuaEnvironment {
 		addDefaultImport(classLoader.loadClass(className));
 	}
 	
-	public void execute(File file, List<String> args) {
-		updateEnvironmentVariables(
-				args,
-				file.getParentFile().getAbsoluteFile().toString(),
-				file.getAbsoluteFile().toString());
+	public void execute(File file, List<String> args) throws ScriptExecutionException {
+		if (file == null) {
+			throw new IllegalArgumentException("file cannot be null.");
+		}
 		
-		environment.loadfile(file.getAbsoluteFile().toString()).call();
+		execute(file.toPath(), args);
 	}
 	
-	public void execute(Path file, List<String> args) {
+	public void execute(Path file, List<String> args) throws ScriptExecutionException {
 		if (file == null) {
 			throw new IllegalArgumentException("file cannot be null.");
 		}
@@ -103,22 +103,72 @@ public class LuaEnvironment {
 			throw new IllegalArgumentException(file.toString() + " is not a file.");
 		}
 		
+		Path absoluteFile = file.toAbsolutePath().normalize();
+		
 		updateEnvironmentVariables(
 				args,
-				file.toAbsolutePath().getParent().toString(),
-				file.toAbsolutePath().toString());
+				absoluteFile.getParent().toString(),
+				absoluteFile.toString());
 		
-		environment.loadfile(file.toAbsolutePath().toString()).call();
+		try {
+			environment.loadfile(absoluteFile.toString()).call();
+		} catch (Exception e) {
+			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script: " + absoluteFile.toString(), e);
+			exception.setStackTrace(extractLuaStacktrace(absoluteFile, e.getStackTrace()));
+			
+			throw exception;
+		}
 	}
 	
-	public void execute(String script, List<String> args) {
+	public void execute(String script, List<String> args) throws ScriptExecutionException {
 		updateEnvironmentVariables(args, "", "");
 		
-		environment.load(script).call();
+		try {
+			environment.load(script).call();
+		} catch (Exception e) {
+			new ScriptExecutionException("Failed to execute script.", e);
+		}
 	}
 	
 	public Globals getEnvironment() {
 		return environment;
+	}
+	
+	protected StackTraceElement[] extractLuaStacktrace(Path file, StackTraceElement[] stackTrace) {
+		if (stackTrace == null || stackTrace.length == 0) {
+			return new StackTraceElement[0];
+		}
+		
+		List<StackTraceElement> luaStackTrace = new ArrayList<>();
+		
+		String pathAsString = file.getParent().toString();
+		
+		for (StackTraceElement stackTraceElement : stackTrace) {
+			String fileName = stackTraceElement.getFileName();
+			
+			if (fileName != null && fileName.startsWith(pathAsString)) {
+				fileName = fileName.substring(pathAsString.length());
+				fileName = fileName.replaceAll("/+", "/");
+				
+				String methodName = stackTraceElement.getMethodName();
+				
+				int dollarIndex = stackTraceElement.getClassName().indexOf('$');
+				
+				if (dollarIndex >= 0) {
+					methodName = stackTraceElement.getClassName().substring(dollarIndex + 1);
+				}
+				
+				StackTraceElement luaStackTraceElement = new StackTraceElement(
+						"script",
+						methodName,
+						file.toString(),
+						stackTraceElement.getLineNumber());
+				
+				luaStackTrace.add(luaStackTraceElement);
+			}
+		}
+		
+		return luaStackTrace.toArray(new StackTraceElement[luaStackTrace.size()]);
 	}
 	
 	protected void updateEnvironmentVariables(List<String> args, String scriptDirectory, String scriptFile) {
@@ -140,4 +190,5 @@ public class LuaEnvironment {
 		environment.set("DIR", System.getProperty("user.dir"));
 		environment.set("WORKING_DIR", System.getProperty("user.dir"));
 	}
+	
 }

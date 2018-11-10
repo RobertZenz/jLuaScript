@@ -17,34 +17,24 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript;
+package org.bonsaimind.jluascript.lua;
 
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.bonsaimind.jluascript.lua.LuaEnvironment;
-import org.bonsaimind.jluascript.lua.ScriptExecutionException;
-
-public final class Main {
-	private Main() {
+public class ScriptExecutionException extends Exception {
+	private static final long serialVersionUID = 4459490473872850828L;
+	
+	public ScriptExecutionException(String message) {
+		super(message);
 	}
 	
-	public static void main(String[] args) {
-		if (args.length == 0) {
-			System.out.println("jLuaScript SCRIPT [ARGUMENTS...]");
-		}
-		
-		List<String> arguments = new ArrayList<>(Arrays.asList(args));
-		String script = arguments.remove(0);
-		
-		LuaEnvironment environment = new LuaEnvironment();
-		
-		try {
-			environment.execute(Paths.get(script), arguments);
-		} catch (ScriptExecutionException e) {
-			e.printStackTrace();
-		}
+	public ScriptExecutionException(String message, Throwable cause) {
+		super(message, cause);
+	}
+	
+	public ScriptExecutionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
+	
+	public ScriptExecutionException(Throwable cause) {
+		super(cause);
 	}
 }
