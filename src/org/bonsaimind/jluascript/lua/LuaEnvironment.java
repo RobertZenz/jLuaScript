@@ -74,6 +74,17 @@ public class LuaEnvironment {
 		environment.load(new JLuaScriptLib(classLoader));
 	}
 	
+	public void addDefaultImport(Class<?> clazz) {
+		LuaValue coercedStaticClass = LuaUtil.coerceStaticIstance(clazz);
+		
+		LuaUtil.addStaticInstanceDirect(environment, clazz, coercedStaticClass);
+		LuaUtil.addStaticInstancePackage(environment, clazz, coercedStaticClass);
+	}
+	
+	public void addDefaultImport(String className) throws ClassNotFoundException {
+		addDefaultImport(classLoader.loadClass(className));
+	}
+	
 	public void execute(File file, List<String> args) {
 		updateEnvironmentVariables(
 				args,
