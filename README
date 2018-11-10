@@ -88,6 +88,14 @@ dynamically.
 A table which holds all arguments for the script. Can be empty if theere are
 none.
 
+#### CWD
+
+The current working directory, as it exists in the process environment.
+
+#### DIR
+
+The current working directory, as it exists in the process environment.
+
 #### HOME
 
 The home directory of the user, as it exists in the process environment.

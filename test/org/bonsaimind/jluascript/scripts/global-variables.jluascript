@@ -3,6 +3,14 @@
 
 -- This script tests all the globally available variables.
 
+if CWD == nil then
+	error("CWD is not available.")
+end
+
+if DIR == nil then
+	error("DIR is not available.")
+end
+
 if HOME == nil then
 	error("HOME is not available.")
 end

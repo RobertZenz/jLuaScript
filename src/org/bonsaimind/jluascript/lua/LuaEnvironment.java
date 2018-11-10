@@ -132,9 +132,12 @@ public class LuaEnvironment {
 		
 		environment.set("ARGS", argsTable);
 		
+		environment.set("CWD", System.getProperty("user.dir"));
+		environment.set("DIR", System.getProperty("user.dir"));
 		environment.set("HOME", System.getProperty("user.home"));
 		environment.set("SCRIPT_DIR", scriptDirectory);
 		environment.set("SCRIPT_FILE", scriptFile);
+		environment.set("DIR", System.getProperty("user.dir"));
 		environment.set("WORKING_DIR", System.getProperty("user.dir"));
 	}
 }
