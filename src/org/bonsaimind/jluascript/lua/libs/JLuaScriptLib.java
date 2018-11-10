@@ -22,6 +22,8 @@ package org.bonsaimind.jluascript.lua.libs;
 import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.bonsaimind.jluascript.lua.functions.ClassImportingFunction;
 import org.bonsaimind.jluascript.lua.functions.ClassLoadingFunction;
+import org.bonsaimind.jluascript.lua.functions.IteratorIPairsFunction;
+import org.bonsaimind.jluascript.lua.functions.IteratorPairsFunction;
 import org.bonsaimind.jluascript.lua.functions.JarLoadingFunction;
 import org.bonsaimind.jluascript.lua.functions.RunFunction;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
@@ -48,9 +50,11 @@ public class JLuaScriptLib extends TwoArgFunction {
 	protected void addDefaultFunctions(LuaValue environment) {
 		environment.set("exec", new RunFunction());
 		environment.set("execWait", new RunFunction());
+		environment.set("ipairs", new IteratorIPairsFunction(environment.get("ipairs")));
+		environment.set("import", new ClassImportingFunction(environment, classLoader));
 		environment.set("loadClass", new ClassLoadingFunction(classLoader));
 		environment.set("loadJar", new JarLoadingFunction(classLoader));
-		environment.set("import", new ClassImportingFunction(environment, classLoader));
+		environment.set("pairs", new IteratorPairsFunction(environment.get("pairs")));
 		environment.set("run", new RunFunction());
 	}
 	

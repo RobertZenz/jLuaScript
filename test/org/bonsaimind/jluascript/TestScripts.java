@@ -31,6 +31,11 @@ public class TestScripts {
 	}
 	
 	@Test
+	public void testForLoop() {
+		testScript("for-loop");
+	}
+	
+	@Test
 	public void testGlobalVariables() {
 		testScript("global-variables");
 	}

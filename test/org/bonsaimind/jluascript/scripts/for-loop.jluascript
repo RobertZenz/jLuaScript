@@ -1,0 +1,103 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script tests the usability of for loops.
+
+import("java.util.ArrayList")
+import("java.util.HashMap")
+
+
+local counter = 0;
+
+local list = ArrayList.new()
+list:add("Alpha")
+list:add("Bravo")
+list:add("Charly")
+
+-- Test ipairs.
+
+counter = 0
+
+for index, item in ipairs(list) do
+	counter = counter + 1
+	
+	if index == 1 and not item == "Alpha" then
+		error("First item expected to be <Alpha> but was <" .. item ..">")
+	elseif index == 2 and not item == "Bravo" then
+		error("First item expected to be <Bravo> but was <" .. item ..">")
+	elseif index == 3 and not item == "Charly" then
+		error("First item expected to be <Charly> but was <" .. item ..">")
+	elseif index <= 0 or index >= 4 then
+		error("Index <" .. index .. "> out of range.")
+	end
+end
+
+if counter ~= 3 then
+	error("Expected <3> iterations, but were <" .. counter .. ">")
+end
+
+-- Test pairs, should also return an index as key.
+
+counter = 0
+
+for key, item in pairs(list) do
+	counter = counter + 1
+	
+	if key == 1 and not item == "Alpha" then
+		error("First item expected to be <Alpha> but was <" .. item ..">")
+	elseif key == 2 and not item == "Bravo" then
+		error("First item expected to be <Bravo> but was <" .. item ..">")
+	elseif key == 3 and not item == "Charly" then
+		error("First item expected to be <Charly> but was <" .. item ..">")
+	elseif key <= 0 or key >= 4 then
+		error("Key <" .. key .. "> out of range.")
+	end
+end
+
+if counter ~= 3 then
+	error("Expected <3> iterations, but were <" .. counter .. ">")
+end
+
+-- Now with a map.
+
+local map = HashMap.new()
+map:put("A", "Alpha")
+map:put("B", "Bravo")
+map:put("C", "Charly")
+
+if counter ~= 3 then
+	error("Expected <3> iterations, but were <" .. counter .. ">")
+end
+
+counter = 0
+
+for index, item in ipairs(map) do
+	counter = counter + 1
+	
+	-- Order of the map is undefined, so we just must make sure that the item
+	-- is known.
+	
+	if item ~= "Alpha" and item ~= "Bravo" and item ~= "Charly" then
+		error("Did not expect item <" .. item ..">")
+	end
+end
+
+counter = 0
+
+for key, item in pairs(map) do
+	counter = counter + 1
+	
+	if key == "A" and not item == "Alpha" then
+		error("First item expected to be <Alpha> but was <" .. item ..">")
+	elseif key == "B" and not item == "Bravo" then
+		error("First item expected to be <Bravo> but was <" .. item ..">")
+	elseif key == "C" and not item == "Charly" then
+		error("First item expected to be <Charly> but was <" .. item ..">")
+	elseif key ~= "A" and key ~= "B" and key ~= "C" then
+		error("Key <" .. key .. "> out of range.")
+	end
+end
+
+if counter ~= 3 then
+	error("Expected <3> iterations, but were <" .. counter .. ">")
+end
