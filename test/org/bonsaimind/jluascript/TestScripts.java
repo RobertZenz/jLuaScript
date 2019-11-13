@@ -60,6 +60,11 @@ public class TestScripts {
 		testScript("string");
 	}
 	
+	@Test
+	public void testUnix() throws Exception {
+		testScript("unix");
+	}
+	
 	private void testScript(String scriptName, String... arguments) throws Exception {
 		List<String> args = null;
 		

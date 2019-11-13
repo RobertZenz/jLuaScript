@@ -1,0 +1,6 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script tests the unix like functions.
+
+echo(grep("Lorem", "./test/org/bonsaimind/jluascript/resources/test.text"));

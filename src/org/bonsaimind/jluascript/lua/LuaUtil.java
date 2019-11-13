@@ -19,9 +19,12 @@
 
 package org.bonsaimind.jluascript.lua;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.bonsaimind.jluascript.lua.functions.ClassCreatingFunction;
 import org.bonsaimind.jluascript.lua.functions.ConstructorInvokingFunction;
@@ -100,6 +103,20 @@ public final class LuaUtil {
 		
 		if (luaValue.isuserdata()) {
 			return luaValue.touserdata();
+		}
+		
+		return null;
+	}
+	
+	public final static Path coerceAsPath(LuaValue value) {
+		Object arg = LuaUtil.coerceAsJavaObject(value);
+		
+		if (arg instanceof String) {
+			return Paths.get((String)arg);
+		} else if (arg instanceof File) {
+			return ((File)arg).toPath();
+		} else if (arg instanceof Path) {
+			return (Path)arg;
 		}
 		
 		return null;
