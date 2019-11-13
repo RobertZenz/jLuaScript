@@ -134,6 +134,10 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 	protected boolean isMatching(Executable executable, List<Object> parameters) {
 		Parameter[] methodParameters = executable.getParameters();
 		
+		if (parameters.size() > methodParameters.length && !methodParameters[methodParameters.length - 1].isVarArgs()) {
+			return false;
+		}
+		
 		for (int parameterIndex = 0; parameterIndex < methodParameters.length; parameterIndex++) {
 			Parameter methodParameter = methodParameters[parameterIndex];
 			
