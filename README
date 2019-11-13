@@ -115,6 +115,31 @@ script, absolute and platform-specific. Can be nil if no file is being executed.
 
 The current working directory, as it exists in the process environment.
 
+### Extended String
+
+The global `string` value has been extended with the following Java functions:
+
+ * charAt
+ * concat
+ * contains
+ * contentEquals
+ * endsWith
+ * equalsIgnoreCase
+ * indexOf
+ * isEmpty
+ * lastIndexOf
+ * length
+ * matches
+ * replace
+ * replaceAll
+ * replaceFirst
+ * split
+ * startsWith
+ * substring
+ * toLowerCase
+ * toUpperCase
+ * trim
+
 
 Examples
 --------

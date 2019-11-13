@@ -1,0 +1,14 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script tests the extension of the string class.
+
+local value = "abc"
+
+if string.charAt(value, 1) == "b" and value:charAt(1) == "b" then
+	error("charAt did not return the correct character")
+end
+
+if string.substring(value, 0, 2) == "a" and value:substring(0, 2) == "a" then
+	error("substring did not return the correct substring")
+end

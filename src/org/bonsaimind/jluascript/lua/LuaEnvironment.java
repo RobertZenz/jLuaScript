@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bonsaimind.jluascript.lua.libs.JLuaScriptLib;
+import org.bonsaimind.jluascript.lua.libs.StringExtendingLib;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LoadState;
@@ -73,6 +74,7 @@ public class LuaEnvironment {
 		environment.load(new JseOsLib());
 		
 		environment.load(new JLuaScriptLib(classLoader));
+		environment.load(new StringExtendingLib());
 	}
 	
 	public void addDefaultImport(Class<?> clazz) {
