@@ -35,16 +35,40 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
+/**
+ * The {@link LuaUtil} provides various helper methods for interacting with
+ * LuaJ.
+ */
 public final class LuaUtil {
-	
+	/**
+	 * No instancing allowed.
+	 */
 	private LuaUtil() {
-		super();
+		// No instancing allowed.
 	}
 	
+	/**
+	 * Only adds the coerced {@link Class} to the given {@link LuaValue
+	 * environment}.
+	 * 
+	 * @param environment The {@link LuaValue environment} to which to add the
+	 *        coerced {@link Class}.
+	 * @param clazz The {@link Class} which has been coerced.
+	 * @param coercedStaticInstance The coerced {@link Class} to add.
+	 */
 	public static final void addStaticInstanceDirect(LuaValue environment, Class<?> clazz, LuaValue coercedStaticInstance) {
 		environment.set(clazz.getSimpleName(), coercedStaticInstance);
 	}
 	
+	/**
+	 * Adds the coerced {@link Class} to the given {@link LuaValue environment}
+	 * through its package path.
+	 * 
+	 * @param environment The {@link LuaValue environment} to which to add the
+	 *        coerced {@link Class}.
+	 * @param clazz The {@link Class} which has been coerced.
+	 * @param coercedStaticInstance The coerced {@link Class} to add.
+	 */
 	public static final void addStaticInstancePackage(LuaValue environment, Class<?> clazz, LuaValue coercedStaticInstance) {
 		LuaValue previousPackageTable = environment;
 		
@@ -62,9 +86,17 @@ public final class LuaUtil {
 		previousPackageTable.set(clazz.getSimpleName(), coercedStaticInstance);
 	}
 	
+	/**
+	 * Coerces the given {@link Object} array into an array of
+	 * {@link LuaValue}s.
+	 * 
+	 * @param objects The {@link Object}s to coerce.
+	 * @return The array of corresponding {@link LuaValue}s, {@code null} if
+	 *         {@code objects} is {@code null}..
+	 */
 	public final static LuaValue[] coerce(Object[] objects) {
 		if (objects == null) {
-			return new LuaValue[0];
+			return null;
 		}
 		
 		LuaValue[] luaValues = new LuaValue[objects.length];
@@ -76,6 +108,18 @@ public final class LuaUtil {
 		return luaValues;
 	}
 	
+	/**
+	 * Coerces the given {@link LuaValue} as a Java Object.
+	 * <p>
+	 * This will test if the given {@link LuaValue} is one of the primitive
+	 * classes and return it as such, additionally the {@link LuaValue} will be
+	 * tested if it can be mapped to a Java class, and if yes, is returned as
+	 * such. If the given {@link LuaValue} is {@code null} or
+	 * {@code LuaValue#NIL} {@code null} is returned.
+	 * 
+	 * @param luaValue The {@link LuaValue} to coerce.
+	 * @return The coerced Object.
+	 */
 	public final static Object coerceAsJavaObject(LuaValue luaValue) {
 		if (luaValue == null || luaValue.isnil()) {
 			return null;
@@ -108,7 +152,20 @@ public final class LuaUtil {
 		return null;
 	}
 	
+	/**
+	 * Coerces the given {@link LuaValue} to a {@link Path}.
+	 * <p>
+	 * This includes converting a {@link String} or {@link File} and correctly
+	 * handling {@code null} and {@code LuaValue#NIL}.
+	 * 
+	 * @param value The {@link LuaValue} to coerce.
+	 * @return The value coerced as {@link Path}.
+	 */
 	public final static Path coerceAsPath(LuaValue value) {
+		if (value == null || value.isnil()) {
+			return null;
+		}
+		
 		Object arg = LuaUtil.coerceAsJavaObject(value);
 		
 		if (arg instanceof String) {
@@ -122,7 +179,23 @@ public final class LuaUtil {
 		return null;
 	}
 	
+	/**
+	 * Coerces the given {@link Class} into a {@link LuaValue} representing that
+	 * {@link Class}.
+	 * <p>
+	 * That means that all (public) static fields and methods will be added and
+	 * also the special {@code new} method for creating a new instance.
+	 * 
+	 * @param clazz The {@link Class} to coerce, canot be {@code null}.
+	 * @return The coerced {@link Class}.
+	 * @throws IllegalArgumentException If the given {@link Class} is
+	 *         {@code null}.
+	 */
 	public final static LuaValue coerceStaticIstance(Class<?> clazz) {
+		if (clazz == null) {
+			throw new IllegalArgumentException("<clazz> cannot be null.");
+		}
+		
 		LuaTable staticTable = new LuaTable();
 		staticTable.set("class", CoerceJavaToLua.coerce(clazz));
 		
@@ -133,6 +206,13 @@ public final class LuaUtil {
 		return staticTable;
 	}
 	
+	/**
+	 * Adds the "special" methods (implement, implementNew, extend, extendNew)
+	 * to the static {@link LuaValue} that represents a static class.
+	 * 
+	 * @param clazz The {@link Class} to use.
+	 * @param staticTable The {@link LuaValue} to add to.
+	 */
 	private static final void addSpecialMethods(Class<?> clazz, LuaTable staticTable) {
 		if (clazz.isInterface()) {
 			staticTable.set("implement", new ClassCreatingFunction(clazz));
@@ -160,6 +240,13 @@ public final class LuaUtil {
 		}
 	}
 	
+	/**
+	 * Coerces all static fields of the given {@link Class} to the given
+	 * {@link LuaValue} representing a static class.
+	 * 
+	 * @param clazz The {@link Class} to use.
+	 * @param staticTable The {@link LuaValue} to add to.
+	 */
 	private static final void coerceStaticFields(Class<?> clazz, LuaTable staticTable) {
 		for (Field field : clazz.getFields()) {
 			if (Modifier.isStatic(field.getModifiers())
@@ -173,6 +260,13 @@ public final class LuaUtil {
 		}
 	}
 	
+	/**
+	 * Coerces all static methods of the given {@link Class} to the given
+	 * {@link LuaValue} representing a static class.
+	 * 
+	 * @param clazz The {@link Class} to use.
+	 * @param staticTable The {@link LuaValue} to add to.
+	 */
 	private static final void coerceStaticMethods(Class<?> clazz, LuaTable staticTable) {
 		for (Method method : clazz.getMethods()) {
 			if (Modifier.isStatic(method.getModifiers())

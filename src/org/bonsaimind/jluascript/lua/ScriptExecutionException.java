@@ -19,21 +19,35 @@
 
 package org.bonsaimind.jluascript.lua;
 
+/**
+ * The {@link ScriptExecutionException} is being thrown if there is an execution
+ * error in a script.
+ */
 public class ScriptExecutionException extends Exception {
-	private static final long serialVersionUID = 4459490473872850828L;
-	
+	/**
+	 * Creates a new instance of {@link ScriptExecutionException}.
+	 *
+	 * @param message The {@link String message}.
+	 */
 	public ScriptExecutionException(String message) {
 		super(message);
 	}
 	
+	/**
+	 * Creates a new instance of {@link ScriptExecutionException}.
+	 *
+	 * @param message The {@link String message}.
+	 * @param cause The {@link Throwable cause}.
+	 */
 	public ScriptExecutionException(String message, Throwable cause) {
 		super(message, cause);
 	}
 	
-	public ScriptExecutionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-	}
-	
+	/**
+	 * Creates a new instance of {@link ScriptExecutionException}.
+	 *
+	 * @param cause The {@link Throwable cause}.
+	 */
 	public ScriptExecutionException(Throwable cause) {
 		super(cause);
 	}

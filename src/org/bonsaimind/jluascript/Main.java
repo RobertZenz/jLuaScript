@@ -45,6 +45,8 @@ public final class Main {
 			environment.execute(Paths.get(script), arguments);
 		} catch (ScriptExecutionException e) {
 			e.printStackTrace();
+			
+			System.exit(1);
 		}
 	}
 }

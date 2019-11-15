@@ -46,10 +46,19 @@ import org.luaj.vm2.lib.jse.JseMathLib;
 import org.luaj.vm2.lib.jse.JseOsLib;
 import org.luaj.vm2.luajc.LuaJC;
 
+/**
+ * The {@link LuaEnvironment} is the main class which builds and maintains the
+ * environment in which the Lua scripts can be executed.
+ */
 public class LuaEnvironment {
+	/** The {@link DynamicClassLoader} which is being used. */
 	protected DynamicClassLoader classLoader = null;
+	/** The Lua environment. */
 	protected Globals environment = null;
 	
+	/**
+	 * Creates a new instance of {@link LuaEnvironment}.
+	 */
 	public LuaEnvironment() {
 		super();
 		
@@ -57,9 +66,12 @@ public class LuaEnvironment {
 		
 		environment = new Globals();
 		
+		// Install the compilers.
 		LoadState.install(environment);
 		LuaC.install(environment);
 		LuaJC.install(environment);
+		
+		// Load the libraries.
 		
 		environment.load(new PackageLib());
 		
@@ -79,17 +91,14 @@ public class LuaEnvironment {
 		environment.load(new UnixLib());
 	}
 	
-	public void addDefaultImport(Class<?> clazz) {
-		LuaValue coercedStaticClass = LuaUtil.coerceStaticIstance(clazz);
-		
-		LuaUtil.addStaticInstanceDirect(environment, clazz, coercedStaticClass);
-		LuaUtil.addStaticInstancePackage(environment, clazz, coercedStaticClass);
-	}
-	
-	public void addDefaultImport(String className) throws ClassNotFoundException {
-		addDefaultImport(classLoader.loadClass(className));
-	}
-	
+	/**
+	 * Executes the given {@link File} with the given arguments.
+	 * 
+	 * @param file The {@link File} to execute, cannot be {@code null}.
+	 * @param args The arguments to use, can be {@code null} for none.
+	 * @throws ScriptExecutionException If there was an error when executing the
+	 *         given script.
+	 */
 	public void execute(File file, List<String> args) throws ScriptExecutionException {
 		if (file == null) {
 			throw new IllegalArgumentException("file cannot be null.");
@@ -98,13 +107,25 @@ public class LuaEnvironment {
 		execute(file.toPath(), args);
 	}
 	
+	/**
+	 * Executes the given {@link Path} with the given arguments.
+	 * 
+	 * @param file The {@link Path} to execute, cannot be {@code null}.
+	 * @param args The arguments to use, can be {@code null} for none.
+	 * @throws ScriptExecutionException If there was an error when executing the
+	 *         given script.
+	 */
 	public void execute(Path file, List<String> args) throws ScriptExecutionException {
 		if (file == null) {
 			throw new IllegalArgumentException("file cannot be null.");
 		}
 		
 		if (!Files.isRegularFile(file)) {
-			throw new IllegalArgumentException(file.toString() + " is not a file.");
+			throw new IllegalArgumentException("<" + file.toString() + "> is not a file.");
+		}
+		
+		if (!Files.isReadable(file)) {
+			throw new IllegalArgumentException("<" + file.toString() + "> is not readable.");
 		}
 		
 		Path absoluteFile = file.toAbsolutePath().normalize();
@@ -117,14 +138,26 @@ public class LuaEnvironment {
 		try {
 			environment.loadfile(absoluteFile.toString()).call();
 		} catch (Exception e) {
-			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script: " + absoluteFile.toString(), e);
+			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script <" + absoluteFile.toString() + ">.", e);
 			exception.setStackTrace(extractLuaStacktrace(absoluteFile, e.getStackTrace()));
 			
 			throw exception;
 		}
 	}
 	
+	/**
+	 * Executes the given {@link String} with the given arguments.
+	 * 
+	 * @param script The {@link String} to execute, cannot be {@code null}.
+	 * @param args The arguments to use, can be {@code null} for none.
+	 * @throws ScriptExecutionException If there was an error when executing the
+	 *         given script.
+	 */
 	public void execute(String script, List<String> args) throws ScriptExecutionException {
+		if (script == null) {
+			throw new IllegalArgumentException("script cannot be null.");
+		}
+		
 		updateEnvironmentVariables(args, "", "");
 		
 		try {
@@ -134,10 +167,45 @@ public class LuaEnvironment {
 		}
 	}
 	
+	/**
+	 * Gets the current Lua environment.
+	 * 
+	 * @return The current Lua environment.
+	 */
 	public Globals getEnvironment() {
 		return environment;
 	}
 	
+	/**
+	 * Imports the given {@link Class} into the environment.
+	 * 
+	 * @param clazz The {@link Class} to import.
+	 */
+	public void importClass(Class<?> clazz) {
+		LuaValue coercedStaticClass = LuaUtil.coerceStaticIstance(clazz);
+		
+		LuaUtil.addStaticInstanceDirect(environment, clazz, coercedStaticClass);
+		LuaUtil.addStaticInstancePackage(environment, clazz, coercedStaticClass);
+	}
+	
+	/**
+	 * Imports the given {@link Class} with the given name into the environment.
+	 * 
+	 * @param clazz The {@link Class} to import.
+	 */
+	public void importClass(String className) throws ClassNotFoundException {
+		importClass(classLoader.loadClass(className));
+	}
+	
+	/**
+	 * Extracts the Lua stacktrace from the given {@link StackTraceElement}s.
+	 * 
+	 * @param file The {@link Path file} which has been executed, required for
+	 *        the path.
+	 * @param stackTrace The {@link StackTraceElement}s to extract the
+	 *        information from.
+	 * @return The Lua stacktrace.
+	 */
 	protected StackTraceElement[] extractLuaStacktrace(Path file, StackTraceElement[] stackTrace) {
 		if (stackTrace == null || stackTrace.length == 0) {
 			return new StackTraceElement[0];
@@ -175,6 +243,14 @@ public class LuaEnvironment {
 		return luaStackTrace.toArray(new StackTraceElement[luaStackTrace.size()]);
 	}
 	
+	/**
+	 * Updates the environment variables with the given values.
+	 * 
+	 * @param args The arguments to use, can be {@code null}.
+	 * @param scriptDirectory The current script directory, can be empty if
+	 *        there is none.
+	 * @param scriptFile The current script file, can be empty if there is non.
+	 */
 	protected void updateEnvironmentVariables(List<String> args, String scriptDirectory, String scriptFile) {
 		LuaTable argsTable = new LuaTable();
 		
@@ -194,5 +270,4 @@ public class LuaEnvironment {
 		environment.set("DIR", System.getProperty("user.dir"));
 		environment.set("WORKING_DIR", System.getProperty("user.dir"));
 	}
-	
 }
