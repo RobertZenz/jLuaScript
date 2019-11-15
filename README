@@ -21,6 +21,7 @@ Dependencies
 Please see the attached license files for details.
 
  * [BCEL](https://commons.apache.org/proper/commons-bcel/), Apache
+ * [javassist](https://www.javassist.org/), Mozilla Public License
  * [LuaJ](https://sourceforge.net/projects/luaj/), BSD-like
 
 
@@ -28,11 +29,11 @@ Usage
 -----
 
 The scripts executed by jLuaScript are Lua scripts which have all
-the capabilities of Lua scripts. The Java classes can be accessed through
-various means as outlined below.
+the capabilities of Lua scripts but also can access the whole Java ecosystem.
 
 Even though an `import`-like function is used to define classes, it is not
-necessary to import all implicitly used classes.
+necessary to import all implicitly used classes, only those which are used
+explicitly.
 
 Before a static instance of a class can be used, it must either be loaded or
 imported. Afterwards the static functions can be accessed through dot syntax.
@@ -78,7 +79,7 @@ used by the environment. It accepts String varargs for the single path elements,
     Function.execute()
 
 Note that jars must be loaded before the classes can be imported and that
-the order of functions is imported because the classpath is extended
+the order of functions is important because the classpath is extended
 dynamically.
 
 ### Global variables
