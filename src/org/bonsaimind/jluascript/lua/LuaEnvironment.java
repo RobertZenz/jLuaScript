@@ -99,12 +99,12 @@ public class LuaEnvironment {
 	 * @throws ScriptExecutionException If there was an error when executing the
 	 *         given script.
 	 */
-	public void execute(File file, List<String> args) throws ScriptExecutionException {
+	public <TYPE> TYPE execute(File file, List<String> args) throws ScriptExecutionException {
 		if (file == null) {
 			throw new IllegalArgumentException("file cannot be null.");
 		}
 		
-		execute(file.toPath(), args);
+		return execute(file.toPath(), args);
 	}
 	
 	/**
@@ -115,7 +115,7 @@ public class LuaEnvironment {
 	 * @throws ScriptExecutionException If there was an error when executing the
 	 *         given script.
 	 */
-	public void execute(Path file, List<String> args) throws ScriptExecutionException {
+	public <TYPE> TYPE execute(Path file, List<String> args) throws ScriptExecutionException {
 		if (file == null) {
 			throw new IllegalArgumentException("file cannot be null.");
 		}
@@ -136,7 +136,7 @@ public class LuaEnvironment {
 				absoluteFile.toString());
 		
 		try {
-			environment.loadfile(absoluteFile.toString()).call();
+			return (TYPE)LuaUtil.coerceAsJavaObject(environment.loadfile(absoluteFile.toString()).call());
 		} catch (Exception e) {
 			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script <" + absoluteFile.toString() + ">.", e);
 			exception.setStackTrace(extractLuaStacktrace(absoluteFile, e.getStackTrace()));
@@ -153,7 +153,7 @@ public class LuaEnvironment {
 	 * @throws ScriptExecutionException If there was an error when executing the
 	 *         given script.
 	 */
-	public void execute(String script, List<String> args) throws ScriptExecutionException {
+	public <TYPE> TYPE execute(String script, List<String> args) throws ScriptExecutionException {
 		if (script == null) {
 			throw new IllegalArgumentException("script cannot be null.");
 		}
@@ -161,7 +161,7 @@ public class LuaEnvironment {
 		updateEnvironmentVariables(args, "", "");
 		
 		try {
-			environment.load(script).call();
+			return (TYPE)LuaUtil.coerceAsJavaObject(environment.load(script).call());
 		} catch (Exception e) {
 			throw new ScriptExecutionException("Failed to execute script.", e);
 		}
