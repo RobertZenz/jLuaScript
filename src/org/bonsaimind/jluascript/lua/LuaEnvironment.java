@@ -163,7 +163,7 @@ public class LuaEnvironment {
 		try {
 			environment.load(script).call();
 		} catch (Exception e) {
-			new ScriptExecutionException("Failed to execute script.", e);
+			throw new ScriptExecutionException("Failed to execute script.", e);
 		}
 	}
 	
