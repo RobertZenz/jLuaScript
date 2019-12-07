@@ -1,0 +1,17 @@
+Changes
+=======
+
+
+1.1
+---
+
+ * Added possibility to return Objects from the executed
+   script.
+ * Added convenience functions for adding objects to
+   the environment.
+
+
+1.0
+---
+
+ * Initial release
