@@ -43,7 +43,11 @@ public final class Main {
 		LuaEnvironment environment = new LuaEnvironment();
 		
 		try {
-			environment.execute(Paths.get(script), arguments);
+			Object returnedObject = environment.execute(Paths.get(script), arguments);
+			
+			if (returnedObject != null) {
+				System.out.println(returnedObject.toString());
+			}
 		} catch (ScriptExecutionException e) {
 			e.printStackTrace();
 			
