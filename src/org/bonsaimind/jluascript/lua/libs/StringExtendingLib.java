@@ -24,6 +24,11 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
+/**
+ * The {@link StringExtendingLib} provides additional functions on the
+ * {@code string} class of Lua. It adds most of the {@link String} functions
+ * which you would expect from a Java class.
+ */
 public class StringExtendingLib extends TwoArgFunction {
 	public StringExtendingLib() {
 		super();

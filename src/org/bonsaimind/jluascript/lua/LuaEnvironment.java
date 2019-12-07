@@ -25,7 +25,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bonsaimind.jluascript.lua.libs.JLuaScriptLib;
+import org.bonsaimind.jluascript.lua.libs.ClassImportLib;
+import org.bonsaimind.jluascript.lua.libs.DefaultImportsLib;
+import org.bonsaimind.jluascript.lua.libs.JarLoaderLib;
+import org.bonsaimind.jluascript.lua.libs.LuaJavaInteropLib;
+import org.bonsaimind.jluascript.lua.libs.ProcessLib;
 import org.bonsaimind.jluascript.lua.libs.StringExtendingLib;
 import org.bonsaimind.jluascript.lua.libs.UnixLib;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
@@ -87,7 +91,11 @@ public class LuaEnvironment {
 		environment.load(new JseMathLib());
 		environment.load(new JseOsLib());
 		
-		environment.load(new JLuaScriptLib(classLoader));
+		environment.load(new ClassImportLib(classLoader));
+		environment.load(new DefaultImportsLib());
+		environment.load(new JarLoaderLib(classLoader));
+		environment.load(new LuaJavaInteropLib());
+		environment.load(new ProcessLib());
 		environment.load(new StringExtendingLib());
 		environment.load(new UnixLib());
 	}
