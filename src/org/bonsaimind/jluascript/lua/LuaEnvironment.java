@@ -180,21 +180,27 @@ public class LuaEnvironment {
 	 * Imports the given {@link Class} into the environment.
 	 * 
 	 * @param clazz The {@link Class} to import.
+	 * @return This instance.
 	 */
-	public void importClass(Class<?> clazz) {
+	public LuaEnvironment importClass(Class<?> clazz) {
 		LuaValue coercedStaticClass = LuaUtil.coerceStaticIstance(clazz);
 		
 		LuaUtil.addStaticInstanceDirect(environment, clazz, coercedStaticClass);
 		LuaUtil.addStaticInstancePackage(environment, clazz, coercedStaticClass);
+		
+		return this;
 	}
 	
 	/**
 	 * Imports the given {@link Class} with the given name into the environment.
 	 * 
 	 * @param clazz The {@link Class} to import.
+	 * @return This instance.
 	 */
-	public void importClass(String className) throws ClassNotFoundException {
+	public LuaEnvironment importClass(String className) throws ClassNotFoundException {
 		importClass(classLoader.loadClass(className));
+		
+		return this;
 	}
 	
 	/**
