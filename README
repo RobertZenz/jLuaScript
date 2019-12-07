@@ -40,7 +40,7 @@ imported. Afterwards the static functions can be accessed through dot syntax.
 A new instance can be created through the static "new" function. Instance
 methods can be accessed with the colon syntax.
 
-### Functions
+### Global Functions
 
 #### loadClass(String)
 
@@ -48,6 +48,17 @@ methods can be accessed with the colon syntax.
 
     local Paths = loadClass("java.nio.file.Paths")
     local path = Paths.get("/etc", "apt", "sources.list");
+
+#### loadJar(String...)
+
+`loadJar(String...)` allows to add a single jar to the classpath which is being
+used by the environment. It accepts String varargs for the single path elements,
+
+    loadJar("/opt", "someapp", "lib", "somelib.jar")
+    
+    import("com.somelib.Function")
+    
+    Function.execute()
 
 #### import(String)
 
@@ -67,17 +78,6 @@ imported.
     
     local path = P.get("/etc", "apt", "sources.list");
 
-#### loadJar(String...)
-
-`loadJar(String...)` allows to add a single jar to the classpath which is being
-used by the environment. It accepts String varargs for the single path elements,
-
-    loadJar("/opt", "someapp", "lib", "somelib.jar")
-    
-    import("com.somelib.Function")
-    
-    Function.execute()
-
 Note that jars must be loaded before the classes can be imported and that
 the order of functions is important because the classpath is extended
 dynamically.
@@ -86,7 +86,7 @@ dynamically.
 
 #### ARGS
 
-A table which holds all arguments for the script. Can be empty if theere are
+A table which holds all arguments for the script. Can be empty if there are
 none.
 
 #### CWD
