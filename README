@@ -187,3 +187,18 @@ Implementing an interface:
     local runnableInstance = RunnableImpl.new()
     
     runnableInstance:run()
+
+### Using as a lib
+
+The environment can also be called from other applications:
+
+    LuaEnvironment environment = new LuaEnvironment();
+    
+    // Add a default import.
+    environment.importClass(SomeImportantClass.class);
+    
+    // Add a global variable, given object is a Java object.
+    environment.addToEnvironment("someObject", someObject);
+    
+    // Execute the actual script from a String.
+    Object returnedValue = environment.execute(script);
