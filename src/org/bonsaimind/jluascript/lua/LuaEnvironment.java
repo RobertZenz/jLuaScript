@@ -40,6 +40,7 @@ import org.luaj.vm2.lib.OsLib;
 import org.luaj.vm2.lib.PackageLib;
 import org.luaj.vm2.lib.StringLib;
 import org.luaj.vm2.lib.TableLib;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JseBaseLib;
 import org.luaj.vm2.lib.jse.JseIoLib;
 import org.luaj.vm2.lib.jse.JseMathLib;
@@ -89,6 +90,31 @@ public class LuaEnvironment {
 		environment.load(new JLuaScriptLib(classLoader));
 		environment.load(new StringExtendingLib());
 		environment.load(new UnixLib());
+	}
+	
+	/**
+	 * Adds the given {@link Object} as Lua variable with the given name to the
+	 * environment.
+	 * 
+	 * @param luaVariableName The name of the Lua variable to add, cannot be
+	 *        {@code null} or empty.
+	 * @param value The {@link Object} to add, can be {@code null}.
+	 * @return This instance.
+	 * @throws IllegalArgumentException If the given Lua variable name is
+	 *         {@code null} or empty.
+	 */
+	public LuaEnvironment addToEnvironment(String luaVariableName, Object value) {
+		if (luaVariableName == null) {
+			throw new IllegalArgumentException("luaVariableName cannot be null.");
+		}
+		
+		if (luaVariableName.isEmpty()) {
+			throw new IllegalArgumentException("luaVariableName cannot be empty.");
+		}
+		
+		environment.set(luaVariableName, CoerceJavaToLua.coerce(value));
+		
+		return this;
 	}
 	
 	/**
@@ -199,6 +225,29 @@ public class LuaEnvironment {
 	 */
 	public LuaEnvironment importClass(String className) throws ClassNotFoundException {
 		importClass(classLoader.loadClass(className));
+		
+		return this;
+	}
+	
+	/**
+	 * Removes the Lua variable with the given name from the environment.
+	 * 
+	 * @param luaVariableName The name of the Lua variable to remove, cannot be
+	 *        {@code null} or empty.
+	 * @return This instance.
+	 * @throws IllegalArgumentException If the given Lua variable name is
+	 *         {@code null} or empty.
+	 */
+	public LuaEnvironment removeFromEnvironment(String luaVariableName) {
+		if (luaVariableName == null) {
+			throw new IllegalArgumentException("luaVariableName cannot be null.");
+		}
+		
+		if (luaVariableName.isEmpty()) {
+			throw new IllegalArgumentException("luaVariableName cannot be empty.");
+		}
+		
+		environment.set(luaVariableName, (LuaValue)null);
 		
 		return this;
 	}
