@@ -172,7 +172,7 @@ public class LuaEnvironment {
 			return (TYPE)LuaUtil.coerceAsJavaObject(environment.loadfile(absoluteFile.toString()).call());
 		} catch (Exception e) {
 			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script <" + absoluteFile.toString() + ">.", e);
-			exception.setStackTrace(extractLuaStacktrace(absoluteFile, e.getStackTrace()));
+			exception.setStackTrace(extractLuaStacktrace(absoluteFile, getRootCause(e).getStackTrace()));
 			
 			throw exception;
 		}
@@ -303,6 +303,22 @@ public class LuaEnvironment {
 		}
 		
 		return luaStackTrace.toArray(new StackTraceElement[luaStackTrace.size()]);
+	}
+	
+	/**
+	 * Gets the root cause of the given {@link Throwable exception}.
+	 * 
+	 * @param exception The {@link Throwable exception} to start at.
+	 * @return The root cause.
+	 */
+	protected Throwable getRootCause(Throwable exception) {
+		Throwable currentException = exception;
+		
+		while (currentException.getCause() != null) {
+			currentException = currentException.getCause();
+		}
+		
+		return currentException;
 	}
 	
 	/**
