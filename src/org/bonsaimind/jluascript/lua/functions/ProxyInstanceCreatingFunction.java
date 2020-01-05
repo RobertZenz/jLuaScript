@@ -3,10 +3,10 @@ package org.bonsaimind.jluascript.lua.functions;
 
 import org.bonsaimind.jluascript.javassist.filters.HandleOnlyNonFinalFilter;
 import org.bonsaimind.jluascript.javassist.handlers.LuaInvokingMethodHandler;
+import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import javassist.util.proxy.ProxyFactory;
 
@@ -52,7 +52,7 @@ public class ProxyInstanceCreatingFunction extends OneArgFunction {
 		}
 		
 		try {
-			return CoerceJavaToLua.coerce(proxyFactory.create(
+			return LuaUtil.coerceAsLuaValue(proxyFactory.create(
 					new Class<?>[0],
 					new Object[0],
 					methodHandler));

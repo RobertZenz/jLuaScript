@@ -22,10 +22,10 @@ package org.bonsaimind.jluascript.lua.functions;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public abstract class AbstractIteratorFunction extends VarArgFunction {
 	protected LuaValue originalIterationFunction = null;
@@ -99,11 +99,11 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 		}
 		
 		protected LuaValue processKey(Object key) {
-			return CoerceJavaToLua.coerce(key);
+			return LuaUtil.coerceAsLuaValue(key);
 		}
 		
 		protected LuaValue processValue(Object value) {
-			return CoerceJavaToLua.coerce(value);
+			return LuaUtil.coerceAsLuaValue(value);
 		}
 	}
 }

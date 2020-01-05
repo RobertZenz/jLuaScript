@@ -102,7 +102,7 @@ public final class LuaUtil {
 		LuaValue[] luaValues = new LuaValue[objects.length];
 		
 		for (int index = 0; index < objects.length; index++) {
-			luaValues[index] = CoerceJavaToLua.coerce(objects[index]);
+			luaValues[index] = LuaUtil.coerceAsLuaValue(objects[index]);
 		}
 		
 		return luaValues;
@@ -152,6 +152,18 @@ public final class LuaUtil {
 		return null;
 	}
 	
+	public final static LuaValue coerceAsLuaValue(Object object) {
+		if (object == null) {
+			return LuaValue.NIL;
+		}
+		
+		if (object instanceof LuaValue) {
+			return (LuaValue)object;
+		}
+		
+		return CoerceJavaToLua.coerce(object);
+	}
+	
 	/**
 	 * Coerces the given {@link LuaValue} to a {@link Path}.
 	 * <p>
@@ -197,7 +209,7 @@ public final class LuaUtil {
 		}
 		
 		LuaTable staticTable = new LuaTable();
-		staticTable.set("class", CoerceJavaToLua.coerce(clazz));
+		staticTable.set("class", LuaUtil.coerceAsLuaValue(clazz));
 		
 		coerceStaticFields(clazz, staticTable);
 		coerceStaticMethods(clazz, staticTable);
@@ -252,7 +264,7 @@ public final class LuaUtil {
 			if (Modifier.isStatic(field.getModifiers())
 					&& Modifier.isPublic(field.getModifiers())) {
 				try {
-					staticTable.set(field.getName(), CoerceJavaToLua.coerce(field.get(null)));
+					staticTable.set(field.getName(), LuaUtil.coerceAsLuaValue(field.get(null)));
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					// Ignore possible errors, as they should not happen.
 				}

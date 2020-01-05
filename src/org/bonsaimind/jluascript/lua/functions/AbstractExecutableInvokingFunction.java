@@ -29,7 +29,6 @@ import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Executable> extends VarArgFunction {
 	protected Class<?> clazz = null;
@@ -72,7 +71,7 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		}
 		
 		try {
-			return CoerceJavaToLua.coerce(execute(executable, parameters));
+			return LuaUtil.coerceAsLuaValue(execute(executable, parameters));
 		} catch (Exception e) {
 			throw new LuaError(e);
 		}

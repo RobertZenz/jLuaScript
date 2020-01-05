@@ -30,7 +30,6 @@ import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public class LsFunction extends VarArgFunction {
 	public LsFunction() {
@@ -50,7 +49,7 @@ public class LsFunction extends VarArgFunction {
 				}
 			}
 			
-			return CoerceJavaToLua.coerce(entries.toArray(new String[entries.size()]));
+			return LuaUtil.coerceAsLuaValue(entries.toArray(new String[entries.size()]));
 		} catch (IOException e) {
 			throw new LuaError(e);
 		}

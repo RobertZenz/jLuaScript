@@ -44,7 +44,6 @@ import org.luaj.vm2.lib.OsLib;
 import org.luaj.vm2.lib.PackageLib;
 import org.luaj.vm2.lib.StringLib;
 import org.luaj.vm2.lib.TableLib;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JseBaseLib;
 import org.luaj.vm2.lib.jse.JseIoLib;
 import org.luaj.vm2.lib.jse.JseMathLib;
@@ -120,7 +119,7 @@ public class LuaEnvironment {
 			throw new IllegalArgumentException("luaVariableName cannot be empty.");
 		}
 		
-		environment.set(luaVariableName, CoerceJavaToLua.coerce(value));
+		environment.set(luaVariableName, LuaUtil.coerceAsLuaValue(value));
 		
 		return this;
 	}

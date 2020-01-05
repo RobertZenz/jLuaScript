@@ -29,7 +29,6 @@ import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public class CatFunction extends VarArgFunction {
 	public CatFunction() {
@@ -50,6 +49,6 @@ public class CatFunction extends VarArgFunction {
 			}
 		}
 		
-		return CoerceJavaToLua.coerce(lines.toArray(new String[lines.size()]));
+		return LuaUtil.coerceAsLuaValue(lines.toArray(new String[lines.size()]));
 	}
 }
