@@ -76,27 +76,7 @@ public class LuaEnvironment {
 		LuaJC.install(environment);
 		
 		// Load the libraries.
-		
-		environment.load(new PackageLib());
-		
-		environment.load(new Bit32Lib());
-		environment.load(new CoroutineLib());
-		environment.load(new OsLib());
-		environment.load(new StringLib());
-		environment.load(new TableLib());
-		
-		environment.load(new JseBaseLib());
-		environment.load(new JseIoLib());
-		environment.load(new JseMathLib());
-		environment.load(new JseOsLib());
-		
-		environment.load(new ClassImportLib(classLoader));
-		environment.load(new DefaultImportsLib());
-		environment.load(new JarLoaderLib(classLoader));
-		environment.load(new LuaJavaInteropLib());
-		environment.load(new ProcessLib());
-		environment.load(new StringExtendingLib());
-		environment.load(new UnixLib());
+		loadDefaultLibraries();
 	}
 	
 	/**
@@ -237,6 +217,22 @@ public class LuaEnvironment {
 	}
 	
 	/**
+	 * Loads the given library into the environment.
+	 * 
+	 * @param library The library to load.
+	 * @return This instance.
+	 */
+	public LuaEnvironment loadLibrary(LuaValue library) {
+		if (library == null) {
+			throw new IllegalArgumentException("library cannot be null.");
+		}
+		
+		environment.load(library);
+		
+		return this;
+	}
+	
+	/**
 	 * Removes the Lua variable with the given name from the environment.
 	 * 
 	 * @param luaVariableName The name of the Lua variable to remove, cannot be
@@ -319,6 +315,38 @@ public class LuaEnvironment {
 		}
 		
 		return currentException;
+	}
+	
+	/**
+	 * Loads the default libraries.
+	 * <p>
+	 * Overriding classes can override this method to customize the available
+	 * libraries in the scope. This method is called in the constructor,
+	 * {@link #environment} is guaranteed to exist and
+	 * {@link #loadLibrary(LuaValue)} can be safely used for loading the
+	 * libraries.
+	 */
+	protected void loadDefaultLibraries() {
+		loadLibrary(new PackageLib());
+		
+		loadLibrary(new Bit32Lib());
+		loadLibrary(new CoroutineLib());
+		loadLibrary(new OsLib());
+		loadLibrary(new StringLib());
+		loadLibrary(new TableLib());
+		
+		loadLibrary(new JseBaseLib());
+		loadLibrary(new JseIoLib());
+		loadLibrary(new JseMathLib());
+		loadLibrary(new JseOsLib());
+		
+		loadLibrary(new ClassImportLib(classLoader));
+		loadLibrary(new DefaultImportsLib());
+		loadLibrary(new JarLoaderLib(classLoader));
+		loadLibrary(new LuaJavaInteropLib());
+		loadLibrary(new ProcessLib());
+		loadLibrary(new StringExtendingLib());
+		loadLibrary(new UnixLib());
 	}
 	
 	/**
