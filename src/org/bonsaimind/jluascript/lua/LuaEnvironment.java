@@ -234,8 +234,9 @@ public class LuaEnvironment {
 	/**
 	 * Loads the given library into the environment.
 	 * 
-	 * @param library The library to load.
+	 * @param library The library to load, cannot be {@code null}.
 	 * @return This instance.
+	 * @throws IllegalArgumentException If {@code library} is {@code null}.
 	 */
 	public LuaEnvironment loadLibrary(LuaValue library) {
 		if (library == null) {
