@@ -64,9 +64,24 @@ public class LuaEnvironment {
 	 * Creates a new instance of {@link LuaEnvironment}.
 	 */
 	public LuaEnvironment() {
+		this(new DynamicClassLoader(LuaEnvironment.class.getClassLoader()));
+	}
+	
+	/**
+	 * Creates a new instance of {@link LuaEnvironment}.
+	 * 
+	 * @param classLoader The {@link DynamicClassLoader} to use for loading
+	 *        classes, cannot be {@code null}.
+	 * @throws IllegalStateException If {@code classLoader} is {@code null}.
+	 */
+	public LuaEnvironment(DynamicClassLoader classLoader) {
 		super();
 		
-		classLoader = new DynamicClassLoader(getClass().getClassLoader());
+		if (classLoader == null) {
+			throw new IllegalArgumentException("classLoader cannot be null.");
+		}
+		
+		this.classLoader = classLoader;
 		
 		environment = new Globals();
 		
