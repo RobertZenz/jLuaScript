@@ -152,6 +152,12 @@ public final class LuaUtil {
 		return null;
 	}
 	
+	/**
+	 * Coerces the given {@link Object} as {@link LuaValue}.
+	 * 
+	 * @param object The {@link Object} to coerce.
+	 * @return The coerced {@link LuaValue}.
+	 */
 	public final static LuaValue coerceAsLuaValue(Object object) {
 		if (object == null) {
 			return LuaValue.NIL;
