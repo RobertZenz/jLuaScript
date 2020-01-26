@@ -1,0 +1,19 @@
+-- Import classes as needed.
+import("java.util.ArrayList")
+
+-- New isntances of classes are created through the constructor.
+local fruits = ArrayList.new()
+-- Instance methods are accessed through the colon-notation.
+fruits:add("mango")
+fruits:add("apple")
+fruits:add("orange")
+fruits:add("novocaine")
+fruits:add("banana")
+
+fruits:sort()
+
+-- ipairs has been extended so that it can treat Iterables correctly.
+for index, fruit in ipairs(fruits) do
+	-- We could also use print here.
+	System.out:println(index .. ": " .. fruit)
+end
