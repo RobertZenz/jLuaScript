@@ -53,6 +53,9 @@ import org.luaj.vm2.luajc.LuaJC;
 /**
  * The {@link LuaEnvironment} is the main class which builds and maintains the
  * environment in which the Lua scripts can be executed.
+ * <p>
+ * This class is not thread-safe. If you need to sue this from different
+ * threads, you must synchronize access to it yourself.
  */
 public class LuaEnvironment {
 	/** The {@link DynamicClassLoader} which is being used. */
