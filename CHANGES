@@ -2,6 +2,15 @@ Changes
 =======
 
 
+1.2
+---
+
+ * Fixed that Lua-Stacktraces would not be complete.
+ * Increased extensibility by packing more logic into their own functions.
+ * Added simple examples.
+ * Extended documentation. 
+
+
 1.1
 ---
 
