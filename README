@@ -2,7 +2,9 @@ jLuaScript
 ==========
 
 jLuaScript allows to to write Lua scripts which have full access and control of
-the Java classes. It utilizes LuaJ for executing Lua code.
+Java classes. It utilizes LuaJ for executing Lua code. The idea is to be able
+to write Lua scripts which have complete access to the Java ecosystem and can
+use the Java classes and instances with a simple syntax.
 
 A similar project is [jLua](https://github.com/nirhal/JLua), which is using
 a different syntax for accessing the Java classes and also uses
@@ -141,11 +143,48 @@ The global `string` value has been extended with the following Java functions:
  * toUpperCase
  * trim
 
+### Embedding
+
+jLuaScript can be run stand-alone and execute given scripts, or it can be
+embedded into your application.
+
+The main class is the `LuaEnvironment`, it allows you to execute files and
+scripts directly from a `String`.
+
+    LuaEnvironment environment = new LuaEnvironment();
+    
+    try {
+        environment.execute("print(\"Hello World!\")");
+    } catch(ScriptExecutionException e) {
+        e.printStackTrace();
+    }
+
+You can also access returned values from the script:
+
+    LuaEnvironment environment = new LuaEnvironment();
+    
+    try {
+        String value = environment.execute("return \"abc\"");
+    } catch(ScriptExecutionException e) {
+        e.printStackTrace();
+    }
+
+If you need to limit the available functionality, you have two options:
+
+ 1. You override `LuaEnvironment.loadDefaultLibraries` and only load
+    the functionality you want to have available.
+ 2. You use a custom SecurityManager which limits what classes can be accessed.
+
+Even though `LuaEnvironment` provides you with a way to set a classloader, you
+might need to load it already in a confined environment.
+
 
 Examples
 --------
 
-The classic Hello World! example.
+See the "examples" directory and the unit tests for further examples.
+
+The classic "Hello World!" example.
 
     -- Note that System is one of the classes which are imported by default.
     System.out:println("Hello World!")
