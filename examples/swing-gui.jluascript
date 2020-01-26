@@ -1,0 +1,29 @@
+import("java.awt.BorderLayout")
+import("java.awt.event.ActionListener")
+import("javax.swing.JButton")
+import("javax.swing.JFileChooser")
+import("javax.swing.JFrame")
+import("javax.swing.JLabel")
+
+local frame = JFrame.new()
+
+local fileLabel = JLabel.new()
+fileLabel:setText("Select a file")
+
+local fileButton = JButton.new()
+fileButton:setText("Choose file")
+fileButton:addActionListener(ActionListener.implementNew(function(event)
+	local fileChooser = JFileChooser.new()
+	
+	if fileChooser:showOpenDialog(frame) == JFileChooser.APPROVE_OPTION then
+		fileLabel:setText(fileChooser:getSelectedFile():toPath():toString())
+	end
+end))
+
+frame:setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+frame:setSize(320, 64)
+frame:setTitle("Swing Example")
+frame:getContentPane():add(BorderLayout.NORTH, fileLabel);
+frame:getContentPane():add(BorderLayout.SOUTH, fileButton);
+
+frame:setVisible(true)
