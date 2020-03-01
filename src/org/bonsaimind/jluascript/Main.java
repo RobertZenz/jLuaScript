@@ -20,9 +20,6 @@
 package org.bonsaimind.jluascript;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
 import org.bonsaimind.jluascript.lua.ScriptExecutionException;
@@ -32,18 +29,17 @@ public final class Main {
 	}
 	
 	public static void main(String[] args) {
-		if (args.length == 0) {
-			System.out.println("jLuaScript SCRIPT [ARGUMENTS...]");
+		Configuration configuration = new Configuration(args);
+		
+		if (configuration.isPrintHelp()) {
+			System.out.println("jLuaScript [OPTIONS] SCRIPT [ARGUMENTS...]");
 			System.exit(1);
 		}
-		
-		List<String> arguments = new ArrayList<>(Arrays.asList(args));
-		String script = arguments.remove(0);
 		
 		LuaEnvironment environment = new LuaEnvironment();
 		
 		try {
-			Object returnedObject = environment.execute(Paths.get(script), arguments);
+			Object returnedObject = environment.execute(Paths.get(configuration.getScript()), configuration.getScriptArguments());
 			
 			if (returnedObject != null) {
 				System.out.println(returnedObject.toString());
@@ -57,6 +53,11 @@ public final class Main {
 				} else {
 					System.err.println("    (" + stackTraceElement.getFileName() + ") " + stackTraceElement.getMethodName() + ":" + stackTraceElement.getLineNumber());
 				}
+			}
+			
+			if (configuration.isPrintJavaStackTrace()) {
+				System.err.println();
+				e.printStackTrace();
 			}
 			
 			System.exit(1);
