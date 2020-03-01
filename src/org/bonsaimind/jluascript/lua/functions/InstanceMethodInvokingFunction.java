@@ -25,12 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InstanceMethodInvokingFunction extends AbstractExecutableInvokingFunction<Method> {
-	protected String methodName = null;
-	
 	public InstanceMethodInvokingFunction(Class<?> clazz, String methodName) {
-		super(clazz);
-		
-		this.methodName = methodName;
+		super(clazz, methodName);
 	}
 	
 	@Override
@@ -56,7 +52,7 @@ public class InstanceMethodInvokingFunction extends AbstractExecutableInvokingFu
 		for (Method method : clazz.getMethods()) {
 			if (!Modifier.isStatic(method.getModifiers())
 					&& Modifier.isPublic(method.getModifiers())
-					&& method.getName().equals(methodName)) {
+					&& method.getName().equals(executableName)) {
 				methods.add(method);
 			}
 		}

@@ -25,12 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StaticMethodInvokingFunction extends AbstractExecutableInvokingFunction<Method> {
-	protected String methodName = null;
-	
 	public StaticMethodInvokingFunction(Class<?> clazz, String methodName) {
-		super(clazz);
-		
-		this.methodName = methodName;
+		super(clazz, methodName);
 	}
 	
 	@Override
@@ -45,7 +41,7 @@ public class StaticMethodInvokingFunction extends AbstractExecutableInvokingFunc
 		for (Method method : clazz.getMethods()) {
 			if (Modifier.isStatic(method.getModifiers())
 					&& Modifier.isPublic(method.getModifiers())
-					&& method.getName().equals(methodName)) {
+					&& method.getName().equals(executableName)) {
 				methods.add(method);
 			}
 		}

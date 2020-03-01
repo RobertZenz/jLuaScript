@@ -26,7 +26,7 @@ import java.util.List;
 
 public class ConstructorInvokingFunction extends AbstractExecutableInvokingFunction<Constructor<?>> {
 	public ConstructorInvokingFunction(Class<?> clazz) {
-		super(clazz);
+		super(clazz, "new");
 	}
 	
 	@Override

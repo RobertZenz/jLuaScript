@@ -32,12 +32,14 @@ import org.luaj.vm2.lib.VarArgFunction;
 
 public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Executable> extends VarArgFunction {
 	protected Class<?> clazz = null;
+	protected String executableName = null;
 	protected List<EXECUTABLE> executables = null;
 	
-	public AbstractExecutableInvokingFunction(Class<?> clazz) {
+	public AbstractExecutableInvokingFunction(Class<?> clazz, String executableName) {
 		super();
 		
 		this.clazz = clazz;
+		this.executableName = executableName;
 	}
 	
 	@Override
@@ -46,7 +48,18 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		EXECUTABLE executable = findMatchingExecutable(parameters);
 		
 		if (executable == null) {
-			throw new LuaError("No matching method found.");
+			StringBuilder candidates = new StringBuilder();
+			
+			for (EXECUTABLE candidateExecutable : executables) {
+				candidates.append("        ")
+						.append(getMethodSignature(candidateExecutable))
+						.append("\n");
+			}
+			
+			throw new LuaError("No matching method found for <"
+					+ getRequestedMethodSignature(parameters)
+					+ ">, possible candidates are: \n"
+					+ candidates);
 		}
 		
 		if (hasVargArgsParameter(executable)) {
@@ -105,6 +118,50 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		}
 		
 		return executables;
+	}
+	
+	protected String getMethodSignature(EXECUTABLE executable) {
+		StringBuilder signature = new StringBuilder();
+		
+		signature.append(executable.getName()).append("(");
+		
+		for (Parameter parameter : executable.getParameters()) {
+			signature.append(parameter.getParameterizedType().getTypeName());
+			signature.append(", ");
+		}
+		
+		if (executable.getParameters().length > 0) {
+			signature.delete(signature.length() - 2, signature.length());
+		}
+		
+		signature.append(")");
+		
+		return signature.toString();
+	}
+	
+	protected String getRequestedMethodSignature(List<Object> parameters) {
+		StringBuilder methodSignature = new StringBuilder();
+		methodSignature.append(clazz.getSimpleName())
+				.append(".")
+				.append(executableName)
+				.append("(");
+		
+		for (Object parameter : parameters) {
+			if (parameter != null) {
+				methodSignature.append(parameter.getClass().getSimpleName())
+						.append(", ");
+			} else {
+				methodSignature.append("nil, ");
+			}
+		}
+		
+		if (!parameters.isEmpty()) {
+			methodSignature.delete(methodSignature.length() - 2, methodSignature.length());
+		}
+		
+		methodSignature.append(")");
+		
+		return methodSignature.toString();
 	}
 	
 	protected boolean hasVargArgsParameter(Executable executable) {
