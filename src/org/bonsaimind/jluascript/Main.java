@@ -49,6 +49,18 @@ public final class Main {
 				System.out.println(returnedObject.toString());
 			}
 		} catch (ScriptExecutionException e) {
+			System.err.println("Error while executing script: " + e.getCause().getMessage());
+			
+			for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+				if (stackTraceElement.getMethodName().equals("onInvoke")) {
+					System.err.println("    (" + stackTraceElement.getFileName() + ") <script>:" + stackTraceElement.getLineNumber());
+				} else {
+					System.err.println("    (" + stackTraceElement.getFileName() + ") " + stackTraceElement.getMethodName() + ":" + stackTraceElement.getLineNumber());
+				}
+			}
+			
+			System.exit(1);
+		} catch (Exception e) {
 			e.printStackTrace();
 			
 			System.exit(1);
