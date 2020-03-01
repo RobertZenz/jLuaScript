@@ -38,20 +38,22 @@ public class LsFunction extends VarArgFunction {
 	
 	@Override
 	public Varargs invoke(Varargs args) {
-		Path path = LuaUtil.coerceAsPath(args.arg(1));
+		List<String> entries = new ArrayList<>();
 		
-		try {
-			List<String> entries = new ArrayList<>();
+		for (int index = 1; index <= args.narg(); index++) {
+			Path path = LuaUtil.coerceAsPath(args.arg(index));
 			
-			try (DirectoryStream<Path> contents = Files.newDirectoryStream(path)) {
-				for (Path entry : contents) {
-					entries.add(entry.getFileName().toString());
+			try {
+				try (DirectoryStream<Path> contents = Files.newDirectoryStream(path)) {
+					for (Path entry : contents) {
+						entries.add(entry.getFileName().toString());
+					}
 				}
+			} catch (IOException e) {
+				throw new LuaError(e);
 			}
-			
-			return LuaUtil.coerceAsLuaValue(entries.toArray(new String[entries.size()]));
-		} catch (IOException e) {
-			throw new LuaError(e);
 		}
+		
+		return LuaUtil.coerceAsLuaValue(entries.toArray(new String[entries.size()]));
 	}
 }
