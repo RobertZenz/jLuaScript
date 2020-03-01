@@ -167,6 +167,18 @@ public final class LuaUtil {
 			return (LuaValue)object;
 		}
 		
+		if (object.getClass().isArray()) {
+			LuaValue luaArray = new LuaTable();
+			
+			Object[] array = (Object[])object;
+			
+			for (int index = 0; index < array.length; index++) {
+				luaArray.set(index + 1, coerceAsLuaValue(array[index]));
+			}
+			
+			return luaArray;
+		}
+		
 		return CoerceJavaToLua.coerce(object);
 	}
 	
