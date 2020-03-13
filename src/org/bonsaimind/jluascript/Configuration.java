@@ -60,12 +60,14 @@ public class Configuration {
 		if (arguments != null) {
 			for (String argument : arguments) {
 				if (argument != null && !argument.isEmpty()) {
-					if (argument.equals("-h") || argument.equals("--help")) {
-						printHelp = true;
-					} else if (argument.equals("--print-java-stacktrace")) {
-						printJavaStackTrace = true;
-					} else if (script == null) {
-						script = argument;
+					if (script == null) {
+						if (argument.equals("-h") || argument.equals("--help")) {
+							printHelp = true;
+						} else if (argument.equals("--print-java-stacktrace")) {
+							printJavaStackTrace = true;
+						} else if (script == null) {
+							script = argument;
+						}
 					} else {
 						scriptArguments.add(argument);
 					}

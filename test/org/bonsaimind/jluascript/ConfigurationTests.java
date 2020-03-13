@@ -22,7 +22,7 @@ public class ConfigurationTests {
 	}
 	
 	@Test
-	public void testWellFormed() {
+	public void testScriptParameters() {
 		Configuration configuration = new Configuration("--print-java-stacktrace", "script", "arg1", "arg2");
 		
 		Assert.assertFalse(configuration.isPrintHelp());
@@ -31,6 +31,18 @@ public class ConfigurationTests {
 		Assert.assertEquals(2, configuration.getScriptArguments().size());
 		Assert.assertEquals("arg1", configuration.getScriptArguments().get(0));
 		Assert.assertEquals("arg2", configuration.getScriptArguments().get(1));
+	}
+	
+	@Test
+	public void testWellFormed() {
+		Configuration configuration = new Configuration("script", "--help", "--print-java-stacktrace");
+		
+		Assert.assertFalse(configuration.isPrintHelp());
+		Assert.assertFalse(configuration.isPrintJavaStackTrace());
+		Assert.assertEquals("script", configuration.getScript());
+		Assert.assertEquals(2, configuration.getScriptArguments().size());
+		Assert.assertEquals("--help", configuration.getScriptArguments().get(0));
+		Assert.assertEquals("--print-java-stacktrace", configuration.getScriptArguments().get(1));
 	}
 	
 	@Test
