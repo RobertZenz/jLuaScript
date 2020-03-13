@@ -49,7 +49,7 @@
 
 	<target name="jar" depends="compile" description="Creates the jar.">
 		<jar jarfile="${dist}/${jar}-${version}.jar" basedir="${build}" manifest="MANIFEST.MF" />
-		<jar jarfile="${dist}/${jar}-full-${version}.jar" basedir="${build}" manifest="MANIFEST.MF">
+		<jar jarfile="${dist}/${jar}-${version}-full.jar" basedir="${build}" manifest="MANIFEST.MF">
 			<zipfileset src="${libs}/javassist/javassist-${javassist.version}.jar" excludes="META-INF/**/*" />
 			<zipfileset src="${libs}/luaj/bcel-${bcel.version}.jar" excludes="META-INF/**/*" />
 			<zipfileset src="${libs}/luaj/luaj-jse-${luaj.version}.jar" excludes="META-INF/**/*" />
