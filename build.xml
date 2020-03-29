@@ -14,6 +14,7 @@
 
 	<property name="bcel.version" value="5.2" />
 	<property name="javassist.version" value="3.23.1" />
+	<property name="jline.version" value="3.14.0" />
 	<property name="luaj.version" value="3.0.1" />
 
 	<target name="clean" description="Removes the build directories.">
@@ -52,6 +53,7 @@
 		<jar jarfile="${dist}/${jar}-${version}-full.jar" basedir="${build}" manifest="MANIFEST.MF">
 			<zipfileset src="${libs}/javassist/javassist-${javassist.version}.jar" excludes="META-INF/**/*" />
 			<zipfileset src="${libs}/luaj/bcel-${bcel.version}.jar" excludes="META-INF/**/*" />
+			<zipfileset src="${libs}/jline/jline-${jline.version}.jar" excludes="META-INF/**/*" />
 			<zipfileset src="${libs}/luaj/luaj-jse-${luaj.version}.jar" excludes="META-INF/**/*" />
 		</jar>
 	</target>

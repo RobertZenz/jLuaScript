@@ -19,10 +19,15 @@
 
 package org.bonsaimind.jluascript;
 
+import java.io.PrintStream;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
 import org.bonsaimind.jluascript.lua.ScriptExecutionException;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
 
 public final class Main {
 	private Main() {
@@ -31,13 +36,40 @@ public final class Main {
 	public static void main(String[] args) {
 		Configuration configuration = new Configuration(args);
 		
-		if (configuration.isPrintHelp()) {
+		if (configuration.isPrintHelp() || (configuration.getScript() == null && !configuration.isRepl())) {
 			System.out.println("jLuaScript [OPTIONS] SCRIPT [ARGUMENTS...]");
 			System.exit(1);
 		}
 		
 		LuaEnvironment environment = new LuaEnvironment();
 		
+		if (configuration.getScript() != null) {
+			runFile(environment, configuration);
+		}
+		
+		if (configuration.isRepl()) {
+			runRepl(environment, configuration);
+		}
+	}
+	
+	private static final void printException(ScriptExecutionException e, PrintStream targetPrintStream, Configuration configuration) {
+		targetPrintStream.println("Error while executing script: " + e.getCause().getMessage());
+		
+		for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+			if (stackTraceElement.getMethodName().equals("onInvoke")) {
+				targetPrintStream.println("    (" + stackTraceElement.getFileName() + ") <script>:" + stackTraceElement.getLineNumber());
+			} else {
+				targetPrintStream.println("    (" + stackTraceElement.getFileName() + ") " + stackTraceElement.getMethodName() + ":" + stackTraceElement.getLineNumber());
+			}
+		}
+		
+		if (configuration.isPrintJavaStackTrace()) {
+			targetPrintStream.println();
+			e.printStackTrace(targetPrintStream);
+		}
+	}
+	
+	private static final void runFile(LuaEnvironment environment, Configuration configuration) {
 		try {
 			Object returnedObject = environment.execute(Paths.get(configuration.getScript()), configuration.getScriptArguments());
 			
@@ -45,26 +77,48 @@ public final class Main {
 				System.out.println(returnedObject.toString());
 			}
 		} catch (ScriptExecutionException e) {
-			System.err.println("Error while executing script: " + e.getCause().getMessage());
-			
-			for (StackTraceElement stackTraceElement : e.getStackTrace()) {
-				if (stackTraceElement.getMethodName().equals("onInvoke")) {
-					System.err.println("    (" + stackTraceElement.getFileName() + ") <script>:" + stackTraceElement.getLineNumber());
-				} else {
-					System.err.println("    (" + stackTraceElement.getFileName() + ") " + stackTraceElement.getMethodName() + ":" + stackTraceElement.getLineNumber());
-				}
-			}
-			
-			if (configuration.isPrintJavaStackTrace()) {
-				System.err.println();
-				e.printStackTrace();
-			}
+			printException(e, System.err, configuration);
 			
 			System.exit(1);
 		} catch (Exception e) {
 			e.printStackTrace();
 			
 			System.exit(1);
+		}
+	}
+	
+	private static final void runRepl(LuaEnvironment environment, Configuration configuration) {
+		LineReader reader = LineReaderBuilder.builder()
+				.build();
+		
+		boolean running = true;
+		
+		while (running) {
+			try {
+				String input = reader.readLine("> ");
+				
+				if (input != null && !input.trim().isEmpty()) {
+					Object returnedObject = environment.execute(input, Collections.emptyList());
+					
+					if (returnedObject != null) {
+						System.out.println(returnedObject.toString());
+					}
+				}
+			} catch (ScriptExecutionException e) {
+				System.out.println(e.getCause().getMessage());
+				
+				if (configuration.isPrintJavaStackTrace()) {
+					System.out.println();
+					e.printStackTrace(System.out);
+				}
+			} catch (UserInterruptException e) {
+				// Nothing to do except exiting.
+				System.exit(0);
+			} catch (Exception e) {
+				e.printStackTrace();
+				
+				System.exit(1);
+			}
 		}
 	}
 }

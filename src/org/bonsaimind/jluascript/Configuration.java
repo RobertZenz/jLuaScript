@@ -26,6 +26,7 @@ import java.util.List;
 public class Configuration {
 	protected boolean printHelp = false;
 	protected boolean printJavaStackTrace = false;
+	protected boolean repl = false;
 	protected String script = null;
 	protected List<String> scriptArguments = new ArrayList<>();
 	private List<String> readonlyScriptArguments = null;
@@ -56,6 +57,10 @@ public class Configuration {
 		return printJavaStackTrace;
 	}
 	
+	public boolean isRepl() {
+		return repl;
+	}
+	
 	protected void init(String... arguments) {
 		if (arguments != null) {
 			for (String argument : arguments) {
@@ -65,6 +70,8 @@ public class Configuration {
 							printHelp = true;
 						} else if (argument.equals("--print-java-stacktrace")) {
 							printJavaStackTrace = true;
+						} else if (argument.equals("--repl")) {
+							repl = true;
 						} else if (script == null) {
 							script = argument;
 						}
@@ -73,10 +80,6 @@ public class Configuration {
 					}
 				}
 			}
-		}
-		
-		if (script == null) {
-			printHelp = true;
 		}
 	}
 }

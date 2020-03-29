@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="libs/luaj/bcel-5.2.jar"/>
 	<classpathentry kind="lib" path="libs/luaj/luaj-jse-3.0.1.jar" sourcepath="libs/luaj/luaj-sources-3.0.1.jar"/>
 	<classpathentry kind="lib" path="libs/javassist/javassist-3.23.1.jar" sourcepath="libs/javassist/javassist-3.12.1-sources.jar"/>
+	<classpathentry kind="lib" path="libs/jline/jline-3.14.0.jar" sourcepath="libs/jline/jline-3.14.0-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
