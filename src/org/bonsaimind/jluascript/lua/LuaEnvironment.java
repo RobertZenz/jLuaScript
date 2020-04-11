@@ -20,8 +20,12 @@
 package org.bonsaimind.jluascript.lua;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +37,7 @@ import org.bonsaimind.jluascript.lua.libs.ProcessLib;
 import org.bonsaimind.jluascript.lua.libs.StringExtendingLib;
 import org.bonsaimind.jluascript.lua.libs.UnixLib;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
+import org.bonsaimind.jluascript.support.ShebangSkippingInputStream;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LoadState;
 import org.luaj.vm2.LuaTable;
@@ -124,6 +129,8 @@ public class LuaEnvironment {
 	
 	/**
 	 * Executes the given {@link File} with the given arguments.
+	 * <p>
+	 * This method does perform automatic Shebang stripping on the input.
 	 * 
 	 * @param file The {@link File} to execute, cannot be {@code null}.
 	 * @param args The arguments to use, can be {@code null} for none.
@@ -140,6 +147,8 @@ public class LuaEnvironment {
 	
 	/**
 	 * Executes the given {@link Path} with the given arguments.
+	 * <p>
+	 * This method does perform automatic Shebang stripping on the input.
 	 * 
 	 * @param file The {@link Path} to execute, cannot be {@code null}.
 	 * @param args The arguments to use, can be {@code null} for none.
@@ -166,8 +175,14 @@ public class LuaEnvironment {
 				absoluteFile.getParent().toString(),
 				absoluteFile.toString());
 		
-		try {
-			return (TYPE)LuaUtil.coerceAsJavaObject(environment.loadfile(absoluteFile.toString()).call());
+		try (InputStream fileStream = Files.newInputStream(file)) {
+			LuaValue loadedScript = environment.load(
+					new ShebangSkippingInputStream(fileStream, StandardCharsets.UTF_8),
+					"@" + file.toString(),
+					"bt",
+					environment);
+			
+			return (TYPE)LuaUtil.coerceAsJavaObject(loadedScript.call());
 		} catch (Exception e) {
 			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script <" + absoluteFile.toString() + ">.", e);
 			exception.setStackTrace(extractLuaStacktrace(absoluteFile, getRootCause(e).getStackTrace()));
@@ -178,6 +193,9 @@ public class LuaEnvironment {
 	
 	/**
 	 * Executes the given {@link String} with the given arguments.
+	 * <p>
+	 * This method does not perform automatic Shebang stripping, any leading
+	 * Shebang must be stripped manually before handing in the input.
 	 * 
 	 * @param script The {@link String} to execute, cannot be {@code null}.
 	 * @param args The arguments to use, can be {@code null} for none.
@@ -192,7 +210,12 @@ public class LuaEnvironment {
 		updateEnvironmentVariables(args, "", "");
 		
 		try {
-			return (TYPE)LuaUtil.coerceAsJavaObject(environment.load(script).call());
+			LuaValue loadedScript = environment.load(
+					new StringReader(script),
+					"@script",
+					environment);
+			
+			return (TYPE)LuaUtil.coerceAsJavaObject(loadedScript.call());
 		} catch (Exception e) {
 			throw new ScriptExecutionException("Failed to execute script.", e);
 		}
