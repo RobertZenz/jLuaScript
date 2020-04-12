@@ -105,7 +105,11 @@ public final class Main {
 					}
 				}
 			} catch (ScriptExecutionException e) {
-				System.out.println(e.getCause().getMessage());
+				System.out.println("ERROR: " + e.getCause().getMessage());
+				
+				for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+					System.out.println("    " + stackTraceElement.toString());
+				}
 				
 				if (configuration.isPrintJavaStackTrace()) {
 					System.out.println();
