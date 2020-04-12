@@ -1,0 +1,8 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script throws an error for testing.
+
+function inner()
+	error("TEST")
+end

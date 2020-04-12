@@ -25,7 +25,6 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -184,8 +183,8 @@ public class LuaEnvironment {
 			
 			return (TYPE)LuaUtil.coerceAsJavaObject(loadedScript.call());
 		} catch (Exception e) {
-			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script <" + absoluteFile.toString() + ">.", e);
-			exception.setStackTrace(extractLuaStacktrace(absoluteFile, getRootCause(e).getStackTrace()));
+			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script <" + file.toString() + ">.", e);
+			exception.setStackTrace(extractLuaStacktrace(getRootCause(e).getStackTrace()));
 			
 			throw exception;
 		}
@@ -217,7 +216,10 @@ public class LuaEnvironment {
 			
 			return (TYPE)LuaUtil.coerceAsJavaObject(loadedScript.call());
 		} catch (Exception e) {
-			throw new ScriptExecutionException("Failed to execute script.", e);
+			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script.", e);
+			exception.setStackTrace(extractLuaStacktrace(getRootCause(e).getStackTrace()));
+			
+			throw exception;
 		}
 	}
 	
@@ -300,40 +302,23 @@ public class LuaEnvironment {
 	/**
 	 * Extracts the Lua stacktrace from the given {@link StackTraceElement}s.
 	 * 
-	 * @param file The {@link Path file} which has been executed, required for
-	 *        the path.
 	 * @param stackTrace The {@link StackTraceElement}s to extract the
 	 *        information from.
 	 * @return The Lua stacktrace.
 	 */
-	protected StackTraceElement[] extractLuaStacktrace(Path file, StackTraceElement[] stackTrace) {
+	protected StackTraceElement[] extractLuaStacktrace(StackTraceElement[] stackTrace) {
 		if (stackTrace == null || stackTrace.length == 0) {
 			return new StackTraceElement[0];
 		}
 		
 		List<StackTraceElement> luaStackTrace = new ArrayList<>();
 		
-		String pathAsString = file.getParent().toString();
-		
 		for (StackTraceElement stackTraceElement : stackTrace) {
-			String fileName = stackTraceElement.getFileName();
-			
-			if (fileName != null && fileName.startsWith(pathAsString)) {
-				fileName = fileName.substring(pathAsString.length());
-				fileName = fileName.replaceAll("/+", "/");
-				
-				String methodName = stackTraceElement.getMethodName();
-				
-				int dollarIndex = stackTraceElement.getClassName().indexOf('$');
-				
-				if (dollarIndex >= 0) {
-					methodName = stackTraceElement.getClassName().substring(dollarIndex + 1);
-				}
-				
+			if (isLuaStackTraceElement(stackTraceElement)) {
 				StackTraceElement luaStackTraceElement = new StackTraceElement(
-						"script",
-						methodName,
-						file.toString(),
+						getLuaScriptName(stackTraceElement),
+						getLuaMethodName(stackTraceElement),
+						getLuaScriptFileName(stackTraceElement),
 						stackTraceElement.getLineNumber());
 				
 				luaStackTrace.add(luaStackTraceElement);
@@ -341,6 +326,70 @@ public class LuaEnvironment {
 		}
 		
 		return luaStackTrace.toArray(new StackTraceElement[luaStackTrace.size()]);
+	}
+	
+	/**
+	 * Extracts the Lua method name from the given {@link StackTraceElement}.
+	 * 
+	 * @param stackTraceElement The {@link StackTraceElement} to use.
+	 * @return The name of the method.
+	 */
+	protected String getLuaMethodName(StackTraceElement stackTraceElement) {
+		String className = stackTraceElement.getClassName();
+		String methodName = stackTraceElement.getMethodName();
+		
+		int dollarIndex = className.indexOf('$');
+		
+		if (dollarIndex >= 0) {
+			methodName = className.substring(dollarIndex + 1);
+		}
+		
+		return methodName;
+	}
+	
+	/**
+	 * Extracts the Lua script filename from the given
+	 * {@link StackTraceElement}.
+	 * 
+	 * @param stackTraceElement The {@link StackTraceElement} to use.
+	 * @return The name of the Lua script filename.
+	 */
+	protected String getLuaScriptFileName(StackTraceElement stackTraceElement) {
+		String fileName = stackTraceElement.getFileName();
+		
+		if (fileName.endsWith("/jluascript.lua")) {
+			fileName = fileName.substring(0, fileName.length() - "/jluascript.lua".length()) + ".jluascript";
+		}
+		
+		if (fileName.startsWith("//")) {
+			fileName = "./" + fileName.substring(2);
+		}
+		
+		return fileName;
+	}
+	
+	/**
+	 * Extracts the Lua script name from the given {@link StackTraceElement}.
+	 * 
+	 * @param stackTraceElement The {@link StackTraceElement} to use.
+	 * @return The name of the script (without end extensions).
+	 */
+	protected String getLuaScriptName(StackTraceElement stackTraceElement) {
+		String className = getLuaScriptFileName(stackTraceElement);
+		
+		int lastSlashIndex = className.lastIndexOf("/");
+		
+		if (lastSlashIndex >= 0) {
+			className = className.substring(lastSlashIndex + 1);
+		}
+		
+		int lastDotIndex = className.lastIndexOf(".");
+		
+		if (lastDotIndex >= 0) {
+			className = className.substring(0, lastDotIndex);
+		}
+		
+		return className;
 	}
 	
 	/**
@@ -357,6 +406,11 @@ public class LuaEnvironment {
 		}
 		
 		return currentException;
+	}
+	
+	protected boolean isLuaStackTraceElement(StackTraceElement stackTraceElement) {
+		return stackTraceElement.getFileName() != null
+				&& stackTraceElement.getFileName().endsWith(".lua");
 	}
 	
 	/**
