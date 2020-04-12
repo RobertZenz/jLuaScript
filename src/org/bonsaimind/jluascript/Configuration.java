@@ -81,5 +81,9 @@ public class Configuration {
 				}
 			}
 		}
+		
+		if (script == null) {
+			printHelp = true;
+		}
 	}
 }
