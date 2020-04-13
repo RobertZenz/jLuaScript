@@ -102,11 +102,6 @@ public class TestScripts {
 		runFile("string");
 	}
 	
-	@Test
-	public void testUnix() throws Exception {
-		runFile("unix");
-	}
-	
 	protected void runFile(String scriptName, String... arguments) throws Exception {
 		List<String> args = null;
 		

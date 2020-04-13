@@ -34,7 +34,6 @@ import org.bonsaimind.jluascript.lua.libs.JarLoaderLib;
 import org.bonsaimind.jluascript.lua.libs.LuaJavaInteropLib;
 import org.bonsaimind.jluascript.lua.libs.ProcessLib;
 import org.bonsaimind.jluascript.lua.libs.StringExtendingLib;
-import org.bonsaimind.jluascript.lua.libs.UnixLib;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.bonsaimind.jluascript.support.ShebangSkippingInputStream;
 import org.luaj.vm2.Globals;
@@ -442,7 +441,6 @@ public class LuaEnvironment {
 		loadLibrary(new LuaJavaInteropLib());
 		loadLibrary(new ProcessLib());
 		loadLibrary(new StringExtendingLib());
-		loadLibrary(new UnixLib());
 	}
 	
 	/**

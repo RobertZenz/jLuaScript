@@ -19,12 +19,9 @@
 
 package org.bonsaimind.jluascript.lua;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.bonsaimind.jluascript.lua.functions.ClassCreatingFunction;
 import org.bonsaimind.jluascript.lua.functions.ConstructorInvokingFunction;
@@ -180,33 +177,6 @@ public final class LuaUtil {
 		}
 		
 		return CoerceJavaToLua.coerce(object);
-	}
-	
-	/**
-	 * Coerces the given {@link LuaValue} to a {@link Path}.
-	 * <p>
-	 * This includes converting a {@link String} or {@link File} and correctly
-	 * handling {@code null} and {@code LuaValue#NIL}.
-	 * 
-	 * @param value The {@link LuaValue} to coerce.
-	 * @return The value coerced as {@link Path}.
-	 */
-	public final static Path coerceAsPath(LuaValue value) {
-		if (value == null || value.isnil()) {
-			return null;
-		}
-		
-		Object arg = LuaUtil.coerceAsJavaObject(value);
-		
-		if (arg instanceof String) {
-			return Paths.get((String)arg);
-		} else if (arg instanceof File) {
-			return ((File)arg).toPath();
-		} else if (arg instanceof Path) {
-			return (Path)arg;
-		}
-		
-		return null;
 	}
 	
 	/**
