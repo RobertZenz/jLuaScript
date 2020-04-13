@@ -21,6 +21,7 @@ package org.bonsaimind.jluascript.lua.libs;
 
 import org.bonsaimind.jluascript.lua.functions.IteratorIPairsFunction;
 import org.bonsaimind.jluascript.lua.functions.IteratorPairsFunction;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
@@ -30,14 +31,18 @@ import org.luaj.vm2.lib.TwoArgFunction;
  * objects.
  */
 public class LuaJavaInteropLib extends TwoArgFunction {
-	public LuaJavaInteropLib() {
+	protected Coercer coercer = null;
+	
+	public LuaJavaInteropLib(Coercer coercer) {
 		super();
+		
+		this.coercer = coercer;
 	}
 	
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
-		environment.set("ipairs", new IteratorIPairsFunction(environment.get("ipairs")));
-		environment.set("pairs", new IteratorPairsFunction(environment.get("pairs")));
+		environment.set("ipairs", new IteratorIPairsFunction(environment.get("ipairs"), coercer));
+		environment.set("pairs", new IteratorPairsFunction(environment.get("pairs"), coercer));
 		
 		return environment;
 	}

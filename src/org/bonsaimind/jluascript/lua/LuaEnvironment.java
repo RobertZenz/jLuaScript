@@ -34,6 +34,8 @@ import org.bonsaimind.jluascript.lua.libs.JarLoaderLib;
 import org.bonsaimind.jluascript.lua.libs.LuaJavaInteropLib;
 import org.bonsaimind.jluascript.lua.libs.ProcessLib;
 import org.bonsaimind.jluascript.lua.libs.StringExtendingLib;
+import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.lua.system.coercers.DefaultCoercer;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.bonsaimind.jluascript.support.ShebangSkippingInputStream;
 import org.luaj.vm2.Globals;
@@ -63,6 +65,7 @@ import org.luaj.vm2.luajc.LuaJC;
 public class LuaEnvironment {
 	/** The {@link DynamicClassLoader} which is being used. */
 	protected DynamicClassLoader classLoader = null;
+	protected Coercer coercer = new DefaultCoercer();
 	/** The Lua environment. */
 	protected Globals environment = null;
 	
@@ -120,7 +123,7 @@ public class LuaEnvironment {
 			throw new IllegalArgumentException("luaVariableName cannot be empty.");
 		}
 		
-		environment.set(luaVariableName, LuaUtil.coerceAsLuaValue(value));
+		environment.set(luaVariableName, coercer.coerceJavaToLua(value));
 		
 		return this;
 	}
@@ -180,7 +183,7 @@ public class LuaEnvironment {
 					"bt",
 					environment);
 			
-			return (TYPE)LuaUtil.coerceAsJavaObject(loadedScript.call());
+			return (TYPE)coercer.coerceLuaToJava(loadedScript.call());
 		} catch (Exception e) {
 			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script <" + file.toString() + ">.", e);
 			exception.setStackTrace(extractLuaStacktrace(getRootCause(e).getStackTrace()));
@@ -213,7 +216,7 @@ public class LuaEnvironment {
 					"@script",
 					environment);
 			
-			return (TYPE)LuaUtil.coerceAsJavaObject(loadedScript.call());
+			return (TYPE)coercer.coerceLuaToJava(loadedScript.call());
 		} catch (Exception e) {
 			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script.", e);
 			exception.setStackTrace(extractLuaStacktrace(getRootCause(e).getStackTrace()));
@@ -238,7 +241,7 @@ public class LuaEnvironment {
 	 * @return This instance.
 	 */
 	public LuaEnvironment importClass(Class<?> clazz) {
-		LuaValue coercedStaticClass = LuaUtil.coerceStaticIstance(clazz);
+		LuaValue coercedStaticClass = coercer.coerceJavaToLua(clazz);
 		
 		LuaUtil.addStaticInstanceDirect(environment, clazz, coercedStaticClass);
 		LuaUtil.addStaticInstancePackage(environment, clazz, coercedStaticClass);
@@ -435,12 +438,12 @@ public class LuaEnvironment {
 		loadLibrary(new JseMathLib());
 		loadLibrary(new JseOsLib());
 		
-		loadLibrary(new ClassImportLib(classLoader));
-		loadLibrary(new DefaultImportsLib());
+		loadLibrary(new ClassImportLib(classLoader, coercer));
+		loadLibrary(new DefaultImportsLib(coercer));
 		loadLibrary(new JarLoaderLib(classLoader));
-		loadLibrary(new LuaJavaInteropLib());
-		loadLibrary(new ProcessLib());
-		loadLibrary(new StringExtendingLib());
+		loadLibrary(new LuaJavaInteropLib(coercer));
+		loadLibrary(new ProcessLib(coercer));
+		loadLibrary(new StringExtendingLib(coercer));
 	}
 	
 	/**
@@ -467,7 +470,6 @@ public class LuaEnvironment {
 		environment.set("HOME", System.getProperty("user.home"));
 		environment.set("SCRIPT_DIR", scriptDirectory);
 		environment.set("SCRIPT_FILE", scriptFile);
-		environment.set("DIR", System.getProperty("user.dir"));
 		environment.set("WORKING_DIR", System.getProperty("user.dir"));
 	}
 }

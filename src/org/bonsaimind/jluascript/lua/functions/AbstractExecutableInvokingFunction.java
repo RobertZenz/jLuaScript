@@ -25,21 +25,23 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bonsaimind.jluascript.lua.LuaUtil;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
 public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Executable> extends VarArgFunction {
 	protected Class<?> clazz = null;
+	protected Coercer coercer = null;
 	protected String executableName = null;
 	protected List<EXECUTABLE> executables = null;
 	
-	public AbstractExecutableInvokingFunction(Class<?> clazz, String executableName) {
+	protected AbstractExecutableInvokingFunction(Class<?> clazz, String executableName, Coercer coercer) {
 		super();
 		
 		this.clazz = clazz;
 		this.executableName = executableName;
+		this.coercer = coercer;
 	}
 	
 	@Override
@@ -84,7 +86,7 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		}
 		
 		try {
-			return LuaUtil.coerceAsLuaValue(execute(executable, parameters));
+			return coercer.coerceJavaToLua(execute(executable, parameters));
 		} catch (Exception e) {
 			throw new LuaError(e);
 		}
@@ -94,7 +96,7 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		List<Object> javaParameters = new ArrayList<>();
 		
 		for (int index = 1; index <= args.narg(); index++) {
-			javaParameters.add(LuaUtil.coerceAsJavaObject(args.arg(index)));
+			javaParameters.add(coercer.coerceLuaToJava(args.arg(index)));
 		}
 		
 		return javaParameters;

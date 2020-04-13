@@ -20,6 +20,7 @@
 package org.bonsaimind.jluascript.lua.libs;
 
 import org.bonsaimind.jluascript.lua.functions.RunFunction;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
@@ -28,15 +29,19 @@ import org.luaj.vm2.lib.TwoArgFunction;
  * processes.
  */
 public class ProcessLib extends TwoArgFunction {
-	public ProcessLib() {
+	protected Coercer coercer = null;
+	
+	public ProcessLib(Coercer coercer) {
 		super();
+		
+		this.coercer = null;
 	}
 	
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
-		environment.set("exec", new RunFunction());
-		environment.set("execWait", new RunFunction());
-		environment.set("run", new RunFunction());
+		environment.set("exec", new RunFunction(coercer));
+		environment.set("execWait", new RunFunction(coercer));
+		environment.set("run", new RunFunction(coercer));
 		
 		return environment;
 	}

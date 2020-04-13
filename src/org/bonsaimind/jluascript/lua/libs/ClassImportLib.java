@@ -21,6 +21,7 @@ package org.bonsaimind.jluascript.lua.libs;
 
 import org.bonsaimind.jluascript.lua.functions.ClassImportingFunction;
 import org.bonsaimind.jluascript.lua.functions.ClassLoadingFunction;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
@@ -31,17 +32,19 @@ import org.luaj.vm2.lib.TwoArgFunction;
  */
 public class ClassImportLib extends TwoArgFunction {
 	protected DynamicClassLoader classLoader = null;
+	protected Coercer coercer = null;
 	
-	public ClassImportLib(DynamicClassLoader classLoader) {
+	public ClassImportLib(DynamicClassLoader classLoader, Coercer coercer) {
 		super();
 		
 		this.classLoader = classLoader;
+		this.coercer = coercer;
 	}
 	
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
-		environment.set("import", new ClassImportingFunction(environment, classLoader));
-		environment.set("loadClass", new ClassLoadingFunction(classLoader));
+		environment.set("import", new ClassImportingFunction(environment, classLoader, coercer));
+		environment.set("loadClass", new ClassLoadingFunction(classLoader, coercer));
 		
 		return environment;
 	}

@@ -20,6 +20,7 @@
 package org.bonsaimind.jluascript.lua.libs;
 
 import org.bonsaimind.jluascript.lua.LuaUtil;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
@@ -28,8 +29,12 @@ import org.luaj.vm2.lib.TwoArgFunction;
  * {@link String} and {@link Long}.
  */
 public class DefaultImportsLib extends TwoArgFunction {
-	public DefaultImportsLib() {
+	protected Coercer coercer = null;
+	
+	public DefaultImportsLib(Coercer coercer) {
 		super();
+		
+		this.coercer = coercer;
 	}
 	
 	@Override
@@ -40,7 +45,7 @@ public class DefaultImportsLib extends TwoArgFunction {
 	}
 	
 	protected void importClass(LuaValue environment, Class<?> clazz) {
-		LuaValue coercedStaticInstance = LuaUtil.coerceStaticIstance(clazz);
+		LuaValue coercedStaticInstance = coercer.coerceJavaToLua(clazz);
 		
 		LuaUtil.addStaticInstanceDirect(environment, clazz, coercedStaticInstance);
 		LuaUtil.addStaticInstancePackage(environment, clazz, coercedStaticInstance);

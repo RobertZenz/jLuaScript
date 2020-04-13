@@ -20,6 +20,7 @@
 package org.bonsaimind.jluascript.lua.libs;
 
 import org.bonsaimind.jluascript.lua.functions.InstanceMethodInvokingFunction;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
@@ -30,8 +31,12 @@ import org.luaj.vm2.lib.TwoArgFunction;
  * which you would expect from a Java class.
  */
 public class StringExtendingLib extends TwoArgFunction {
-	public StringExtendingLib() {
+	protected Coercer coercer = null;
+	
+	public StringExtendingLib(Coercer coercer) {
 		super();
+		
+		this.coercer = coercer;
 	}
 	
 	@Override
@@ -63,6 +68,6 @@ public class StringExtendingLib extends TwoArgFunction {
 	}
 	
 	protected void extendWith(LuaTable stringTable, String methodName) {
-		stringTable.set(methodName, new InstanceMethodInvokingFunction(String.class, methodName));
+		stringTable.set(methodName, new InstanceMethodInvokingFunction(String.class, methodName, coercer));
 	}
 }

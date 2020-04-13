@@ -24,9 +24,11 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bonsaimind.jluascript.lua.system.Coercer;
+
 public class ConstructorInvokingFunction extends AbstractExecutableInvokingFunction<Constructor<?>> {
-	public ConstructorInvokingFunction(Class<?> clazz) {
-		super(clazz, "new");
+	public ConstructorInvokingFunction(Class<?> clazz, Coercer coercer) {
+		super(clazz, "new", coercer);
 	}
 	
 	@Override

@@ -19,18 +19,20 @@
 
 package org.bonsaimind.jluascript.lua.functions;
 
-import org.bonsaimind.jluascript.lua.LuaUtil;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
 
 public class ClassLoadingFunction extends OneArgFunction {
 	protected ClassLoader classLoader = null;
+	protected Coercer coercer = null;
 	
-	public ClassLoadingFunction(ClassLoader classLoader) {
+	public ClassLoadingFunction(ClassLoader classLoader, Coercer coercer) {
 		super();
 		
 		this.classLoader = classLoader;
+		this.coercer = coercer;
 	}
 	
 	@Override
@@ -47,7 +49,7 @@ public class ClassLoadingFunction extends OneArgFunction {
 		
 		try {
 			Class<?> clazz = classLoader.loadClass(className);
-			LuaValue coercedStaticClass = LuaUtil.coerceStaticIstance(clazz);
+			LuaValue coercedStaticClass = coercer.coerceJavaToLua(clazz);
 			
 			return coercedStaticClass;
 		} catch (ClassNotFoundException e) {

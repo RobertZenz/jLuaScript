@@ -21,7 +21,7 @@ package org.bonsaimind.jluascript.lua.functions;
 
 import org.bonsaimind.jluascript.javassist.filters.HandleOnlyNonFinalFilter;
 import org.bonsaimind.jluascript.javassist.handlers.LuaInvokingMethodHandler;
-import org.bonsaimind.jluascript.lua.LuaUtil;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
@@ -30,20 +30,22 @@ import javassist.util.proxy.ProxyFactory;
 
 public class ProxyInstanceCreatingFunction extends OneArgFunction {
 	protected Class<?> clazz = null;
+	protected Coercer coercer = null;
 	protected LuaInvokingMethodHandler defaultMethodHandler = null;
 	protected ProxyFactory proxyFactory = null;
 	
-	public ProxyInstanceCreatingFunction(Class<?> clazz) {
-		this(clazz, null);
+	public ProxyInstanceCreatingFunction(Class<?> clazz, Coercer coercer) {
+		this(clazz, null, coercer);
 	}
 	
-	public ProxyInstanceCreatingFunction(Class<?> clazz, LuaValue defaultLuaFunctions) {
+	public ProxyInstanceCreatingFunction(Class<?> clazz, LuaValue defaultLuaFunctions, Coercer coercer) {
 		super();
 		
 		this.clazz = clazz;
+		this.coercer = coercer;
 		
 		if (defaultLuaFunctions != null) {
-			this.defaultMethodHandler = new LuaInvokingMethodHandler(defaultLuaFunctions);
+			this.defaultMethodHandler = new LuaInvokingMethodHandler(defaultLuaFunctions, coercer);
 		}
 		
 		proxyFactory = new ProxyFactory();
@@ -66,11 +68,11 @@ public class ProxyInstanceCreatingFunction extends OneArgFunction {
 		LuaInvokingMethodHandler methodHandler = defaultMethodHandler;
 		
 		if (!luaFunctions.isnil()) {
-			methodHandler = new LuaInvokingMethodHandler(luaFunctions);
+			methodHandler = new LuaInvokingMethodHandler(luaFunctions, coercer);
 		}
 		
 		try {
-			return LuaUtil.coerceAsLuaValue(proxyFactory.create(
+			return coercer.coerceJavaToLua(proxyFactory.create(
 					new Class<?>[0],
 					new Object[0],
 					methodHandler));

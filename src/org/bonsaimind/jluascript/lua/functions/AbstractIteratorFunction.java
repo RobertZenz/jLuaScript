@@ -22,18 +22,20 @@ package org.bonsaimind.jluascript.lua.functions;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.bonsaimind.jluascript.lua.LuaUtil;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
 public abstract class AbstractIteratorFunction extends VarArgFunction {
+	protected Coercer coercer = null;
 	protected LuaValue originalIterationFunction = null;
 	
-	protected AbstractIteratorFunction(LuaValue originalIPairsFunction) {
+	protected AbstractIteratorFunction(LuaValue originalIPairsFunction, Coercer coercer) {
 		super();
 		
 		this.originalIterationFunction = originalIPairsFunction;
+		this.coercer = coercer;
 	}
 	
 	@Override
@@ -52,7 +54,7 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 	}
 	
 	protected IteratingFunction createIteratingFunction(Iterator<?> iterator) {
-		return new IteratingFunction(iterator);
+		return new IteratingFunction(iterator, coercer);
 	}
 	
 	protected Iterator<?> getIterator(LuaValue luaValue) {
@@ -68,13 +70,15 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 	}
 	
 	protected static class IteratingFunction extends VarArgFunction {
+		protected Coercer coercer = null;
 		protected int index = 0;
 		protected Iterator<?> iterator = null;
 		
-		public IteratingFunction(Iterator<?> iterator) {
+		public IteratingFunction(Iterator<?> iterator, Coercer coercer) {
 			super();
 			
 			this.iterator = iterator;
+			this.coercer = coercer;
 		}
 		
 		@Override
@@ -99,11 +103,11 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 		}
 		
 		protected LuaValue processKey(Object key) {
-			return LuaUtil.coerceAsLuaValue(key);
+			return coercer.coerceJavaToLua(key);
 		}
 		
 		protected LuaValue processValue(Object value) {
-			return LuaUtil.coerceAsLuaValue(value);
+			return coercer.coerceJavaToLua(value);
 		}
 	}
 }

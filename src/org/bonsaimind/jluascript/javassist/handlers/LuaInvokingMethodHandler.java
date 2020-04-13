@@ -21,10 +21,9 @@ package org.bonsaimind.jluascript.javassist.handlers;
 
 import java.lang.reflect.Method;
 
-import org.bonsaimind.jluascript.lua.LuaUtil;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.lib.jse.CoerceLuaToJava;
 
 import javassist.util.proxy.MethodHandler;
 
@@ -33,6 +32,7 @@ import javassist.util.proxy.MethodHandler;
  * implementation which invokes a {@link LuaValue Lua function}.
  */
 public class LuaInvokingMethodHandler implements MethodHandler {
+	protected Coercer coercer = null;
 	/** The {@link LuaValue Lua function} to vall. */
 	protected LuaValue luaFunctions = null;
 	
@@ -41,10 +41,11 @@ public class LuaInvokingMethodHandler implements MethodHandler {
 	 *
 	 * @param luaFunctions The {@link LuaValue Lua function} to call.
 	 */
-	public LuaInvokingMethodHandler(LuaValue luaFunctions) {
+	public LuaInvokingMethodHandler(LuaValue luaFunctions, Coercer coercer) {
 		super();
 		
 		this.luaFunctions = luaFunctions;
+		this.coercer = coercer;
 	}
 	
 	/**
@@ -53,17 +54,31 @@ public class LuaInvokingMethodHandler implements MethodHandler {
 	@Override
 	public Object invoke(Object instance, Method superMethod, Method thisMethod, Object[] arguments) throws Throwable {
 		if (luaFunctions.isfunction()) {
-			return CoerceLuaToJava.coerce(luaFunctions.invoke(LuaUtil.coerce(arguments)).arg1(), Object.class);
+			return coercer.coerceLuaToJava(luaFunctions.invoke(coerceArguments(arguments)).arg1());
 		} else if (luaFunctions.istable()) {
 			LuaValue luaFunction = luaFunctions.get(superMethod.getName());
 			
 			if (luaFunction.isfunction()) {
-				return CoerceLuaToJava.coerce(luaFunction.invoke(LuaUtil.coerce(arguments)).arg1(), Object.class);
+				return coercer.coerceLuaToJava(luaFunction.invoke(coerceArguments(arguments)).arg1());
 			} else if (thisMethod != null) {
 				return thisMethod.invoke(instance, arguments);
 			}
 		}
 		
 		throw new LuaError("Method <" + superMethod.getName() + "> has not been provided but is required.");
+	}
+	
+	protected LuaValue[] coerceArguments(Object[] array) {
+		if (array == null) {
+			return null;
+		}
+		
+		LuaValue[] luaValueArray = new LuaValue[array.length];
+		
+		for (int index = 0; index < array.length; index++) {
+			luaValueArray[index] = coercer.coerceJavaToLua(array[index]);
+		}
+		
+		return luaValueArray;
 	}
 }

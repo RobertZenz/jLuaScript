@@ -25,15 +25,19 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bonsaimind.jluascript.lua.LuaUtil;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
 public class RunFunction extends VarArgFunction {
-	public RunFunction() {
+	protected Coercer coercer = null;
+	
+	public RunFunction(Coercer coercer) {
 		super();
+		
+		this.coercer = coercer;
 	}
 	
 	@Override
@@ -53,7 +57,7 @@ public class RunFunction extends VarArgFunction {
 						|| arg.isstring()) {
 					command.add(arg.tojstring());
 				} else if (arg.isuserdata()) {
-					Object object = LuaUtil.coerceAsJavaObject(arg);
+					Object object = coercer.coerceLuaToJava(arg);
 					
 					if (object instanceof File) {
 						File file = (File)object;

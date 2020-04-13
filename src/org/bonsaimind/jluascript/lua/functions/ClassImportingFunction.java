@@ -20,13 +20,14 @@
 package org.bonsaimind.jluascript.lua.functions;
 
 import org.bonsaimind.jluascript.lua.LuaUtil;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
 
 public class ClassImportingFunction extends ClassLoadingFunction {
 	protected LuaValue environment = null;
 	
-	public ClassImportingFunction(LuaValue environment, ClassLoader classLoader) {
-		super(classLoader);
+	public ClassImportingFunction(LuaValue environment, ClassLoader classLoader, Coercer coercer) {
+		super(classLoader, coercer);
 		
 		this.environment = environment;
 	}

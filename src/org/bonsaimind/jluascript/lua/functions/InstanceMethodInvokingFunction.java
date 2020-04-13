@@ -24,9 +24,11 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bonsaimind.jluascript.lua.system.Coercer;
+
 public class InstanceMethodInvokingFunction extends AbstractExecutableInvokingFunction<Method> {
-	public InstanceMethodInvokingFunction(Class<?> clazz, String methodName) {
-		super(clazz, methodName);
+	public InstanceMethodInvokingFunction(Class<?> clazz, String methodName, Coercer coercer) {
+		super(clazz, methodName, coercer);
 	}
 	
 	@Override

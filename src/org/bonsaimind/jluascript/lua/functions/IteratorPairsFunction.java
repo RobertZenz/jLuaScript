@@ -19,10 +19,11 @@
 
 package org.bonsaimind.jluascript.lua.functions;
 
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
 
 public class IteratorPairsFunction extends AbstractIteratorFunction {
-	public IteratorPairsFunction(LuaValue originalPairsFunction) {
-		super(originalPairsFunction);
+	public IteratorPairsFunction(LuaValue originalPairsFunction, Coercer coercer) {
+		super(originalPairsFunction, coercer);
 	}
 }

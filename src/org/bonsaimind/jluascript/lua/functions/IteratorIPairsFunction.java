@@ -21,21 +21,22 @@ package org.bonsaimind.jluascript.lua.functions;
 
 import java.util.Iterator;
 
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
 
 public class IteratorIPairsFunction extends AbstractIteratorFunction {
-	public IteratorIPairsFunction(LuaValue originalIPairsFunction) {
-		super(originalIPairsFunction);
+	public IteratorIPairsFunction(LuaValue originalIPairsFunction, Coercer coercer) {
+		super(originalIPairsFunction, coercer);
 	}
 	
 	@Override
 	protected IteratingFunction createIteratingFunction(Iterator<?> iterator) {
-		return new IndexIteratingFunction(iterator);
+		return new IndexIteratingFunction(iterator, coercer);
 	}
 	
 	protected static class IndexIteratingFunction extends IteratingFunction {
-		public IndexIteratingFunction(Iterator<?> iterator) {
-			super(iterator);
+		public IndexIteratingFunction(Iterator<?> iterator, Coercer coercer) {
+			super(iterator, coercer);
 		}
 		
 		@Override

@@ -19,7 +19,7 @@
 
 package org.bonsaimind.jluascript.lua.functions;
 
-import org.bonsaimind.jluascript.lua.LuaUtil;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
@@ -31,11 +31,13 @@ import javassist.NotFoundException;
 
 public class ClassCreatingFunction extends OneArgFunction {
 	protected Class<?> clazz = null;
+	protected Coercer coercer = null;
 	
-	public ClassCreatingFunction(Class<?> clazz) {
+	public ClassCreatingFunction(Class<?> clazz, Coercer coercer) {
 		super();
 		
 		this.clazz = clazz;
+		this.coercer = coercer;
 	}
 	
 	@Override
@@ -60,9 +62,9 @@ public class ClassCreatingFunction extends OneArgFunction {
 			
 			Class<?> prototypeClass = classPrototype.toClass(clazz.getClassLoader(), clazz.getProtectionDomain());
 			
-			LuaValue luaClass = LuaUtil.coerceStaticIstance(prototypeClass);
+			LuaValue luaClass = coercer.coerceJavaToLua(prototypeClass);
 			
-			luaClass.set("new", new ProxyInstanceCreatingFunction(prototypeClass, luaFunctions));
+			luaClass.set("new", new ProxyInstanceCreatingFunction(prototypeClass, luaFunctions, coercer));
 			luaClass.set("__functionsTable", luaFunctions);
 			
 			return luaClass;
