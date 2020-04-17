@@ -26,26 +26,12 @@ import org.luaj.vm2.LuaValue;
  * The {@link LuaUtil} provides various helper methods for interacting with
  * LuaJ.
  */
-@Deprecated
 public final class LuaUtil {
 	/**
 	 * No instancing allowed.
 	 */
 	private LuaUtil() {
 		// No instancing allowed.
-	}
-	
-	/**
-	 * Only adds the coerced {@link Class} to the given {@link LuaValue
-	 * environment}.
-	 * 
-	 * @param environment The {@link LuaValue environment} to which to add the
-	 *        coerced {@link Class}.
-	 * @param clazz The {@link Class} which has been coerced.
-	 * @param coercedStaticInstance The coerced {@link Class} to add.
-	 */
-	public static final void addStaticInstanceDirect(LuaValue environment, Class<?> clazz, LuaValue coercedStaticInstance) {
-		environment.set(clazz.getSimpleName(), coercedStaticInstance);
 	}
 	
 	/**
@@ -57,7 +43,7 @@ public final class LuaUtil {
 	 * @param clazz The {@link Class} which has been coerced.
 	 * @param coercedStaticInstance The coerced {@link Class} to add.
 	 */
-	public static final void addStaticInstancePackage(LuaValue environment, Class<?> clazz, LuaValue coercedStaticInstance) {
+	public static final void addClassByPackage(LuaValue environment, Class<?> clazz, LuaValue coercedStaticInstance) {
 		LuaValue previousPackageTable = environment;
 		
 		for (String packagePart : clazz.getPackage().getName().split("\\.")) {

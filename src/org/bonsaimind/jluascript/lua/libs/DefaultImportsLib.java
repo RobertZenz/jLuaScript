@@ -47,8 +47,8 @@ public class DefaultImportsLib extends TwoArgFunction {
 	protected void importClass(LuaValue environment, Class<?> clazz) {
 		LuaValue coercedStaticInstance = coercer.coerceJavaToLua(clazz);
 		
-		LuaUtil.addStaticInstanceDirect(environment, clazz, coercedStaticInstance);
-		LuaUtil.addStaticInstancePackage(environment, clazz, coercedStaticInstance);
+		environment.set(clazz.getSimpleName(), coercedStaticInstance);
+		LuaUtil.addClassByPackage(environment, clazz, coercedStaticInstance);
 	}
 	
 	protected void importDefaults(LuaValue environment) {

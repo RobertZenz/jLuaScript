@@ -34,12 +34,12 @@ public class ClassImportingFunction extends ClassLoadingFunction {
 	
 	@Override
 	public LuaValue call(LuaValue arg) {
-		LuaValue coercedStaticInstance = super.call(arg);
-		Class<?> clazz = (Class<?>)coercedStaticInstance.get("class").touserdata(Class.class);
+		LuaValue coercedStaticClass = super.call(arg);
+		Class<?> clazz = (Class<?>)coercedStaticClass.get("class").touserdata(Class.class);
 		
-		LuaUtil.addStaticInstanceDirect(environment, clazz, coercedStaticInstance);
-		LuaUtil.addStaticInstancePackage(environment, clazz, coercedStaticInstance);
+		environment.set(clazz.getSimpleName(), coercedStaticClass);
+		LuaUtil.addClassByPackage(environment, clazz, coercedStaticClass);
 		
-		return coercedStaticInstance;
+		return coercedStaticClass;
 	}
 }
