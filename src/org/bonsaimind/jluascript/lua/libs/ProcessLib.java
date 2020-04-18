@@ -34,7 +34,7 @@ public class ProcessLib extends TwoArgFunction {
 	public ProcessLib(Coercer coercer) {
 		super();
 		
-		this.coercer = null;
+		this.coercer = coercer;
 	}
 	
 	@Override
