@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Configuration {
+	protected boolean noScriptPathResolve = false;
 	protected boolean printHelp = false;
 	protected boolean printJavaStackTrace = false;
 	protected boolean repl = false;
@@ -49,6 +50,10 @@ public class Configuration {
 		return readonlyScriptArguments;
 	}
 	
+	public boolean isNoScriptPathResolve() {
+		return noScriptPathResolve;
+	}
+	
 	public boolean isPrintHelp() {
 		return printHelp;
 	}
@@ -68,6 +73,8 @@ public class Configuration {
 					if (script == null) {
 						if (argument.equals("-h") || argument.equals("--help")) {
 							printHelp = true;
+						} else if (argument.equals("--no-script-path-resolve")) {
+							noScriptPathResolve = true;
 						} else if (argument.equals("--print-java-stacktrace")) {
 							printJavaStackTrace = true;
 						} else if (argument.equals("--repl")) {

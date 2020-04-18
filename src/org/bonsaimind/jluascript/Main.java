@@ -20,8 +20,10 @@
 package org.bonsaimind.jluascript;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.List;
 
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
 import org.bonsaimind.jluascript.lua.ScriptExecutionException;
@@ -71,7 +73,14 @@ public final class Main {
 	
 	private static final void runFile(LuaEnvironment environment, Configuration configuration) {
 		try {
-			Object returnedObject = environment.execute(Paths.get(configuration.getScript()), configuration.getScriptArguments());
+			Path scriptPath = Paths.get(configuration.getScript());
+			List<String> scriptArguments = configuration.getScriptArguments();
+			
+			if (!configuration.isNoScriptPathResolve()) {
+				scriptPath = scriptPath.toRealPath();
+			}
+			
+			Object returnedObject = environment.execute(scriptPath, scriptArguments);
 			
 			if (returnedObject != null) {
 				System.out.println(returnedObject.toString());
