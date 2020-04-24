@@ -82,15 +82,15 @@ public class DefaultCoercer implements Coercer {
 			return Boolean.valueOf(luaValue.toboolean());
 		}
 		
-		if (luaValue.isint()) {
+		if (luaValue.isint() && !isOnlySign(luaValue)) {
 			return Integer.valueOf(luaValue.toint());
 		}
 		
-		if (luaValue.islong()) {
+		if (luaValue.islong() && !isOnlySign(luaValue)) {
 			return Long.valueOf(luaValue.tolong());
 		}
 		
-		if (luaValue.isnumber()) {
+		if (luaValue.isnumber() && !isOnlySign(luaValue)) {
 			return Double.valueOf(luaValue.todouble());
 		}
 		
@@ -221,5 +221,22 @@ public class DefaultCoercer implements Coercer {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Checks if the given value is only a number because it is only a sign.
+	 * 
+	 * @param luaValue The {@link LuaValue} to check.
+	 * @return {@code true} if this is a number only consisting of a sign.
+	 */
+	protected boolean isOnlySign(LuaValue luaValue) {
+		if (luaValue.isnumber() && luaValue.isstring()) {
+			String stringValue = luaValue.tojstring()
+					.trim();
+			
+			return stringValue.equals("-") || stringValue.equals("+");
+		}
+		
+		return false;
 	}
 }
