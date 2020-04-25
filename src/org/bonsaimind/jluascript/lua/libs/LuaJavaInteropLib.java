@@ -19,6 +19,7 @@
 
 package org.bonsaimind.jluascript.lua.libs;
 
+import org.bonsaimind.jluascript.lua.functions.DirFunction;
 import org.bonsaimind.jluascript.lua.functions.IteratorIPairsFunction;
 import org.bonsaimind.jluascript.lua.functions.IteratorPairsFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
@@ -41,6 +42,7 @@ public class LuaJavaInteropLib extends TwoArgFunction {
 	
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
+		environment.set("dir", new DirFunction(coercer));
 		environment.set("ipairs", new IteratorIPairsFunction(environment.get("ipairs"), coercer));
 		environment.set("pairs", new IteratorPairsFunction(environment.get("pairs"), coercer));
 		

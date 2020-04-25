@@ -143,6 +143,51 @@ The global `string` value has been extended with the following Java functions:
  * toUpperCase
  * trim
 
+### Extended pairs/ipairs
+
+The pairs/ipairs functions have been extended to be able to iterator over
+Iterable/Iterators directly. That means that these functions can iterate over
+any List or Map by default:
+
+    local list = ArrayList:new()
+    list:add("A")
+    list:add("B")
+    list:add("C")
+    
+    for index, item in pairs(list) do
+        print(item)
+    end
+    
+    for index, item in ipairs(list) do
+        print(item)
+    end
+    
+    local map = HashMap:new()
+    map:put("A-Key", "A-Value")
+    map:put("B-Key", "B-Value")
+    map:put("C-Key", "C-Value")
+    
+    for key, value in pairs(map) do
+        print(key .. " => " .. value)
+    end
+    
+    for index, value in ipairs(map) do
+        print(value)
+    end
+
+Note that ipairs will return an index even for Maps, the order of items is still
+defined by the implementation.
+
+### dir Function
+
+There is now a global dir function, which allows to iterate over directories:
+
+    for name, path in dir("/usr/share/") do
+        -- name is the name of the entry.
+        -- path is a java.nio.Path object.
+        print(name)
+    end
+
 ### Embedding
 
 jLuaScript can be run stand-alone and execute given scripts, or it can be
