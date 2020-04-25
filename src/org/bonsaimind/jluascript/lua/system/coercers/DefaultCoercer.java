@@ -78,31 +78,49 @@ public class DefaultCoercer implements Coercer {
 			return null;
 		}
 		
-		if (luaValue.isboolean()) {
-			return Boolean.valueOf(luaValue.toboolean());
+		switch (luaValue.type()) {
+			case LuaValue.TBOOLEAN:
+				return Boolean.valueOf(luaValue.toboolean());
+			
+			case LuaValue.TFUNCTION:
+				break;
+			
+			case LuaValue.TINT:
+				return Integer.valueOf(luaValue.toint());
+			
+			case LuaValue.TLIGHTUSERDATA:
+				break;
+			
+			case LuaValue.TNIL:
+				break;
+			
+			case LuaValue.TNONE:
+				break;
+			
+			case LuaValue.TNUMBER:
+				if (luaValue.isint()) {
+					return Integer.valueOf(luaValue.toint());
+				} else {
+					return Double.valueOf(luaValue.todouble());
+				}
+				
+			case LuaValue.TSTRING:
+				return luaValue.tojstring();
+			
+			case LuaValue.TTABLE:
+				break;
+			
+			case LuaValue.TTHREAD:
+				break;
+			
+			case LuaValue.TUSERDATA:
+				return luaValue.touserdata();
+			
+			case LuaValue.TVALUE:
+				break;
 		}
 		
-		if (luaValue.isint() && !isOnlySign(luaValue)) {
-			return Integer.valueOf(luaValue.toint());
-		}
-		
-		if (luaValue.islong() && !isOnlySign(luaValue)) {
-			return Long.valueOf(luaValue.tolong());
-		}
-		
-		if (luaValue.isnumber() && !isOnlySign(luaValue)) {
-			return Double.valueOf(luaValue.todouble());
-		}
-		
-		if (luaValue.isstring()) {
-			return luaValue.tojstring();
-		}
-		
-		if (luaValue.isuserdata()) {
-			return luaValue.touserdata();
-		}
-		
-		throw new LuaError("Could not convert object <" + luaValue + "> to a Java object.");
+		throw new LuaError("Could not convert object <" + luaValue.typename() + "> to a Java object.");
 	}
 	
 	/**
@@ -221,22 +239,5 @@ public class DefaultCoercer implements Coercer {
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Checks if the given value is only a number because it is only a sign.
-	 * 
-	 * @param luaValue The {@link LuaValue} to check.
-	 * @return {@code true} if this is a number only consisting of a sign.
-	 */
-	protected boolean isOnlySign(LuaValue luaValue) {
-		if (luaValue.isnumber() && luaValue.isstring()) {
-			String stringValue = luaValue.tojstring()
-					.trim();
-			
-			return stringValue.equals("-") || stringValue.equals("+");
-		}
-		
-		return false;
 	}
 }
