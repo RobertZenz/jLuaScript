@@ -41,11 +41,11 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 	
 	@Override
 	public Varargs invoke(Varargs args) {
-		Iterator<?> iterator = getIterator(args.arg(1));
+		IteratingFunction iteratingFunction = createIteratingFunction(args);
 		
-		if (iterator != null) {
+		if (iteratingFunction != null) {
 			return varargsOf(new LuaValue[] {
-					createIteratingFunction(iterator),
+					iteratingFunction,
 					args.arg(1),
 					LuaValue.ZERO
 			});
@@ -56,8 +56,8 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 		}
 	}
 	
-	protected IteratingFunction createIteratingFunction(Iterator<?> iterator) {
-		return new IteratingFunction(iterator, coercer);
+	protected IteratingFunction createIteratingFunction(Varargs args) {
+		return new IteratingFunction(getIterator(args.arg1()), coercer);
 	}
 	
 	protected Iterator<?> getIterator(LuaValue luaValue) {

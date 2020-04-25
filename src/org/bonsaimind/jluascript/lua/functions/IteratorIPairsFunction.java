@@ -23,6 +23,7 @@ import java.util.Iterator;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 
 public class IteratorIPairsFunction extends AbstractIteratorFunction {
 	public IteratorIPairsFunction(LuaValue originalIPairsFunction, Coercer coercer) {
@@ -30,8 +31,8 @@ public class IteratorIPairsFunction extends AbstractIteratorFunction {
 	}
 	
 	@Override
-	protected IteratingFunction createIteratingFunction(Iterator<?> iterator) {
-		return new IndexIteratingFunction(iterator, coercer);
+	protected IteratingFunction createIteratingFunction(Varargs args) {
+		return new IndexIteratingFunction(getIterator(args.arg1()), coercer);
 	}
 	
 	protected static class IndexIteratingFunction extends IteratingFunction {
