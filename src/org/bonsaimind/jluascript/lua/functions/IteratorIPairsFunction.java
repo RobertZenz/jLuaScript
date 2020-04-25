@@ -40,7 +40,7 @@ public class IteratorIPairsFunction extends AbstractIteratorFunction {
 		}
 		
 		@Override
-		protected LuaValue processKey(Object key) {
+		protected LuaValue processKey(Object key, Object value) {
 			return LuaValue.valueOf(index);
 		}
 	}

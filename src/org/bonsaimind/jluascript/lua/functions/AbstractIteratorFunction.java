@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
@@ -48,8 +49,10 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 					args.arg(1),
 					LuaValue.ZERO
 			});
-		} else {
+		} else if (originalIterationFunction != null) {
 			return originalIterationFunction.invoke(args);
+		} else {
+			throw new LuaError("Cannot iterate over given value.");
 		}
 	}
 	
@@ -95,18 +98,18 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 				}
 				
 				return varargsOf(new LuaValue[] {
-						processKey(key),
-						processValue(value) });
+						processKey(key, value),
+						processValue(value, key) });
 			} else {
 				return LuaValue.NIL;
 			}
 		}
 		
-		protected LuaValue processKey(Object key) {
+		protected LuaValue processKey(Object key, Object value) {
 			return coercer.coerceJavaToLua(key);
 		}
 		
-		protected LuaValue processValue(Object value) {
+		protected LuaValue processValue(Object value, Object key) {
 			return coercer.coerceJavaToLua(value);
 		}
 	}
