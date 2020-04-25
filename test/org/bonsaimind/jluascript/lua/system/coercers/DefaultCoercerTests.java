@@ -1,3 +1,6 @@
+/*
+ * Licensed under Creative Commons Zero or as Public Domain.
+ */
 
 package org.bonsaimind.jluascript.lua.system.coercers;
 
