@@ -138,7 +138,7 @@ public class LuaEnvironment {
 	 * @throws ScriptExecutionException If there was an error when executing the
 	 *         given script.
 	 */
-	public <TYPE> TYPE execute(File file, List<String> args) throws ScriptExecutionException {
+	public <TYPE> TYPE execute(File file, List<? extends Object> args) throws ScriptExecutionException {
 		if (file == null) {
 			throw new IllegalArgumentException("file cannot be null.");
 		}
@@ -156,7 +156,7 @@ public class LuaEnvironment {
 	 * @throws ScriptExecutionException If there was an error when executing the
 	 *         given script.
 	 */
-	public <TYPE> TYPE execute(Path file, List<String> args) throws ScriptExecutionException {
+	public <TYPE> TYPE execute(Path file, List<? extends Object> args) throws ScriptExecutionException {
 		if (file == null) {
 			throw new IllegalArgumentException("file cannot be null.");
 		}
@@ -203,7 +203,7 @@ public class LuaEnvironment {
 	 * @throws ScriptExecutionException If there was an error when executing the
 	 *         given script.
 	 */
-	public <TYPE> TYPE execute(String script, List<String> args) throws ScriptExecutionException {
+	public <TYPE> TYPE execute(String script, List<Object> args) throws ScriptExecutionException {
 		if (script == null) {
 			throw new IllegalArgumentException("script cannot be null.");
 		}
@@ -454,12 +454,12 @@ public class LuaEnvironment {
 	 *        there is none.
 	 * @param scriptFile The current script file, can be empty if there is non.
 	 */
-	protected void updateEnvironmentVariables(List<String> args, String scriptDirectory, String scriptFile) {
+	protected void updateEnvironmentVariables(List<? extends Object> args, String scriptDirectory, String scriptFile) {
 		LuaTable argsTable = new LuaTable();
 		
 		if (args != null && !args.isEmpty()) {
-			for (String arg : args) {
-				argsTable.set(argsTable.length() + 1, LuaValue.valueOf(arg));
+			for (Object arg : args) {
+				argsTable.set(argsTable.length() + 1, coercer.coerceJavaToLua(arg));
 			}
 		}
 		

@@ -102,8 +102,8 @@ public class TestScripts {
 		runFile("string");
 	}
 	
-	protected void runFile(String scriptName, String... arguments) throws Exception {
-		List<String> args = null;
+	protected <PARAMETER_TYPE extends Object> void runFile(String scriptName, PARAMETER_TYPE... arguments) throws Exception {
+		List<Object> args = null;
 		
 		if (arguments != null) {
 			args = Arrays.asList(arguments);
@@ -112,8 +112,8 @@ public class TestScripts {
 		environment.execute(Paths.get("./test/org/bonsaimind/jluascript/scripts", scriptName + ".jluascript"), args);
 	}
 	
-	protected void runString(String scriptName, String... arguments) throws Exception {
-		List<String> args = null;
+	protected <PARAMETER_TYPE extends Object> void runString(String scriptName, PARAMETER_TYPE... arguments) throws Exception {
+		List<Object> args = null;
 		
 		if (arguments != null) {
 			args = Arrays.asList(arguments);
