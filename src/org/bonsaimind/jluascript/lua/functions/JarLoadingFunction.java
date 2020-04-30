@@ -22,8 +22,6 @@ package org.bonsaimind.jluascript.lua.functions;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.luaj.vm2.LuaError;
@@ -43,20 +41,24 @@ public class JarLoadingFunction extends VarArgFunction {
 	@Override
 	public Varargs invoke(Varargs args) {
 		if (args.narg() == 0) {
-			throw new LuaError("Expected the path as string parameters.");
+			throw new LuaError("Expected the path as parameters.");
 		}
 		
-		List<String> elements = new ArrayList<>();
+		Path jarPath = Paths.get("");
 		
 		for (int index = 1; index <= args.narg(); index++) {
-			if (!args.isstring(index)) {
-				throw new LuaError("Only strings are accepted as parameters.");
-			}
+			LuaValue arg = args.arg(index);
 			
-			elements.add(args.tojstring(index));
+			if (arg != null && !arg.isnil()) {
+				if (arg.isuserdata(Path.class)) {
+					jarPath = jarPath.resolve((Path)arg.touserdata());
+				} else if (arg.isstring()) {
+					jarPath = jarPath.resolve(arg.tojstring());
+				} else {
+					jarPath = jarPath.resolve(arg.toString());
+				}
+			}
 		}
-		
-		Path jarPath = Paths.get("", elements.toArray(new String[elements.size()]));
 		
 		try {
 			classLoader.addJar(jarPath.toUri().toURL());
