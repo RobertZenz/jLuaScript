@@ -78,6 +78,7 @@ public class RunFunction extends VarArgFunction {
 		
 		try {
 			process = new ProcessBuilder(command)
+					.inheritIO()
 					.start();
 		} catch (IOException e) {
 			throw new LuaError(e);
