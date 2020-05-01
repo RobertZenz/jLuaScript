@@ -57,5 +57,5 @@ public abstract class AbstractPathAcceptingFunction extends VarArgFunction {
 		return performAction(path);
 	}
 	
-	protected abstract LuaValue performAction(Path path);
+	protected abstract Varargs performAction(Path path);
 }

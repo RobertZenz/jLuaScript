@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 
 public class JarLoadingFunction extends AbstractPathAcceptingFunction {
 	protected DynamicClassLoader classLoader = null;
@@ -36,7 +37,7 @@ public class JarLoadingFunction extends AbstractPathAcceptingFunction {
 	}
 	
 	@Override
-	protected LuaValue performAction(Path path) {
+	protected Varargs performAction(Path path) {
 		try {
 			classLoader.addJar(path.toUri().toURL());
 		} catch (MalformedURLException e) {
