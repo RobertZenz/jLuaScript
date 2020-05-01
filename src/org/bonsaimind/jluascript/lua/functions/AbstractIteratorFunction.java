@@ -57,7 +57,13 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 	}
 	
 	protected IteratingFunction createIteratingFunction(Varargs args) {
-		return new IteratingFunction(getIterator(args.arg1()), coercer);
+		Iterator<?> iterator = getIterator(args.arg1());
+		
+		if (iterator != null) {
+			return new IteratingFunction(iterator, coercer);
+		} else {
+			return null;
+		}
 	}
 	
 	protected Iterator<?> getIterator(LuaValue luaValue) {

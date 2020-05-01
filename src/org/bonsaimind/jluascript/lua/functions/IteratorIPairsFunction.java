@@ -32,7 +32,13 @@ public class IteratorIPairsFunction extends AbstractIteratorFunction {
 	
 	@Override
 	protected IteratingFunction createIteratingFunction(Varargs args) {
-		return new IndexIteratingFunction(getIterator(args.arg1()), coercer);
+		Iterator<?> iterator = getIterator(args.arg1());
+		
+		if (iterator != null) {
+			return new IndexIteratingFunction(iterator, coercer);
+		} else {
+			return null;
+		}
 	}
 	
 	protected static class IndexIteratingFunction extends IteratingFunction {
