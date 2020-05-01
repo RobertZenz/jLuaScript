@@ -20,10 +20,12 @@
 package org.bonsaimind.jluascript.lua.libs;
 
 import org.bonsaimind.jluascript.lua.functions.DirFunction;
+import org.bonsaimind.jluascript.lua.functions.FileLoadingFunction;
 import org.bonsaimind.jluascript.lua.functions.IteratorIPairsFunction;
 import org.bonsaimind.jluascript.lua.functions.IteratorPairsFunction;
 import org.bonsaimind.jluascript.lua.functions.TreeDirFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
@@ -34,17 +36,20 @@ import org.luaj.vm2.lib.TwoArgFunction;
  */
 public class LuaJavaInteropLib extends TwoArgFunction {
 	protected Coercer coercer = null;
+	protected Globals globals = null;
 	
-	public LuaJavaInteropLib(Coercer coercer) {
+	public LuaJavaInteropLib(Coercer coercer, Globals globals) {
 		super();
 		
 		this.coercer = coercer;
+		this.globals = globals;
 	}
 	
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
 		environment.set("dir", new DirFunction(coercer));
 		environment.set("ipairs", new IteratorIPairsFunction(environment.get("ipairs"), coercer));
+		environment.set("loadFile", new FileLoadingFunction(globals));
 		environment.set("pairs", new IteratorPairsFunction(environment.get("pairs"), coercer));
 		environment.set("treeDir", new TreeDirFunction(coercer));
 		

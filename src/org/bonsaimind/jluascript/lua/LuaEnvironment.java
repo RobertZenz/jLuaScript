@@ -441,7 +441,7 @@ public class LuaEnvironment {
 		loadLibrary(new ClassImportLib(classLoader, coercer));
 		loadLibrary(new DefaultImportsLib(coercer));
 		loadLibrary(new JarLoaderLib(classLoader));
-		loadLibrary(new LuaJavaInteropLib(coercer));
+		loadLibrary(new LuaJavaInteropLib(coercer, environment));
 		loadLibrary(new ProcessLib(coercer));
 		loadLibrary(new StringExtendingLib(coercer));
 	}
