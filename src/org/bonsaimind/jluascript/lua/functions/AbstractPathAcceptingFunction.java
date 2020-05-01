@@ -19,30 +19,43 @@
 
 package org.bonsaimind.jluascript.lua.functions;
 
-import java.net.MalformedURLException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
+import org.luaj.vm2.lib.VarArgFunction;
 
-public class JarLoadingFunction extends AbstractPathAcceptingFunction {
-	protected DynamicClassLoader classLoader = null;
-	
-	public JarLoadingFunction(DynamicClassLoader classLoader) {
+public abstract class AbstractPathAcceptingFunction extends VarArgFunction {
+	protected AbstractPathAcceptingFunction() {
 		super();
-		
-		this.classLoader = classLoader;
 	}
 	
 	@Override
-	protected LuaValue performAction(Path path) {
-		try {
-			classLoader.addJar(path.toUri().toURL());
-		} catch (MalformedURLException e) {
-			throw new LuaError(e);
+	public Varargs invoke(Varargs args) {
+		if (args.narg() == 0) {
+			throw new LuaError("Expected the path as parameters.");
 		}
 		
-		return LuaValue.NIL;
+		Path path = Paths.get("");
+		
+		for (int index = 1; index <= args.narg(); index++) {
+			LuaValue arg = args.arg(index);
+			
+			if (arg != null && !arg.isnil()) {
+				if (arg.isuserdata(Path.class)) {
+					path = path.resolve((Path)arg.touserdata());
+				} else if (arg.isstring()) {
+					path = path.resolve(arg.tojstring());
+				} else {
+					path = path.resolve(arg.toString());
+				}
+			}
+		}
+		
+		return performAction(path);
 	}
+	
+	protected abstract LuaValue performAction(Path path);
 }
