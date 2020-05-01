@@ -19,9 +19,15 @@
 
 package org.bonsaimind.jluascript.lua.functions;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.bonsaimind.jluascript.support.ShebangSkippingInputStream;
 import org.luaj.vm2.Globals;
+import org.luaj.vm2.LuaError;
 import org.luaj.vm2.Varargs;
 
 public class FileLoadingFunction extends AbstractPathAcceptingFunction {
@@ -35,6 +41,14 @@ public class FileLoadingFunction extends AbstractPathAcceptingFunction {
 	
 	@Override
 	protected Varargs performAction(Path path) {
-		return globals.loadfile(path.toString()).invoke();
+		try (InputStream fileStream = Files.newInputStream(path)) {
+			return globals.load(
+					new ShebangSkippingInputStream(fileStream, StandardCharsets.UTF_8),
+					"@" + path.getFileName().toString(),
+					"bt",
+					globals).invoke();
+		} catch (IOException e) {
+			throw new LuaError(e);
+		}
 	}
 }
