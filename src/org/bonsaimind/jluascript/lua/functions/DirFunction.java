@@ -44,15 +44,7 @@ public class DirFunction extends AbstractIteratorFunction {
 	
 	@Override
 	protected Iterator<?> getIterator(LuaValue luaValue) {
-		try {
-			Path originPath = getPath(luaValue).normalize();
-			
-			return Files.walk(originPath, 1)
-					.filter(entry -> !entry.equals(originPath))
-					.iterator();
-		} catch (IOException e) {
-			throw new LuaError(e);
-		}
+		return walk(getPath(luaValue).normalize(), 1);
 	}
 	
 	protected Path getPath(LuaValue luaValue) {
@@ -68,6 +60,16 @@ public class DirFunction extends AbstractIteratorFunction {
 			return Paths.get((URI)javaValue);
 		} else {
 			throw new LuaError("Cannot iterator over given value.");
+		}
+	}
+	
+	protected Iterator<?> walk(Path path, int depth) {
+		try {
+			return Files.walk(path, depth)
+					.filter(entry -> !entry.equals(path))
+					.iterator();
+		} catch (IOException e) {
+			throw new LuaError(e);
 		}
 	}
 	

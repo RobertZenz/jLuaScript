@@ -22,6 +22,7 @@ package org.bonsaimind.jluascript.lua.libs;
 import org.bonsaimind.jluascript.lua.functions.DirFunction;
 import org.bonsaimind.jluascript.lua.functions.IteratorIPairsFunction;
 import org.bonsaimind.jluascript.lua.functions.IteratorPairsFunction;
+import org.bonsaimind.jluascript.lua.functions.TreeDirFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
@@ -45,6 +46,7 @@ public class LuaJavaInteropLib extends TwoArgFunction {
 		environment.set("dir", new DirFunction(coercer));
 		environment.set("ipairs", new IteratorIPairsFunction(environment.get("ipairs"), coercer));
 		environment.set("pairs", new IteratorPairsFunction(environment.get("pairs"), coercer));
+		environment.set("treeDir", new TreeDirFunction(coercer));
 		
 		return environment;
 	}
