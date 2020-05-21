@@ -214,7 +214,7 @@ public class DefaultCoercer implements Coercer {
 	 */
 	protected LuaValue coerceStaticInstance(Class<?> clazz) throws LuaError {
 		LuaTable staticTable = new LuaTable();
-		staticTable.set("class", CoerceJavaToLua.coerce(clazz));
+		staticTable.set("class", CoerceJavaToLua.coerce(clazz.getClass()));
 		
 		coerceStaticFields(clazz, staticTable);
 		coerceStaticMethods(clazz, staticTable);
