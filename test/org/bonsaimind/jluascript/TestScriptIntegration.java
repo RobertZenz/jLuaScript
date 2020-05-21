@@ -17,7 +17,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestScripts {
+public class TestScriptIntegration {
 	protected LuaEnvironment environment = null;
 	
 	@Before
