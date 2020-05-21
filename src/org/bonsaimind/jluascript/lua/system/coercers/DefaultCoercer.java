@@ -63,7 +63,7 @@ public class DefaultCoercer implements Coercer {
 		}
 		
 		if (object instanceof Class<?>) {
-			return coerceClass((Class<?>)object);
+			return coerceStaticInstance((Class<?>)object);
 		}
 		
 		return coerceInstance(object);
@@ -175,24 +175,6 @@ public class DefaultCoercer implements Coercer {
 	}
 	
 	/**
-	 * Coerces the given {@link Class} as {@link LuaValue}.
-	 * 
-	 * @param clazz The {@link Class} to coerce.
-	 * @return The coerced {@link Class}.
-	 * @throw LuaError If the conversion has failed or is not possible.
-	 */
-	protected LuaValue coerceClass(Class<?> clazz) throws LuaError {
-		LuaTable staticTable = new LuaTable();
-		staticTable.set("class", CoerceJavaToLua.coerce(clazz));
-		
-		coerceStaticFields(clazz, staticTable);
-		coerceStaticMethods(clazz, staticTable);
-		addSpecialMethods(clazz, staticTable);
-		
-		return staticTable;
-	}
-	
-	/**
 	 * Coerces the given {@link Object} as {@link LuaValue}.
 	 * 
 	 * @param object The {@link Object} to coerce.
@@ -221,6 +203,24 @@ public class DefaultCoercer implements Coercer {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Coerces the given {@link Class}/static instance as {@link LuaValue}.
+	 * 
+	 * @param clazz The {@link Class} to coerce.
+	 * @return The coerced {@link Class}.
+	 * @throw LuaError If the conversion has failed or is not possible.
+	 */
+	protected LuaValue coerceStaticInstance(Class<?> clazz) throws LuaError {
+		LuaTable staticTable = new LuaTable();
+		staticTable.set("class", CoerceJavaToLua.coerce(clazz));
+		
+		coerceStaticFields(clazz, staticTable);
+		coerceStaticMethods(clazz, staticTable);
+		addSpecialMethods(clazz, staticTable);
+		
+		return staticTable;
 	}
 	
 	/**
