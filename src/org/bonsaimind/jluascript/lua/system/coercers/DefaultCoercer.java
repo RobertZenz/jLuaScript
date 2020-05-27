@@ -19,6 +19,9 @@
 
 package org.bonsaimind.jluascript.lua.system.coercers;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.bonsaimind.jluascript.lua.system.types.InstanceUserData;
 import org.bonsaimind.jluascript.lua.system.types.StaticUserData;
@@ -33,6 +36,9 @@ import org.luaj.vm2.LuaValue;
  * The default implementation of {@link Coercer}.
  */
 public class DefaultCoercer implements Coercer {
+	/** The cache used for storing static instances. */
+	protected Map<Class<?>, LuaValue> classStaticInstaceCache = new IdentityHashMap<>();
+	
 	/**
 	 * Creates a new instance of {@link DefaultCoercer}.
 	 */
@@ -49,7 +55,14 @@ public class DefaultCoercer implements Coercer {
 			return LuaValue.NIL;
 		}
 		
-		return new StaticUserData(clazz, this);
+		LuaValue staticInstance = classStaticInstaceCache.get(clazz);
+		
+		if (staticInstance == null) {
+			staticInstance = new StaticUserData(clazz, this);
+			classStaticInstaceCache.put(clazz, staticInstance);
+		}
+		
+		return staticInstance;
 	}
 	
 	/**
