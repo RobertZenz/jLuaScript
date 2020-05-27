@@ -17,43 +17,29 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.libs.functions.interop;
 
+import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.bonsaimind.jluascript.lua.system.Coercer;
-import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.lib.OneArgFunction;
 
-public class ClassLoadingFunction extends OneArgFunction {
-	protected ClassLoader classLoader = null;
-	protected Coercer coercer = null;
+public class ClassImportingFunction extends ClassLoadingFunction {
+	protected LuaValue environment = null;
 	
-	public ClassLoadingFunction(ClassLoader classLoader, Coercer coercer) {
-		super();
+	public ClassImportingFunction(LuaValue environment, ClassLoader classLoader, Coercer coercer) {
+		super(classLoader, coercer);
 		
-		this.classLoader = classLoader;
-		this.coercer = coercer;
+		this.environment = environment;
 	}
 	
 	@Override
 	public LuaValue call(LuaValue arg) {
-		if (!arg.isstring()) {
-			throw new LuaError("Expected the class name as parameter.");
-		}
+		LuaValue coercedStaticClass = super.call(arg);
+		Class<?> clazz = (Class<?>)coercedStaticClass.touserdata(Class.class);
 		
-		String className = arg.tojstring();
+		environment.set(clazz.getSimpleName(), coercedStaticClass);
+		LuaUtil.addClassByPackage(environment, clazz, coercedStaticClass);
 		
-		if (className == null || className.isEmpty()) {
-			throw new LuaError("Expected the class name as parameter.");
-		}
-		
-		try {
-			Class<?> clazz = classLoader.loadClass(className);
-			LuaValue coercedStaticClass = coercer.coerceJavaToLua(clazz);
-			
-			return coercedStaticClass;
-		} catch (ClassNotFoundException e) {
-			throw new LuaError("Class <" + arg.tojstring() + "> could not be loaded.");
-		}
+		return coercedStaticClass;
 	}
 }

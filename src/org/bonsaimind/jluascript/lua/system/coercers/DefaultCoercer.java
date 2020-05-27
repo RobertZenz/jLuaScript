@@ -19,20 +19,15 @@
 
 package org.bonsaimind.jluascript.lua.system.coercers;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
-import org.bonsaimind.jluascript.lua.functions.ClassCreatingFunction;
-import org.bonsaimind.jluascript.lua.functions.ConstructorInvokingFunction;
-import org.bonsaimind.jluascript.lua.functions.ErrorThrowingFunction;
-import org.bonsaimind.jluascript.lua.functions.ProxyInstanceCreatingFunction;
-import org.bonsaimind.jluascript.lua.functions.StaticMethodInvokingFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.lua.system.types.InstanceUserData;
+import org.bonsaimind.jluascript.lua.system.types.StaticUserData;
+import org.luaj.vm2.LuaBoolean;
 import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaNumber;
+import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 /**
  * The default implementation of {@link Coercer}.
@@ -62,8 +57,18 @@ public class DefaultCoercer implements Coercer {
 			return coerceArray((Object[])object);
 		}
 		
-		if (object instanceof Class<?>) {
-			return coerceStaticInstance((Class<?>)object);
+		if (object instanceof String) {
+			return LuaString.valueOf((String)object);
+		} else if (object instanceof Boolean) {
+			return LuaBoolean.valueOf(((Boolean)object).booleanValue());
+		} else if (object instanceof Byte
+				|| object instanceof Short
+				|| object instanceof Integer
+				|| object instanceof Long) {
+			return LuaNumber.valueOf(((Number)object).intValue());
+		} else if (object instanceof Float
+				|| object instanceof Double) {
+			return LuaNumber.valueOf(((Number)object).doubleValue());
 		}
 		
 		return coerceInstance(object);
@@ -124,40 +129,6 @@ public class DefaultCoercer implements Coercer {
 	}
 	
 	/**
-	 * Adds the "special" methods (implement, implementNew, extend, extendNew)
-	 * to the static {@link LuaValue} that represents a static class.
-	 * 
-	 * @param clazz The {@link Class} to use.
-	 * @param staticTable The {@link LuaValue} to add to.
-	 */
-	protected void addSpecialMethods(Class<?> clazz, LuaTable staticTable) {
-		if (clazz.isInterface()) {
-			staticTable.set("implement", new ClassCreatingFunction(clazz, this));
-			staticTable.set("implementNew", new ProxyInstanceCreatingFunction(clazz, this));
-			staticTable.set("extend", new ErrorThrowingFunction(clazz.getSimpleName() + " is an interface and cannot be extended."));
-			staticTable.set("extendNew", new ErrorThrowingFunction(clazz.getSimpleName() + " is an interface and cannot be extended."));
-			staticTable.set("new", new ErrorThrowingFunction(clazz.getSimpleName() + " is an interface and cannot be instantiated."));
-		} else {
-			staticTable.set("implement", new ErrorThrowingFunction(clazz.getSimpleName() + " is not an interface."));
-			staticTable.set("implementNew", new ErrorThrowingFunction(clazz.getSimpleName() + " is not an interface."));
-			
-			if (!Modifier.isFinal(clazz.getModifiers())) {
-				staticTable.set("extend", new ClassCreatingFunction(clazz, this));
-				staticTable.set("extendNew", new ProxyInstanceCreatingFunction(clazz, this));
-			} else {
-				staticTable.set("extend", new ErrorThrowingFunction(clazz.getSimpleName() + " is marked as final and cannot be extended."));
-				staticTable.set("extendNew", new ErrorThrowingFunction(clazz.getSimpleName() + " is marked as final and cannot be extended."));
-			}
-			
-			if (!Modifier.isAbstract(clazz.getModifiers())) {
-				staticTable.set("new", new ConstructorInvokingFunction(clazz, this));
-			} else {
-				staticTable.set("new", new ErrorThrowingFunction(clazz.getSimpleName() + " is an abstract class and cannot be instantiated."));
-			}
-		}
-	}
-	
-	/**
 	 * Coerces the given array to a {@link LuaValue}.
 	 * 
 	 * @param array The array to coerce.
@@ -182,27 +153,7 @@ public class DefaultCoercer implements Coercer {
 	 * @throw LuaError If the conversion has failed or is not possible.
 	 */
 	protected LuaValue coerceInstance(Object object) throws LuaError {
-		return CoerceJavaToLua.coerce(object);
-	}
-	
-	/**
-	 * Coerces all static fields of the given {@link Class} to the given
-	 * {@link LuaValue} representing a static class.
-	 * 
-	 * @param clazz The {@link Class} to use.
-	 * @param staticTable The {@link LuaValue} to add to.
-	 */
-	protected void coerceStaticFields(Class<?> clazz, LuaTable staticTable) {
-		for (Field field : clazz.getFields()) {
-			if (Modifier.isStatic(field.getModifiers())
-					&& Modifier.isPublic(field.getModifiers())) {
-				try {
-					staticTable.set(field.getName(), coerceJavaToLua(field.get(null)));
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					// Ignore possible errors, as they should not happen.
-				}
-			}
-		}
+		return new InstanceUserData(object, this);
 	}
 	
 	/**
@@ -213,31 +164,6 @@ public class DefaultCoercer implements Coercer {
 	 * @throw LuaError If the conversion has failed or is not possible.
 	 */
 	protected LuaValue coerceStaticInstance(Class<?> clazz) throws LuaError {
-		LuaTable staticTable = new LuaTable();
-		staticTable.set("class", CoerceJavaToLua.coerce(clazz.getClass()));
-		
-		coerceStaticFields(clazz, staticTable);
-		coerceStaticMethods(clazz, staticTable);
-		addSpecialMethods(clazz, staticTable);
-		
-		return staticTable;
-	}
-	
-	/**
-	 * Coerces all static methods of the given {@link Class} to the given
-	 * {@link LuaValue} representing a static class.
-	 * 
-	 * @param clazz The {@link Class} to use.
-	 * @param staticTable The {@link LuaValue} to add to.
-	 */
-	protected void coerceStaticMethods(Class<?> clazz, LuaTable staticTable) {
-		for (Method method : clazz.getMethods()) {
-			if (Modifier.isStatic(method.getModifiers())
-					&& Modifier.isPublic(method.getModifiers())) {
-				if (staticTable.get(method.getName()).isnil()) {
-					staticTable.set(method.getName(), new StaticMethodInvokingFunction(clazz, method.getName(), this));
-				}
-			}
-		}
+		return new StaticUserData(clazz, this);
 	}
 }

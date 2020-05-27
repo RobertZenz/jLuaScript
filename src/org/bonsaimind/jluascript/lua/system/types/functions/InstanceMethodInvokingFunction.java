@@ -17,22 +17,26 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.system.types.functions;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.luaj.vm2.LuaError;
 
 public class InstanceMethodInvokingFunction extends AbstractExecutableInvokingFunction<Method> {
-	public InstanceMethodInvokingFunction(Class<?> clazz, String methodName, Coercer coercer) {
-		super(clazz, methodName, coercer);
+	public InstanceMethodInvokingFunction(Class<?> clazz, List<Method> methods, Coercer coercer) {
+		super(clazz, methods, methods.get(0).getName(), coercer);
 	}
 	
 	@Override
 	protected Object execute(Method executable, List<Object> parameters) throws Exception {
+		if (parameters.size() < 1) {
+			throw new LuaError("Expected to invoke instance function, but no instance parameter provided.");
+		}
+		
 		List<Object> methodParameters = new ArrayList<>(parameters);
 		Object instance = methodParameters.remove(0);
 		
@@ -41,25 +45,13 @@ public class InstanceMethodInvokingFunction extends AbstractExecutableInvokingFu
 	
 	@Override
 	protected Method findMatchingExecutable(List<Object> parameters) {
+		if (parameters.size() < 1) {
+			throw new LuaError("Expected to invoke instance function, but no instance parameter provided.");
+		}
+		
 		List<Object> methodParameters = new ArrayList<>(parameters);
 		methodParameters.remove(0);
 		
 		return super.findMatchingExecutable(methodParameters);
 	}
-	
-	@Override
-	protected List<Method> initializeExecutableList() {
-		List<Method> methods = new ArrayList<>();
-		
-		for (Method method : clazz.getMethods()) {
-			if (!Modifier.isStatic(method.getModifiers())
-					&& Modifier.isPublic(method.getModifiers())
-					&& method.getName().equals(executableName)) {
-				methods.add(method);
-			}
-		}
-		
-		return methods;
-	}
-	
 }

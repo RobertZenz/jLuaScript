@@ -19,7 +19,7 @@
 
 package org.bonsaimind.jluascript.lua.libs;
 
-import org.bonsaimind.jluascript.lua.functions.JarLoadingFunction;
+import org.bonsaimind.jluascript.lua.libs.functions.interop.JarLoadingFunction;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;

@@ -9,6 +9,12 @@ if BigNumber == nil then
 	error("Local BigNumber load returned nil.")
 end
 
+if java ~= nil
+		and java.math ~= nil
+		and java.math.BigDecimal ~= nil then
+	error("Class was imported, but should not have been.")
+end
+
 -- The following line should execute without error if the class could be
 -- imported.
 BigNumber.valueOf(5);

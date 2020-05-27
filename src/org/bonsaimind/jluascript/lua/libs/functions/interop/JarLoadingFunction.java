@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, Robert 'Bobby' Zenz
+ * Copyright 2018, Robert 'Bobby' Zenz
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,20 +17,34 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.libs.functions.interop;
 
-import java.util.Iterator;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
 
-import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.lua.libs.functions.AbstractPathAcceptingFunction;
+import org.bonsaimind.jluascript.support.DynamicClassLoader;
+import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 
-public class TreeDirFunction extends DirFunction {
-	public TreeDirFunction(Coercer coercer) {
-		super(coercer);
+public class JarLoadingFunction extends AbstractPathAcceptingFunction {
+	protected DynamicClassLoader classLoader = null;
+	
+	public JarLoadingFunction(DynamicClassLoader classLoader) {
+		super();
+		
+		this.classLoader = classLoader;
 	}
 	
 	@Override
-	protected Iterator<?> getIterator(LuaValue luaValue) {
-		return walk(getPath(luaValue).normalize(), Integer.MAX_VALUE);
+	protected Varargs performAction(Path path) {
+		try {
+			classLoader.addJar(path.toUri().toURL());
+		} catch (MalformedURLException e) {
+			throw new LuaError(e);
+		}
+		
+		return LuaValue.NIL;
 	}
 }

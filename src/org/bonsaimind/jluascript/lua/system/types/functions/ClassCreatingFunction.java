@@ -17,9 +17,12 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.system.types.functions;
+
+import java.util.UUID;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.lua.system.types.StaticUserData;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
@@ -51,7 +54,7 @@ public class ClassCreatingFunction extends OneArgFunction {
 		ClassPool classPool = ClassPool.getDefault();
 		
 		try {
-			CtClass classPrototype = classPool.makeClass(clazz.getSimpleName());
+			CtClass classPrototype = classPool.makeClass(createClassName(clazz));
 			
 			if (clazz.isInterface()) {
 				classPrototype.setSuperclass(classPool.get(Object.class.getName()));
@@ -60,16 +63,19 @@ public class ClassCreatingFunction extends OneArgFunction {
 				classPrototype.setSuperclass(classPool.get(clazz.getName()));
 			}
 			
-			Class<?> prototypeClass = classPrototype.toClass(clazz.getClassLoader(), clazz.getProtectionDomain());
+			Class<?> createdClass = classPrototype.toClass(clazz.getClassLoader(), clazz.getProtectionDomain());
 			
-			LuaValue luaClass = coercer.coerceJavaToLua(prototypeClass);
+			StaticUserData luaClass = new StaticUserData(createdClass, coercer);
 			
-			luaClass.set("new", new ProxyInstanceCreatingFunction(prototypeClass, luaFunctions, coercer));
-			luaClass.set("__functionsTable", luaFunctions);
+			luaClass.provide(StaticUserData.CONSTRUCTOR_NAME, new ProxyInstanceCreatingFunction(clazz, luaFunctions, coercer));
 			
 			return luaClass;
 		} catch (NotFoundException | CannotCompileException e) {
 			throw new LuaError(e);
 		}
+	}
+	
+	protected String createClassName(Class<?> clazz) {
+		return clazz.getSimpleName() + "$" + UUID.randomUUID().toString().replace("-", "");
 	}
 }

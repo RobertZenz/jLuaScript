@@ -19,7 +19,7 @@
 
 package org.bonsaimind.jluascript.lua.libs;
 
-import org.bonsaimind.jluascript.lua.functions.RunFunction;
+import org.bonsaimind.jluascript.lua.libs.functions.extensions.RunFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;

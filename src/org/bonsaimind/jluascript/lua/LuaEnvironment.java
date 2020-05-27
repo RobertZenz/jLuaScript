@@ -65,6 +65,7 @@ import org.luaj.vm2.luajc.LuaJC;
 public class LuaEnvironment {
 	/** The {@link DynamicClassLoader} which is being used. */
 	protected DynamicClassLoader classLoader = null;
+	/** The {@link Coercer} that is being used. */
 	protected Coercer coercer = new DefaultCoercer();
 	/** The Lua environment. */
 	protected Globals environment = null;

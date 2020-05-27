@@ -98,6 +98,11 @@ public class TestScriptIntegration {
 	}
 	
 	@Test
+	public void testStaticInstance() throws Exception {
+		runFile("static-instance");
+	}
+	
+	@Test
 	public void testString() throws Exception {
 		runFile("string");
 	}

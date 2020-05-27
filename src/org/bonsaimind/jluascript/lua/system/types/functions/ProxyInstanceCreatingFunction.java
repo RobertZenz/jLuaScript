@@ -17,7 +17,7 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.system.types.functions;
 
 import org.bonsaimind.jluascript.javassist.filters.HandleOnlyNonFinalFilter;
 import org.bonsaimind.jluascript.javassist.handlers.LuaInvokingMethodHandler;

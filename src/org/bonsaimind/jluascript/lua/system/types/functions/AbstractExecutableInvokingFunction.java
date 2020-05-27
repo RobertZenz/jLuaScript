@@ -1,23 +1,5 @@
-/*
- * Copyright 2018, Robert 'Bobby' Zenz
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, see <http://www.gnu.org/licenses/>
- * or write to the Free Software Foundation, Inc., 51 Franklin Street,
- * Fifth Floor, Boston, MA  02110-1301  USA
- */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.system.types.functions;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
@@ -36,10 +18,11 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 	protected String executableName = null;
 	protected List<EXECUTABLE> executables = null;
 	
-	protected AbstractExecutableInvokingFunction(Class<?> clazz, String executableName, Coercer coercer) {
+	public AbstractExecutableInvokingFunction(Class<?> clazz, List<EXECUTABLE> executables, String executableName, Coercer coercer) {
 		super();
 		
 		this.clazz = clazz;
+		this.executables = executables;
 		this.executableName = executableName;
 		this.coercer = coercer;
 	}
@@ -105,21 +88,13 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 	protected abstract Object execute(EXECUTABLE executable, List<Object> parameters) throws Exception;
 	
 	protected EXECUTABLE findMatchingExecutable(List<Object> parameters) {
-		for (EXECUTABLE executable : getExecutables()) {
+		for (EXECUTABLE executable : executables) {
 			if (isMatching(executable, parameters)) {
 				return executable;
 			}
 		}
 		
 		return null;
-	}
-	
-	protected List<EXECUTABLE> getExecutables() {
-		if (executables == null) {
-			executables = initializeExecutableList();
-		}
-		
-		return executables;
 	}
 	
 	protected String getMethodSignature(EXECUTABLE executable) {
@@ -171,8 +146,6 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 				&& executable.getParameters()[executable.getParameterCount() - 1].isVarArgs();
 	}
 	
-	protected abstract List<EXECUTABLE> initializeExecutableList();
-	
 	protected boolean isMatching(Class<?> expectedClass, Class<?> clazz) {
 		return expectedClass.isAssignableFrom(clazz)
 				|| (expectedClass == byte.class && clazz == Byte.class)
@@ -192,7 +165,9 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 	protected boolean isMatching(Executable executable, List<Object> parameters) {
 		Parameter[] methodParameters = executable.getParameters();
 		
-		if (parameters.size() > methodParameters.length && !methodParameters[methodParameters.length - 1].isVarArgs()) {
+		if (parameters.size() != methodParameters.length
+				&& (methodParameters.length <= 0
+						|| !methodParameters[methodParameters.length - 1].isVarArgs())) {
 			return false;
 		}
 		
@@ -217,7 +192,7 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 				
 				Object parameter = parameters.get(parameterIndex);
 				
-				if (!isMatching(methodParameter.getType(), parameter.getClass())) {
+				if (parameter != null && !isMatching(methodParameter.getType(), parameter.getClass())) {
 					return false;
 				}
 			}

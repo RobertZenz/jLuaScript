@@ -11,7 +11,9 @@ if BigDecimal == nil then
 	error("Global BigDecimal is missing.")
 end
 
-if java.math.BigDecimal == nil then
+if java == nil
+		or java.math == nil
+		or java.math.BigDecimal == nil then
 	error("Global java.math.BigDecimal is missing.")
 end
 

@@ -19,11 +19,11 @@
 
 package org.bonsaimind.jluascript.lua.libs;
 
-import org.bonsaimind.jluascript.lua.functions.DirFunction;
-import org.bonsaimind.jluascript.lua.functions.FileLoadingFunction;
-import org.bonsaimind.jluascript.lua.functions.IteratorIPairsFunction;
-import org.bonsaimind.jluascript.lua.functions.IteratorPairsFunction;
-import org.bonsaimind.jluascript.lua.functions.TreeDirFunction;
+import org.bonsaimind.jluascript.lua.libs.functions.extensions.DirFunction;
+import org.bonsaimind.jluascript.lua.libs.functions.extensions.IteratorIPairsFunction;
+import org.bonsaimind.jluascript.lua.libs.functions.extensions.IteratorPairsFunction;
+import org.bonsaimind.jluascript.lua.libs.functions.extensions.TreeDirFunction;
+import org.bonsaimind.jluascript.lua.libs.functions.interop.FileLoadingFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;

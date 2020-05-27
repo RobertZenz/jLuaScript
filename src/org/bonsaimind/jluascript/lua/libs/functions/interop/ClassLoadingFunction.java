@@ -17,24 +17,19 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.libs;
+package org.bonsaimind.jluascript.lua.libs.functions.interop;
 
-import org.bonsaimind.jluascript.lua.libs.functions.interop.ClassImportingFunction;
-import org.bonsaimind.jluascript.lua.libs.functions.interop.ClassLoadingFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
-import org.bonsaimind.jluascript.support.DynamicClassLoader;
+import org.bonsaimind.jluascript.lua.system.types.StaticUserData;
+import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.lib.TwoArgFunction;
+import org.luaj.vm2.lib.OneArgFunction;
 
-/**
- * The {@link ClassImportLib} adds the facilities to easily import new classes
- * into the environment.
- */
-public class ClassImportLib extends TwoArgFunction {
-	protected DynamicClassLoader classLoader = null;
+public class ClassLoadingFunction extends OneArgFunction {
+	protected ClassLoader classLoader = null;
 	protected Coercer coercer = null;
 	
-	public ClassImportLib(DynamicClassLoader classLoader, Coercer coercer) {
+	public ClassLoadingFunction(ClassLoader classLoader, Coercer coercer) {
 		super();
 		
 		this.classLoader = classLoader;
@@ -42,10 +37,24 @@ public class ClassImportLib extends TwoArgFunction {
 	}
 	
 	@Override
-	public LuaValue call(LuaValue modname, LuaValue environment) {
-		environment.set("import", new ClassImportingFunction(environment, classLoader, coercer));
-		environment.set("loadClass", new ClassLoadingFunction(classLoader, coercer));
+	public LuaValue call(LuaValue arg) {
+		if (!arg.isstring()) {
+			throw new LuaError("Expected the class name as parameter.");
+		}
 		
-		return environment;
+		String className = arg.tojstring();
+		
+		if (className == null || className.isEmpty()) {
+			throw new LuaError("Expected the class name as parameter.");
+		}
+		
+		try {
+			Class<?> clazz = classLoader.loadClass(className);
+			LuaValue coercedStaticClass = new StaticUserData(clazz, coercer);
+			
+			return coercedStaticClass;
+		} catch (ClassNotFoundException e) {
+			throw new LuaError("Class <" + arg.tojstring() + "> could not be loaded.");
+		}
 	}
 }

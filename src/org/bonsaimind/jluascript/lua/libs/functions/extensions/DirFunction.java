@@ -17,7 +17,7 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.libs.functions.extensions;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
+import org.bonsaimind.jluascript.lua.libs.functions.AbstractIteratorFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;

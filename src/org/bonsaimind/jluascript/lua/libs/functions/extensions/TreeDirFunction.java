@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, Robert 'Bobby' Zenz
+ * Copyright 2020, Robert 'Bobby' Zenz
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,13 +17,20 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.libs.functions.extensions;
+
+import java.util.Iterator;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
 
-public class IteratorPairsFunction extends AbstractIteratorFunction {
-	public IteratorPairsFunction(LuaValue originalPairsFunction, Coercer coercer) {
-		super(originalPairsFunction, coercer);
+public class TreeDirFunction extends DirFunction {
+	public TreeDirFunction(Coercer coercer) {
+		super(coercer);
+	}
+	
+	@Override
+	protected Iterator<?> getIterator(LuaValue luaValue) {
+		return walk(getPath(luaValue).normalize(), Integer.MAX_VALUE);
 	}
 }

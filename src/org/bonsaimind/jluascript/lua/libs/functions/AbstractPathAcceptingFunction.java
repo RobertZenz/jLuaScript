@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, Robert 'Bobby' Zenz
+ * Copyright 2018, Robert 'Bobby' Zenz
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,23 +17,45 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.libs.functions;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
-public class ErrorThrowingFunction extends VarArgFunction {
-	protected String message = null;
-	
-	public ErrorThrowingFunction(String message) {
+public abstract class AbstractPathAcceptingFunction extends VarArgFunction {
+	protected AbstractPathAcceptingFunction() {
 		super();
-		
-		this.message = message;
 	}
 	
 	@Override
 	public Varargs invoke(Varargs args) {
-		throw new LuaError(message);
+		if (args.narg() == 0) {
+			throw new LuaError("Expected the path as parameters.");
+		}
+		
+		Path path = Paths.get("");
+		
+		for (int index = 1; index <= args.narg(); index++) {
+			LuaValue arg = args.arg(index);
+			
+			if (arg != null && !arg.isnil()) {
+				if (arg.isuserdata(Path.class)) {
+					path = path.resolve((Path)arg.touserdata());
+				} else if (arg.isstring()) {
+					path = path.resolve(arg.tojstring());
+				} else {
+					path = path.resolve(arg.toString());
+				}
+			}
+		}
+		
+		return performAction(path);
 	}
+	
+	protected abstract Varargs performAction(Path path);
 }

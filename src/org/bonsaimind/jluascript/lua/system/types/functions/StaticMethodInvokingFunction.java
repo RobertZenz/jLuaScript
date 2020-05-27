@@ -17,33 +17,20 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.system.types.functions;
 
-import java.net.MalformedURLException;
-import java.nio.file.Path;
+import java.lang.reflect.Method;
+import java.util.List;
 
-import org.bonsaimind.jluascript.support.DynamicClassLoader;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
+import org.bonsaimind.jluascript.lua.system.Coercer;
 
-public class JarLoadingFunction extends AbstractPathAcceptingFunction {
-	protected DynamicClassLoader classLoader = null;
-	
-	public JarLoadingFunction(DynamicClassLoader classLoader) {
-		super();
-		
-		this.classLoader = classLoader;
+public class StaticMethodInvokingFunction extends AbstractExecutableInvokingFunction<Method> {
+	public StaticMethodInvokingFunction(Class<?> clazz, List<Method> methods, Coercer coercer) {
+		super(clazz, methods, methods.get(0).getName(), coercer);
 	}
 	
 	@Override
-	protected Varargs performAction(Path path) {
-		try {
-			classLoader.addJar(path.toUri().toURL());
-		} catch (MalformedURLException e) {
-			throw new LuaError(e);
-		}
-		
-		return LuaValue.NIL;
+	protected Object execute(Method executable, List<Object> parameters) throws Exception {
+		return executable.invoke(null, parameters.toArray());
 	}
 }

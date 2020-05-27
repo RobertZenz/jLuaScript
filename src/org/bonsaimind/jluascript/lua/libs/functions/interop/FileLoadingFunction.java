@@ -17,7 +17,7 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.libs.functions.interop;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.bonsaimind.jluascript.lua.libs.functions.AbstractPathAcceptingFunction;
 import org.bonsaimind.jluascript.support.ShebangSkippingInputStream;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaError;

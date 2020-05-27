@@ -17,29 +17,39 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.libs.functions.extensions;
 
-import org.bonsaimind.jluascript.lua.LuaUtil;
+import java.util.Iterator;
+
+import org.bonsaimind.jluascript.lua.libs.functions.AbstractIteratorFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 
-public class ClassImportingFunction extends ClassLoadingFunction {
-	protected LuaValue environment = null;
-	
-	public ClassImportingFunction(LuaValue environment, ClassLoader classLoader, Coercer coercer) {
-		super(classLoader, coercer);
-		
-		this.environment = environment;
+public class IteratorIPairsFunction extends AbstractIteratorFunction {
+	public IteratorIPairsFunction(LuaValue originalIPairsFunction, Coercer coercer) {
+		super(originalIPairsFunction, coercer);
 	}
 	
 	@Override
-	public LuaValue call(LuaValue arg) {
-		LuaValue coercedStaticClass = super.call(arg);
-		Class<?> clazz = (Class<?>)coercedStaticClass.get("class").touserdata(Class.class);
+	protected IteratingFunction createIteratingFunction(Varargs args) {
+		Iterator<?> iterator = getIterator(args.arg1());
 		
-		environment.set(clazz.getSimpleName(), coercedStaticClass);
-		LuaUtil.addClassByPackage(environment, clazz, coercedStaticClass);
+		if (iterator != null) {
+			return new IndexIteratingFunction(iterator, coercer);
+		} else {
+			return null;
+		}
+	}
+	
+	protected static class IndexIteratingFunction extends IteratingFunction {
+		public IndexIteratingFunction(Iterator<?> iterator, Coercer coercer) {
+			super(iterator, coercer);
+		}
 		
-		return coercedStaticClass;
+		@Override
+		protected LuaValue processKey(Object key, Object value) {
+			return LuaValue.valueOf(index);
+		}
 	}
 }

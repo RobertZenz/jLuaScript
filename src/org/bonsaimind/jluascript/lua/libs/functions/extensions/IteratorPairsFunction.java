@@ -17,38 +17,14 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.libs.functions.extensions;
 
-import java.util.Iterator;
-
+import org.bonsaimind.jluascript.lua.libs.functions.AbstractIteratorFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
 
-public class IteratorIPairsFunction extends AbstractIteratorFunction {
-	public IteratorIPairsFunction(LuaValue originalIPairsFunction, Coercer coercer) {
-		super(originalIPairsFunction, coercer);
-	}
-	
-	@Override
-	protected IteratingFunction createIteratingFunction(Varargs args) {
-		Iterator<?> iterator = getIterator(args.arg1());
-		
-		if (iterator != null) {
-			return new IndexIteratingFunction(iterator, coercer);
-		} else {
-			return null;
-		}
-	}
-	
-	protected static class IndexIteratingFunction extends IteratingFunction {
-		public IndexIteratingFunction(Iterator<?> iterator, Coercer coercer) {
-			super(iterator, coercer);
-		}
-		
-		@Override
-		protected LuaValue processKey(Object key, Object value) {
-			return LuaValue.valueOf(index);
-		}
+public class IteratorPairsFunction extends AbstractIteratorFunction {
+	public IteratorPairsFunction(LuaValue originalPairsFunction, Coercer coercer) {
+		super(originalPairsFunction, coercer);
 	}
 }

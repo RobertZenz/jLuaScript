@@ -17,36 +17,20 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.system.types.functions;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
 
 public class ConstructorInvokingFunction extends AbstractExecutableInvokingFunction<Constructor<?>> {
-	public ConstructorInvokingFunction(Class<?> clazz, Coercer coercer) {
-		super(clazz, "new", coercer);
+	public ConstructorInvokingFunction(Class<?> clazz, List<Constructor<?>> constructors, Coercer coercer) {
+		super(clazz, constructors, "new", coercer);
 	}
 	
 	@Override
 	protected Object execute(Constructor<?> executable, List<Object> parameters) throws Exception {
 		return executable.newInstance(parameters.toArray());
 	}
-	
-	@Override
-	protected List<Constructor<?>> initializeExecutableList() {
-		List<Constructor<?>> constructors = new ArrayList<>();
-		
-		for (Constructor<?> constructor : clazz.getConstructors()) {
-			if (Modifier.isPublic(constructor.getModifiers())) {
-				constructors.add(constructor);
-			}
-		}
-		
-		return constructors;
-	}
-	
 }

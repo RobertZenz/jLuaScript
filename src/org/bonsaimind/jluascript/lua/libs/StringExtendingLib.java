@@ -19,8 +19,13 @@
 
 package org.bonsaimind.jluascript.lua.libs;
 
-import org.bonsaimind.jluascript.lua.functions.InstanceMethodInvokingFunction;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.lua.system.types.functions.InstanceMethodInvokingFunction;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
@@ -68,6 +73,20 @@ public class StringExtendingLib extends TwoArgFunction {
 	}
 	
 	protected void extendWith(LuaTable stringTable, String methodName) {
-		stringTable.set(methodName, new InstanceMethodInvokingFunction(String.class, methodName, coercer));
+		stringTable.set(methodName, new InstanceMethodInvokingFunction(String.class, getMethods(methodName), coercer));
+	}
+	
+	protected List<Method> getMethods(String name) {
+		List<Method> methods = new ArrayList<>();
+		
+		for (Method method : String.class.getMethods()) {
+			if (!Modifier.isStatic(method.getModifiers())
+					&& Modifier.isPublic(method.getModifiers())
+					&& method.getName().equals(name)) {
+				methods.add(method);
+			}
+		}
+		
+		return methods;
 	}
 }

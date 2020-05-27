@@ -17,7 +17,7 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.functions;
+package org.bonsaimind.jluascript.lua.libs.functions;
 
 import java.util.Iterator;
 import java.util.Map;

@@ -1,0 +1,16 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script tests the coercing of the static instances.
+
+if Object == nil then
+	error("Object should be globally imported, but is not.")
+end
+
+if Object.class == nil then
+	error("Object.class does not exist.")
+end
+
+if Object.class:getName() ~= "java.lang.Object" then
+	error("Object.class.getName() returned unexpected value <" .. Object.class.getName() .. ">.")
+end
