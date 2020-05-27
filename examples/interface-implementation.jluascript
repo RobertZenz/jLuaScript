@@ -1,0 +1,42 @@
+-- Import classes as needed.
+import("java.util.ArrayList")
+import("java.util.function.Consumer")
+
+-- There are three ways of implementing interfaces:
+--
+--  1. Implementing the interface with table of functions.
+--  2. Implementing the interface with a single function.
+--  3. Directly using a function.
+
+-- This is some test data for demonstration purposes.
+local fruits = ArrayList.new()
+fruits:add("mango")
+fruits:add("apple")
+fruits:add("orange")
+fruits:add("novocaine")
+fruits:add("banana")
+
+-- Create a new interface implementation with a function table.
+local TableBasedConsumerImplementation = Consumer.implement({
+	accept = function(item)
+		print("    " .. item)
+	end})
+
+print("Table-based implementation:")
+fruits:forEach(TableBasedConsumerImplementation.new())
+
+-- Create a new interface implementation with a single function.
+local FunctionBasedConsumerImplementation = Consumer.implement(function(item)
+	print("    " .. item)
+end)
+
+print()
+print("Function-based implementation:")
+fruits:forEach(FunctionBasedConsumerImplementation.new())
+
+-- Create a new interface implicitely by using a lambda.
+print()
+print("Lambda-based implementation:")
+fruits:forEach(function(item)
+	print("    " .. item)
+end)

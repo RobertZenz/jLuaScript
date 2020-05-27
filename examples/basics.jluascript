@@ -1,7 +1,7 @@
 -- Import classes as needed.
 import("java.util.ArrayList")
 
--- New isntances of classes are created through the constructor.
+-- New instances of classes are created through the constructor.
 local fruits = ArrayList.new()
 -- Instance methods are accessed through the colon-notation.
 fruits:add("mango")
