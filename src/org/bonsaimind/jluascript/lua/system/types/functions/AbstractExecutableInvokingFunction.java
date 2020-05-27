@@ -4,11 +4,14 @@ package org.bonsaimind.jluascript.lua.system.types.functions;
 import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.lua.system.types.reflection.LuaFunctionInvokingInvocationHandler;
 import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
@@ -47,11 +50,23 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 					+ candidates);
 		}
 		
+		for (int index = 0; index < parameters.size(); index++) {
+			Object parameter = parameters.get(index);
+			
+			if (parameter instanceof FunctionWrapper) {
+				Class<?> parameterType = executable.getParameterTypes()[Math.min(index, executable.getParameterTypes().length - 1)];
+				
+				parameters.set(index, Proxy.newProxyInstance(
+						getClass().getClassLoader(),
+						new Class<?>[] { parameterType },
+						new LuaFunctionInvokingInvocationHandler(((FunctionWrapper)parameter).getLuaFunction(), coercer)));
+			}
+		}
+		
 		if (hasVargArgsParameter(executable)) {
 			Parameter varArgParameter = executable.getParameters()[executable.getParameterCount() - 1];
 			
 			if (parameters.size() >= executable.getParameterCount()) {
-				
 				Object[] varargs = (Object[])Array.newInstance(
 						varArgParameter.getType().getComponentType(),
 						parameters.size() - executable.getParameterCount() + 1);
@@ -79,7 +94,13 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		List<Object> javaParameters = new ArrayList<>();
 		
 		for (int index = 1; index <= args.narg(); index++) {
-			javaParameters.add(coercer.coerceLuaToJava(args.arg(index)));
+			LuaValue arg = args.arg(index);
+			
+			if (arg.isfunction()) {
+				javaParameters.add(new FunctionWrapper(arg));
+			} else {
+				javaParameters.add(coercer.coerceLuaToJava(arg));
+			}
 		}
 		
 		return javaParameters;
@@ -146,6 +167,10 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 				&& executable.getParameters()[executable.getParameterCount() - 1].isVarArgs();
 	}
 	
+	protected boolean isFunctionalInterface(Class<?> clazz) {
+		return clazz.isInterface() && clazz.getMethods().length == 1;
+	}
+	
 	protected boolean isMatching(Class<?> expectedClass, Class<?> clazz) {
 		return expectedClass.isAssignableFrom(clazz)
 				|| (expectedClass == byte.class && clazz == Byte.class)
@@ -192,12 +217,32 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 				
 				Object parameter = parameters.get(parameterIndex);
 				
-				if (parameter != null && !isMatching(methodParameter.getType(), parameter.getClass())) {
-					return false;
+				if (parameter != null) {
+					if (parameter instanceof FunctionWrapper) {
+						if (!isFunctionalInterface(methodParameter.getType())) {
+							return false;
+						}
+					} else if (!isMatching(methodParameter.getType(), parameter.getClass())) {
+						return false;
+					}
 				}
 			}
 		}
 		
 		return true;
+	}
+	
+	protected static class FunctionWrapper {
+		protected LuaValue luaFunction = null;
+		
+		public FunctionWrapper(LuaValue luaFunction) {
+			super();
+			
+			this.luaFunction = luaFunction;
+		}
+		
+		public LuaValue getLuaFunction() {
+			return luaFunction;
+		}
 	}
 }

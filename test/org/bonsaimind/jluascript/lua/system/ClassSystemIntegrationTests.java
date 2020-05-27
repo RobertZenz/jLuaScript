@@ -1,6 +1,8 @@
 
 package org.bonsaimind.jluascript.lua.system;
 
+import java.util.function.Supplier;
+
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
 import org.bonsaimind.jluascript.lua.ScriptExecutionException;
 import org.junit.Assert;
@@ -13,6 +15,13 @@ public class ClassSystemIntegrationTests {
 	@Before
 	public void setUp() throws Exception {
 		environment = new LuaEnvironment();
+	}
+	
+	@Test
+	public void testFunctionalInterfaceBridge() throws Exception {
+		environment.addToEnvironment("testObject", new StringSupplyingTestObject());
+		
+		Assert.assertEquals("ABCDE", run("return testObject:getStringValue(function() return \"ABCDE\" end)"));
 	}
 	
 	@Test
@@ -45,5 +54,15 @@ public class ClassSystemIntegrationTests {
 	
 	protected Object run(String script) throws ScriptExecutionException {
 		return environment.execute(script, null);
+	}
+	
+	public static class StringSupplyingTestObject {
+		public StringSupplyingTestObject() {
+			super();
+		}
+		
+		public String getStringValue(Supplier<String> supplier) {
+			return supplier.get();
+		}
 	}
 }
