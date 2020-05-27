@@ -28,6 +28,15 @@ import org.luaj.vm2.LuaValue;
  */
 public interface Coercer {
 	/**
+	 * Coerce the given {@link Class} to a static Lua instance.
+	 * 
+	 * @param clazz The {@link Class} to coerce.
+	 * @return The {@link LuaValue} representing the static instance.
+	 * @throws LuaError If the given {@link Class} could not be converted.
+	 */
+	public LuaValue coerceClassToStaticLuaInstance(Class<?> clazz) throws LuaError;
+	
+	/**
 	 * Coerce the given {@link Object} to a {@link LuaValue}.
 	 * <p>
 	 * Implementing methods should never return {@code null}, but instead

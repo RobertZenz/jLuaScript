@@ -21,7 +21,6 @@ package org.bonsaimind.jluascript.lua.libs;
 
 import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.bonsaimind.jluascript.lua.system.Coercer;
-import org.bonsaimind.jluascript.lua.system.types.StaticUserData;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
@@ -46,7 +45,7 @@ public class DefaultImportsLib extends TwoArgFunction {
 	}
 	
 	protected void importClass(LuaValue environment, Class<?> clazz) {
-		LuaValue staticInstance = new StaticUserData(clazz, coercer);
+		LuaValue staticInstance = coercer.coerceClassToStaticLuaInstance(clazz);
 		
 		environment.set(clazz.getSimpleName(), staticInstance);
 		LuaUtil.addClassByPackage(environment, clazz, staticInstance);

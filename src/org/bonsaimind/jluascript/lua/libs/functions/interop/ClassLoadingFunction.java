@@ -20,7 +20,6 @@
 package org.bonsaimind.jluascript.lua.libs.functions.interop;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
-import org.bonsaimind.jluascript.lua.system.types.StaticUserData;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
@@ -50,7 +49,7 @@ public class ClassLoadingFunction extends OneArgFunction {
 		
 		try {
 			Class<?> clazz = classLoader.loadClass(className);
-			LuaValue coercedStaticClass = new StaticUserData(clazz, coercer);
+			LuaValue coercedStaticClass = coercer.coerceClassToStaticLuaInstance(clazz);
 			
 			return coercedStaticClass;
 		} catch (ClassNotFoundException e) {

@@ -44,6 +44,18 @@ public class DefaultCoercer implements Coercer {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public LuaValue coerceClassToStaticLuaInstance(Class<?> clazz) throws LuaError {
+		if (clazz == null) {
+			return LuaValue.NIL;
+		}
+		
+		return new StaticUserData(clazz, this);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public LuaValue coerceJavaToLua(Object object) throws LuaError {
 		if (object == null) {
 			return LuaValue.NIL;
