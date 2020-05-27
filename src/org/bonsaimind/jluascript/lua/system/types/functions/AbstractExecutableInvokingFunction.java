@@ -21,6 +21,8 @@ package org.bonsaimind.jluascript.lua.system.types.functions;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -186,7 +188,17 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 	}
 	
 	protected boolean isFunctionalInterface(Class<?> clazz) {
-		return clazz.isInterface() && clazz.getMethods().length == 1;
+		if (!clazz.isInterface()) {
+			return false;
+		}
+		
+		for (Method method : clazz.getMethods()) {
+			if (!method.isDefault() && !Modifier.isAbstract(method.getModifiers())) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	protected boolean isMatching(Class<?> expectedClass, Class<?> clazz) {

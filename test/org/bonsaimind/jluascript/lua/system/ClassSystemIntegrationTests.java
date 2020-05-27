@@ -1,6 +1,7 @@
 
 package org.bonsaimind.jluascript.lua.system;
 
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
@@ -22,6 +23,13 @@ public class ClassSystemIntegrationTests {
 		environment.addToEnvironment("testObject", new StringSupplyingTestObject());
 		
 		Assert.assertEquals("ABCDE", run("return testObject:getStringValue(function() return \"ABCDE\" end)"));
+	}
+	
+	@Test
+	public void testFunctionalInterfaceBridge2() throws Exception {
+		environment.addToEnvironment("list", new ArrayList<>());
+		
+		run("list:forEach(function(item) print(\"No action required.\") end)");
 	}
 	
 	@Test
