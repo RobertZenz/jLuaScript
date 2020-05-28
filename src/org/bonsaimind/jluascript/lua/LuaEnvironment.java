@@ -242,7 +242,7 @@ public class LuaEnvironment {
 	 * @return This instance.
 	 */
 	public LuaEnvironment importClass(Class<?> clazz) {
-		LuaValue coercedStaticClass = coercer.coerceJavaToLua(clazz);
+		LuaValue coercedStaticClass = coercer.coerceClassToStaticLuaInstance(clazz);
 		
 		environment.set(clazz.getSimpleName(), coercedStaticClass);
 		LuaUtil.addClassByPackage(environment, clazz, coercedStaticClass);
