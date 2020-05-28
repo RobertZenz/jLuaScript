@@ -66,7 +66,7 @@ public class LuaEnvironment {
 	/** The {@link DynamicClassLoader} which is being used. */
 	protected DynamicClassLoader classLoader = null;
 	/** The {@link Coercer} that is being used. */
-	protected Coercer coercer = new DefaultCoercer();
+	protected Coercer coercer = null;
 	/** The Lua environment. */
 	protected Globals environment = null;
 	
@@ -74,7 +74,7 @@ public class LuaEnvironment {
 	 * Creates a new instance of {@link LuaEnvironment}.
 	 */
 	public LuaEnvironment() {
-		this(new DynamicClassLoader(LuaEnvironment.class.getClassLoader()));
+		this(new DynamicClassLoader(LuaEnvironment.class.getClassLoader()), new DefaultCoercer());
 	}
 	
 	/**
@@ -85,13 +85,32 @@ public class LuaEnvironment {
 	 * @throws IllegalStateException If {@code classLoader} is {@code null}.
 	 */
 	public LuaEnvironment(DynamicClassLoader classLoader) {
+		this(classLoader, new DefaultCoercer());
+	}
+	
+	/**
+	 * Creates a new instance of {@link LuaEnvironment}.
+	 * 
+	 * @param classLoader The {@link DynamicClassLoader} to use for loading
+	 *        classes, cannot be {@code null}.
+	 * @param coercer The {@link Coercer} that will be used, cannot be
+	 *        {@code null}.
+	 * @throws IllegalStateException If {@code classLoader} or {@code coercer}
+	 *         is {@code null}.
+	 */
+	public LuaEnvironment(DynamicClassLoader classLoader, Coercer coercer) {
 		super();
 		
 		if (classLoader == null) {
 			throw new IllegalArgumentException("classLoader cannot be null.");
 		}
 		
+		if (coercer == null) {
+			throw new IllegalArgumentException("coercer cannot be null.");
+		}
+		
 		this.classLoader = classLoader;
+		this.coercer = coercer;
 		
 		environment = new Globals();
 		
