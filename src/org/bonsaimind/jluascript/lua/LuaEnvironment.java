@@ -143,7 +143,11 @@ public class LuaEnvironment {
 			throw new IllegalArgumentException("luaVariableName cannot be empty.");
 		}
 		
-		environment.set(luaVariableName, coercer.coerceJavaToLua(value));
+		if (value != null && value instanceof Class<?>) {
+			environment.set(luaVariableName, coercer.coerceClassToStaticLuaInstance((Class<?>)value));
+		} else {
+			environment.set(luaVariableName, coercer.coerceJavaToLua(value));
+		}
 		
 		return this;
 	}
