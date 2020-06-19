@@ -58,6 +58,9 @@ public class InstanceUserData extends AbstractInterjectingUserData {
 			if (!Modifier.isStatic(method.getModifiers())
 					&& Modifier.isPublic(method.getModifiers())
 					&& method.getName().equals(name)) {
+				// Workaround that certain methods might not be accessible for
+				// us even though they should.
+				method.setAccessible(true);
 				methods.add(method);
 			}
 		}
