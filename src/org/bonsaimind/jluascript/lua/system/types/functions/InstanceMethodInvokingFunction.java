@@ -54,4 +54,33 @@ public class InstanceMethodInvokingFunction extends AbstractExecutableInvokingFu
 		
 		return super.findMatchingExecutable(methodParameters);
 	}
+	
+	@Override
+	protected String getRequestedMethodSignature(List<Object> parameters) {
+		StringBuilder methodSignature = new StringBuilder();
+		methodSignature.append(clazz.getSimpleName())
+				.append(":")
+				.append(executableName)
+				.append("(");
+		
+		List<Object> methodParameters = new ArrayList<>(parameters);
+		methodParameters.remove(0);
+		
+		for (Object parameter : methodParameters) {
+			if (parameter != null) {
+				methodSignature.append(parameter.getClass().getName())
+						.append(", ");
+			} else {
+				methodSignature.append("nil, ");
+			}
+		}
+		
+		if (!parameters.isEmpty()) {
+			methodSignature.delete(methodSignature.length() - 2, methodSignature.length());
+		}
+		
+		methodSignature.append(")");
+		
+		return methodSignature.toString();
+	}
 }

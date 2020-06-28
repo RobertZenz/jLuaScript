@@ -166,7 +166,7 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		
 		for (Object parameter : parameters) {
 			if (parameter != null) {
-				methodSignature.append(parameter.getClass().getSimpleName())
+				methodSignature.append(parameter.getClass().getName())
 						.append(", ");
 			} else {
 				methodSignature.append("nil, ");
