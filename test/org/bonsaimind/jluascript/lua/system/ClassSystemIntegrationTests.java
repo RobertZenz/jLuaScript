@@ -19,6 +19,36 @@ public class ClassSystemIntegrationTests {
 	}
 	
 	@Test
+	public void testEnumMethods() throws Exception {
+		environment.addToEnvironment("TestEnum", TestEnum.class);
+		
+		Assert.assertEquals(TestEnum.class, run("return TestEnum.class"));
+		Assert.assertEquals("ALPHA", run("return TestEnum.ALPHA:toString()"));
+		Assert.assertEquals("ALPHA", run("return TestEnum.ALPHA:name()"));
+	}
+	
+	@Test
+	public void testFieldAccess() throws Exception {
+		FieldHoldingObject fieldHoldingObject = new FieldHoldingObject();
+		
+		environment.addToEnvironment("FieldHoldingObject", FieldHoldingObject.class);
+		environment.addToEnvironment("fieldHoldingObject", fieldHoldingObject);
+		
+		Assert.assertNull(run("return FieldHoldingObject.staticField"));
+		Assert.assertNull(run("return fieldHoldingObject.instanceField"));
+		
+		FieldHoldingObject.staticField = "newValue";
+		fieldHoldingObject.instanceField = "newValue";
+		Assert.assertEquals("newValue", run("return FieldHoldingObject.staticField"));
+		Assert.assertEquals("newValue", run("return fieldHoldingObject.instanceField"));
+		
+		FieldHoldingObject.staticField = "newValue2";
+		fieldHoldingObject.instanceField = "newValue2";
+		Assert.assertEquals("newValue2", run("return FieldHoldingObject.staticField"));
+		Assert.assertEquals("newValue2", run("return fieldHoldingObject.instanceField"));
+	}
+	
+	@Test
 	public void testFunctionalInterfaceBridge() throws Exception {
 		environment.addToEnvironment("testObject", new StringSupplyingTestObject());
 		
@@ -64,6 +94,15 @@ public class ClassSystemIntegrationTests {
 		return environment.execute(script, null);
 	}
 	
+	public static class FieldHoldingObject {
+		public static String staticField = null;
+		public String instanceField = null;
+		
+		public FieldHoldingObject() {
+			super();
+		}
+	}
+	
 	public static class StringSupplyingTestObject {
 		public StringSupplyingTestObject() {
 			super();
@@ -72,5 +111,9 @@ public class ClassSystemIntegrationTests {
 		public String getStringValue(Supplier<String> supplier) {
 			return supplier.get();
 		}
+	}
+	
+	public enum TestEnum {
+		ALPHA, BRAVO, CHARLY;
 	}
 }

@@ -44,8 +44,6 @@ public abstract class AbstractInterjectingUserData extends LuaUserdata {
 			if (luaValue == null) {
 				luaValue = LuaValue.NIL;
 			}
-			
-			cache.put(keyString, luaValue);
 		}
 		
 		return luaValue;
@@ -55,6 +53,10 @@ public abstract class AbstractInterjectingUserData extends LuaUserdata {
 		cache.put(name, value);
 		
 		return this;
+	}
+	
+	protected void cache(String key, LuaValue value) {
+		cache.put(key, value);
 	}
 	
 	protected abstract LuaValue provide(String name);

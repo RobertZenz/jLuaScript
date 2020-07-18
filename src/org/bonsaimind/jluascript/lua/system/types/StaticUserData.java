@@ -24,7 +24,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bonsaimind.jluascript.lua.libs.functions.ErrorThrowingFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
@@ -32,7 +34,9 @@ import org.bonsaimind.jluascript.lua.system.types.functions.ClassCreatingFunctio
 import org.bonsaimind.jluascript.lua.system.types.functions.ConstructorInvokingFunction;
 import org.bonsaimind.jluascript.lua.system.types.functions.ProxyInstanceCreatingFunction;
 import org.bonsaimind.jluascript.lua.system.types.functions.StaticMethodInvokingFunction;
+import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public class StaticUserData extends AbstractInterjectingUserData {
 	public static final String CLASS_FIELD_NAME = "class";
@@ -42,6 +46,7 @@ public class StaticUserData extends AbstractInterjectingUserData {
 	public static final String IMPLEMENT_NAME = "implement";
 	public static final String IMPLEMENT_NEW_NAME = "implementNew";
 	protected Coercer coercer = null;
+	protected Map<String, Field> fieldCache = new HashMap<>();
 	
 	public StaticUserData(Class<?> clazz, Coercer coercer) {
 		super(clazz);
@@ -51,16 +56,46 @@ public class StaticUserData extends AbstractInterjectingUserData {
 		setup();
 	}
 	
-	protected LuaValue getField(String name) {
+	protected Field findField(String name) {
 		for (Field field : ((Class<?>)m_instance).getFields()) {
 			if (Modifier.isStatic(field.getModifiers())
 					&& Modifier.isPublic(field.getModifiers())
 					&& field.getName().equals(name)) {
-				return coercer.coerceJavaToLua(field);
+				return field;
 			}
 		}
 		
 		return null;
+	}
+	
+	protected LuaValue getField(String name) {
+		Field field = null;
+		
+		if (fieldCache.containsKey(name)) {
+			field = fieldCache.get(name);
+		} else {
+			field = findField(name);
+			
+			fieldCache.put(name, field);
+		}
+		
+		if (field == null) {
+			return null;
+		}
+		
+		try {
+			LuaValue luaValue = CoerceJavaToLua.coerce(field.get(null));
+			
+			if (Modifier.isFinal(field.getModifiers())) {
+				cache(name, luaValue);
+			}
+			
+			return luaValue;
+		} catch (IllegalArgumentException e) {
+			throw new LuaError(e);
+		} catch (IllegalAccessException e) {
+			throw new LuaError(e);
+		}
 	}
 	
 	protected LuaValue getMethod(String name) {
@@ -75,10 +110,14 @@ public class StaticUserData extends AbstractInterjectingUserData {
 		}
 		
 		if (!methods.isEmpty()) {
-			return new StaticMethodInvokingFunction(
+			LuaValue luaFunction = new StaticMethodInvokingFunction(
 					m_instance.getClass(),
 					methods,
 					coercer);
+			
+			cache(name, luaFunction);
+			
+			return luaFunction;
 		}
 		
 		return null;

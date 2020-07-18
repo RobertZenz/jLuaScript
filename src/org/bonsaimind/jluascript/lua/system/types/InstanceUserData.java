@@ -23,15 +23,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.bonsaimind.jluascript.lua.system.types.functions.InstanceMethodInvokingFunction;
+import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public class InstanceUserData extends AbstractInterjectingUserData {
 	protected Coercer coercer = null;
+	protected Map<String, Field> fieldCache = new HashMap<>();
 	
 	public InstanceUserData(Object object, Coercer coercer) {
 		super(object);
@@ -39,16 +43,46 @@ public class InstanceUserData extends AbstractInterjectingUserData {
 		this.coercer = coercer;
 	}
 	
-	protected LuaValue getField(String name) {
+	protected Field findField(String name) {
 		for (Field field : m_instance.getClass().getFields()) {
 			if (!Modifier.isStatic(field.getModifiers())
 					&& Modifier.isPublic(field.getModifiers())
 					&& field.getName().equals(name)) {
-				return CoerceJavaToLua.coerce(field);
+				return field;
 			}
 		}
 		
 		return null;
+	}
+	
+	protected LuaValue getField(String name) {
+		Field field = null;
+		
+		if (fieldCache.containsKey(name)) {
+			field = fieldCache.get(name);
+		} else {
+			field = findField(name);
+			
+			fieldCache.put(name, field);
+		}
+		
+		if (field == null) {
+			return null;
+		}
+		
+		try {
+			LuaValue luaValue = CoerceJavaToLua.coerce(field.get(m_instance));
+			
+			if (Modifier.isFinal(field.getModifiers())) {
+				cache(name, luaValue);
+			}
+			
+			return luaValue;
+		} catch (IllegalArgumentException e) {
+			throw new LuaError(e);
+		} catch (IllegalAccessException e) {
+			throw new LuaError(e);
+		}
 	}
 	
 	protected LuaValue getMethod(String name) {
@@ -66,10 +100,14 @@ public class InstanceUserData extends AbstractInterjectingUserData {
 		}
 		
 		if (!methods.isEmpty()) {
-			return new InstanceMethodInvokingFunction(
+			LuaValue luaFunction = new InstanceMethodInvokingFunction(
 					m_instance.getClass(),
 					methods,
 					coercer);
+			
+			cache(name, luaFunction);
+			
+			return luaFunction;
 		}
 		
 		return null;
