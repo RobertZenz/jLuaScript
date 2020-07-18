@@ -115,11 +115,11 @@ public class ShebangSkippingInputStream extends InputStream {
 	}
 	
 	protected void discardBuffer(int countToDiscard) {
-		for (int index = 0; index < bufferLength - 1; index++) {
-			buffer[index] = buffer[index + 1];
+		for (int index = 0; index < bufferLength - countToDiscard; index++) {
+			buffer[index] = buffer[index + countToDiscard];
 		}
 		
-		bufferLength = bufferLength - countToDiscard;
+		bufferLength = Math.max(0, bufferLength - countToDiscard);
 	}
 	
 	protected void skipShebang() throws IOException {
