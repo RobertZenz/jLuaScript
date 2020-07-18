@@ -4,59 +4,59 @@
 
 package org.bonsaimind.jluascript;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ConfigurationTests {
 	@Test
 	public void testEmptyArguments() {
 		Configuration configuration = new Configuration();
 		
-		Assert.assertTrue(configuration.isPrintHelp());
-		Assert.assertNull(configuration.getScript());
+		Assertions.assertTrue(configuration.isPrintHelp());
+		Assertions.assertNull(configuration.getScript());
 	}
 	
 	@Test
 	public void testNull() {
 		Configuration configuration = new Configuration((String[])null);
 		
-		Assert.assertTrue(configuration.isPrintHelp());
-		Assert.assertNull(configuration.getScript());
+		Assertions.assertTrue(configuration.isPrintHelp());
+		Assertions.assertNull(configuration.getScript());
 	}
 	
 	@Test
 	public void testScriptParameters() {
 		Configuration configuration = new Configuration("--print-java-stacktrace", "script", "arg1", "arg2");
 		
-		Assert.assertFalse(configuration.isPrintHelp());
-		Assert.assertTrue(configuration.isPrintJavaStackTrace());
-		Assert.assertEquals("script", configuration.getScript());
-		Assert.assertEquals(2, configuration.getScriptArguments().size());
-		Assert.assertEquals("arg1", configuration.getScriptArguments().get(0));
-		Assert.assertEquals("arg2", configuration.getScriptArguments().get(1));
+		Assertions.assertFalse(configuration.isPrintHelp());
+		Assertions.assertTrue(configuration.isPrintJavaStackTrace());
+		Assertions.assertEquals("script", configuration.getScript());
+		Assertions.assertEquals(2, configuration.getScriptArguments().size());
+		Assertions.assertEquals("arg1", configuration.getScriptArguments().get(0));
+		Assertions.assertEquals("arg2", configuration.getScriptArguments().get(1));
 	}
 	
 	@Test
 	public void testWellFormed() {
 		Configuration configuration = new Configuration("script", "--help", "--print-java-stacktrace");
 		
-		Assert.assertFalse(configuration.isPrintHelp());
-		Assert.assertFalse(configuration.isPrintJavaStackTrace());
-		Assert.assertEquals("script", configuration.getScript());
-		Assert.assertEquals(2, configuration.getScriptArguments().size());
-		Assert.assertEquals("--help", configuration.getScriptArguments().get(0));
-		Assert.assertEquals("--print-java-stacktrace", configuration.getScriptArguments().get(1));
+		Assertions.assertFalse(configuration.isPrintHelp());
+		Assertions.assertFalse(configuration.isPrintJavaStackTrace());
+		Assertions.assertEquals("script", configuration.getScript());
+		Assertions.assertEquals(2, configuration.getScriptArguments().size());
+		Assertions.assertEquals("--help", configuration.getScriptArguments().get(0));
+		Assertions.assertEquals("--print-java-stacktrace", configuration.getScriptArguments().get(1));
 	}
 	
 	@Test
 	public void testWellFormedWithHelp() {
 		Configuration configuration = new Configuration("--print-java-stacktrace", "--help", "script", "arg1", "arg2");
 		
-		Assert.assertTrue(configuration.isPrintHelp());
-		Assert.assertTrue(configuration.isPrintJavaStackTrace());
-		Assert.assertEquals("script", configuration.getScript());
-		Assert.assertEquals(2, configuration.getScriptArguments().size());
-		Assert.assertEquals("arg1", configuration.getScriptArguments().get(0));
-		Assert.assertEquals("arg2", configuration.getScriptArguments().get(1));
+		Assertions.assertTrue(configuration.isPrintHelp());
+		Assertions.assertTrue(configuration.isPrintJavaStackTrace());
+		Assertions.assertEquals("script", configuration.getScript());
+		Assertions.assertEquals(2, configuration.getScriptArguments().size());
+		Assertions.assertEquals("arg1", configuration.getScriptArguments().get(0));
+		Assertions.assertEquals("arg2", configuration.getScriptArguments().get(1));
 	}
 }

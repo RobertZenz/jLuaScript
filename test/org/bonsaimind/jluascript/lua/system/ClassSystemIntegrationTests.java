@@ -6,14 +6,14 @@ import java.util.function.Supplier;
 
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
 import org.bonsaimind.jluascript.lua.ScriptExecutionException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ClassSystemIntegrationTests {
 	protected LuaEnvironment environment = null;
 	
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		environment = new LuaEnvironment();
 	}
@@ -22,9 +22,9 @@ public class ClassSystemIntegrationTests {
 	public void testEnumMethods() throws Exception {
 		environment.addToEnvironment("TestEnum", TestEnum.class);
 		
-		Assert.assertEquals(TestEnum.class, run("return TestEnum.class"));
-		Assert.assertEquals("ALPHA", run("return TestEnum.ALPHA:toString()"));
-		Assert.assertEquals("ALPHA", run("return TestEnum.ALPHA:name()"));
+		Assertions.assertEquals(TestEnum.class, run("return TestEnum.class"));
+		Assertions.assertEquals("ALPHA", run("return TestEnum.ALPHA:toString()"));
+		Assertions.assertEquals("ALPHA", run("return TestEnum.ALPHA:name()"));
 	}
 	
 	@Test
@@ -34,25 +34,25 @@ public class ClassSystemIntegrationTests {
 		environment.addToEnvironment("FieldHoldingObject", FieldHoldingObject.class);
 		environment.addToEnvironment("fieldHoldingObject", fieldHoldingObject);
 		
-		Assert.assertNull(run("return FieldHoldingObject.staticField"));
-		Assert.assertNull(run("return fieldHoldingObject.instanceField"));
+		Assertions.assertNull(run("return FieldHoldingObject.staticField"));
+		Assertions.assertNull(run("return fieldHoldingObject.instanceField"));
 		
 		FieldHoldingObject.staticField = "newValue";
 		fieldHoldingObject.instanceField = "newValue";
-		Assert.assertEquals("newValue", run("return FieldHoldingObject.staticField"));
-		Assert.assertEquals("newValue", run("return fieldHoldingObject.instanceField"));
+		Assertions.assertEquals("newValue", run("return FieldHoldingObject.staticField"));
+		Assertions.assertEquals("newValue", run("return fieldHoldingObject.instanceField"));
 		
 		FieldHoldingObject.staticField = "newValue2";
 		fieldHoldingObject.instanceField = "newValue2";
-		Assert.assertEquals("newValue2", run("return FieldHoldingObject.staticField"));
-		Assert.assertEquals("newValue2", run("return fieldHoldingObject.instanceField"));
+		Assertions.assertEquals("newValue2", run("return FieldHoldingObject.staticField"));
+		Assertions.assertEquals("newValue2", run("return fieldHoldingObject.instanceField"));
 	}
 	
 	@Test
 	public void testFunctionalInterfaceBridge() throws Exception {
 		environment.addToEnvironment("testObject", new StringSupplyingTestObject());
 		
-		Assert.assertEquals("ABCDE", run("return testObject:getStringValue(function() return \"ABCDE\" end)"));
+		Assertions.assertEquals("ABCDE", run("return testObject:getStringValue(function() return \"ABCDE\" end)"));
 	}
 	
 	@Test
@@ -64,30 +64,30 @@ public class ClassSystemIntegrationTests {
 	
 	@Test
 	public void testInstanceClassMethod() throws Exception {
-		Assert.assertEquals(Object.class, run("return Object.new():getClass()"));
-		Assert.assertEquals(Object.class.getName(), run("return Object.new():getClass():getName()"));
+		Assertions.assertEquals(Object.class, run("return Object.new():getClass()"));
+		Assertions.assertEquals(Object.class.getName(), run("return Object.new():getClass():getName()"));
 	}
 	
 	@Test
 	public void testInstanceMethod() throws Exception {
-		Assert.assertEquals("234", run("return String.new(\"12345\"):substring(1, 4)"));
+		Assertions.assertEquals("234", run("return String.new(\"12345\"):substring(1, 4)"));
 	}
 	
 	@Test
 	public void testInstanceMethodOverloads() throws Exception {
-		Assert.assertEquals("2345", run("return String.new(\"12345\"):substring(1)"));
-		Assert.assertEquals("234", run("return String.new(\"12345\"):substring(1, 4)"));
+		Assertions.assertEquals("2345", run("return String.new(\"12345\"):substring(1)"));
+		Assertions.assertEquals("234", run("return String.new(\"12345\"):substring(1, 4)"));
 	}
 	
 	@Test
 	public void testStaticClassField() throws Exception {
-		Assert.assertEquals(Object.class, run("return Object.class"));
-		Assert.assertEquals(Object.class.getName(), run("return Object.class:getName()"));
+		Assertions.assertEquals(Object.class, run("return Object.class"));
+		Assertions.assertEquals(Object.class.getName(), run("return Object.class:getName()"));
 	}
 	
 	@Test
 	public void testStaticMethod() throws Exception {
-		Assert.assertEquals("12345", run("return String.valueOf(12345)"));
+		Assertions.assertEquals("12345", run("return String.valueOf(12345)"));
 	}
 	
 	protected Object run(String script) throws ScriptExecutionException {

@@ -8,8 +8,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ShebangSkippingInputStreamTest {
 	@Test
@@ -59,7 +59,7 @@ public class ShebangSkippingInputStreamTest {
 		try (InputStream stream = createFromString(input)) {
 			String readValue = readAll(stream);
 			
-			Assert.assertEquals(expected, readValue);
+			Assertions.assertEquals(expected, readValue);
 		}
 	}
 	

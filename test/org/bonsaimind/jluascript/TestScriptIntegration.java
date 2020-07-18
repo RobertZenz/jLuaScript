@@ -13,14 +13,14 @@ import java.util.List;
 
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
 import org.bonsaimind.jluascript.lua.ScriptExecutionException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TestScriptIntegration {
 	protected LuaEnvironment environment = null;
 	
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		environment = new LuaEnvironment();
 	}
@@ -35,35 +35,35 @@ public class TestScriptIntegration {
 		try {
 			runFile("error");
 			
-			Assert.fail();
+			Assertions.fail("Error should have been thrown, but was not.");
 		} catch (ScriptExecutionException e) {
 			StackTraceElement[] stackTrace = e.getStackTrace();
 			
-			Assert.assertNotNull(stackTrace);
-			Assert.assertEquals(3, stackTrace.length);
-			Assert.assertEquals("error-include", stackTrace[0].getClassName());
-			Assert.assertEquals("inner", stackTrace[0].getMethodName());
-			Assert.assertEquals("error", stackTrace[1].getClassName());
-			Assert.assertEquals("outer", stackTrace[1].getMethodName());
-			Assert.assertEquals("error", stackTrace[2].getClassName());
-			Assert.assertEquals("onInvoke", stackTrace[2].getMethodName());
+			Assertions.assertNotNull(stackTrace);
+			Assertions.assertEquals(3, stackTrace.length);
+			Assertions.assertEquals("error-include", stackTrace[0].getClassName());
+			Assertions.assertEquals("inner", stackTrace[0].getMethodName());
+			Assertions.assertEquals("error", stackTrace[1].getClassName());
+			Assertions.assertEquals("outer", stackTrace[1].getMethodName());
+			Assertions.assertEquals("error", stackTrace[2].getClassName());
+			Assertions.assertEquals("onInvoke", stackTrace[2].getMethodName());
 		}
 		
 		try {
 			runString("error");
 			
-			Assert.fail();
+			Assertions.fail("Error should have been thrown, but was not.");
 		} catch (ScriptExecutionException e) {
 			StackTraceElement[] stackTrace = e.getStackTrace();
 			
-			Assert.assertNotNull(stackTrace);
-			Assert.assertEquals(3, stackTrace.length);
-			Assert.assertEquals("error-include", stackTrace[0].getClassName());
-			Assert.assertEquals("inner", stackTrace[0].getMethodName());
-			Assert.assertEquals("script", stackTrace[1].getClassName());
-			Assert.assertEquals("outer", stackTrace[1].getMethodName());
-			Assert.assertEquals("script", stackTrace[2].getClassName());
-			Assert.assertEquals("onInvoke", stackTrace[2].getMethodName());
+			Assertions.assertNotNull(stackTrace);
+			Assertions.assertEquals(3, stackTrace.length);
+			Assertions.assertEquals("error-include", stackTrace[0].getClassName());
+			Assertions.assertEquals("inner", stackTrace[0].getMethodName());
+			Assertions.assertEquals("script", stackTrace[1].getClassName());
+			Assertions.assertEquals("outer", stackTrace[1].getMethodName());
+			Assertions.assertEquals("script", stackTrace[2].getClassName());
+			Assertions.assertEquals("onInvoke", stackTrace[2].getMethodName());
 		}
 	}
 	
