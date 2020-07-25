@@ -21,6 +21,7 @@ package org.bonsaimind.jluascript.lua;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -217,6 +218,39 @@ public class LuaEnvironment {
 	}
 	
 	/**
+	 * Executes the given {@link Reader} with the given arguments.
+	 * <p>
+	 * This method does not perform automatic Shebang stripping, any leading
+	 * Shebang must be stripped manually before handing in the input.
+	 * 
+	 * @param script The {@link String} to execute, cannot be {@code null}.
+	 * @param args The arguments to use, can be {@code null} for none.
+	 * @throws ScriptExecutionException If there was an error when executing the
+	 *         given script.
+	 */
+	public <TYPE> TYPE execute(Reader script, List<Object> args) throws ScriptExecutionException {
+		if (script == null) {
+			throw new IllegalArgumentException("script cannot be null.");
+		}
+		
+		updateEnvironmentVariables(args, "", "");
+		
+		try {
+			LuaValue loadedScript = environment.load(
+					script,
+					"@script",
+					environment);
+			
+			return (TYPE)coercer.coerceLuaToJava(loadedScript.call());
+		} catch (Exception e) {
+			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script.", e);
+			exception.setStackTrace(extractLuaStacktrace(getRootCause(e).getStackTrace()));
+			
+			throw exception;
+		}
+	}
+	
+	/**
 	 * Executes the given {@link String} with the given arguments.
 	 * <p>
 	 * This method does not perform automatic Shebang stripping, any leading
@@ -232,21 +266,7 @@ public class LuaEnvironment {
 			throw new IllegalArgumentException("script cannot be null.");
 		}
 		
-		updateEnvironmentVariables(args, "", "");
-		
-		try {
-			LuaValue loadedScript = environment.load(
-					new StringReader(script),
-					"@script",
-					environment);
-			
-			return (TYPE)coercer.coerceLuaToJava(loadedScript.call());
-		} catch (Exception e) {
-			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script.", e);
-			exception.setStackTrace(extractLuaStacktrace(getRootCause(e).getStackTrace()));
-			
-			throw exception;
-		}
+		return execute(new StringReader(script), args);
 	}
 	
 	/**
