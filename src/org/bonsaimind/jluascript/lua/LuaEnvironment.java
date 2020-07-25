@@ -279,6 +279,33 @@ public class LuaEnvironment {
 	}
 	
 	/**
+	 * Gets the {@link Object} from the Lua environment with the given name.
+	 * Returns {@code null} if there is no variable with that name, or if it is
+	 * {@code nil}.
+	 * <p>
+	 * To check whether a variable exists, use {@link #getEnvironment()} and
+	 * access the Lua environment directly.
+	 * 
+	 * @param luaVariableName The name of the Lua variable, cannot be
+	 *        {@code null} or empty.
+	 * @return The value with the given name, {@code null} if there is none or
+	 *         is {@code nil}.
+	 * @throws IllegalArgumentException If the given Lua variable name is
+	 *         {@code null} or empty.
+	 */
+	public <TYPE> TYPE getFromEnvironment(String luaVariableName) {
+		if (luaVariableName == null) {
+			throw new IllegalArgumentException("luaVariableName cannot be null.");
+		}
+		
+		if (luaVariableName.isEmpty()) {
+			throw new IllegalArgumentException("luaVariableName cannot be empty.");
+		}
+		
+		return (TYPE)coercer.coerceLuaToJava(environment.get(luaVariableName));
+	}
+	
+	/**
 	 * Imports the given {@link Class} into the environment.
 	 * 
 	 * @param clazz The {@link Class} to import.
