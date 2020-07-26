@@ -28,7 +28,7 @@ public class ShebangSkippingInputStream extends InputStream {
 	protected static final int LINE_FEED = 0x0a;
 	protected static final String SHEBANG_START = "#!";
 	
-	protected int[] buffer = new int[2];
+	protected byte[] buffer = new byte[2];
 	protected int bufferLength = 0;
 	protected Charset charset = null;
 	protected boolean firstRead = true;
@@ -83,7 +83,7 @@ public class ShebangSkippingInputStream extends InputStream {
 		
 		if (bufferLength > 0) {
 			for (int index = 0; (index + off) < len && index < bufferLength; index++) {
-				b[index + off] = (byte)buffer[index];
+				b[index + off] = buffer[index];
 			}
 			
 			int bytesWrittenFromBuffer = Math.min(len, bufferLength);
@@ -123,39 +123,31 @@ public class ShebangSkippingInputStream extends InputStream {
 	}
 	
 	protected void skipShebang() throws IOException {
-		buffer[0] = sourceStream.read();
-		buffer[1] = sourceStream.read();
+		bufferLength = sourceStream.read(buffer);
 		
-		if (buffer[0] <= -1) {
-			bufferLength = 0;
-			
-			return;
-		}
-		
-		if (buffer[1] <= -1) {
-			bufferLength = 1;
-			
+		if (bufferLength < 2) {
 			return;
 		}
 		
 		String firstTwoCharacters = new String(
-				new byte[] { (byte)buffer[0], (byte)buffer[1] },
+				new byte[] { buffer[0], buffer[1] },
 				charset);
 		
 		if (firstTwoCharacters.equals(SHEBANG_START)) {
-			int read = 0;
+			int readByte = 0;
 			
-			while ((read = sourceStream.read()) >= 0 && read != CARRIAGE_RETURN && read != LINE_FEED) {
+			while ((readByte = sourceStream.read()) >= 0 && readByte != CARRIAGE_RETURN && readByte != LINE_FEED) {
 				// Continue to read from the stream and discard anything until
 				// we find a newline of some sort.
 			}
 			
-			if (read >= 0) {
-				buffer[0] = read;
+			if (readByte >= 0) {
+				buffer[0] = (byte)readByte;
 				bufferLength = 1;
 			} else {
 				// We've exhausted the stream trying to find a newline...tough
 				// luck I'm afraid.
+				bufferLength = 0;
 			}
 		} else {
 			bufferLength = 2;
