@@ -39,6 +39,7 @@ import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.bonsaimind.jluascript.lua.system.coercers.DefaultCoercer;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.bonsaimind.jluascript.support.ShebangSkippingInputStream;
+import org.bonsaimind.jluascript.support.ShebangSkippingReader;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LoadState;
 import org.luaj.vm2.LuaTable;
@@ -220,8 +221,7 @@ public class LuaEnvironment {
 	/**
 	 * Executes the given {@link Reader} with the given arguments.
 	 * <p>
-	 * This method does not perform automatic Shebang stripping, any leading
-	 * Shebang must be stripped manually before handing in the input.
+	 * This method does perform automatic Shebang stripping on the input.
 	 * 
 	 * @param script The {@link String} to execute, cannot be {@code null}.
 	 * @param args The arguments to use, can be {@code null} for none.
@@ -237,7 +237,7 @@ public class LuaEnvironment {
 		
 		try {
 			LuaValue loadedScript = environment.load(
-					script,
+					new ShebangSkippingReader(script),
 					"@script",
 					environment);
 			
@@ -253,8 +253,7 @@ public class LuaEnvironment {
 	/**
 	 * Executes the given {@link String} with the given arguments.
 	 * <p>
-	 * This method does not perform automatic Shebang stripping, any leading
-	 * Shebang must be stripped manually before handing in the input.
+	 * This method does perform automatic Shebang stripping on the input.
 	 * 
 	 * @param script The {@link String} to execute, cannot be {@code null}.
 	 * @param args The arguments to use, can be {@code null} for none.
