@@ -54,8 +54,20 @@ public final class Main {
 		}
 	}
 	
+	private static final Throwable getFirstCause(Throwable throwable) {
+		Throwable firstThrowable = throwable;
+		
+		while (firstThrowable != null && firstThrowable.getCause() != null) {
+			firstThrowable = firstThrowable.getCause();
+		}
+		
+		return firstThrowable;
+	}
+	
 	private static final void printException(ScriptExecutionException e, PrintStream targetPrintStream, Configuration configuration) {
-		targetPrintStream.println("Error while executing script: " + e.getCause().getMessage());
+		Throwable cause = getFirstCause(e);
+		
+		targetPrintStream.println("Error while executing script: " + cause.getClass().getSimpleName() + " - " + cause.getMessage());
 		
 		for (StackTraceElement stackTraceElement : e.getStackTrace()) {
 			if (stackTraceElement.getMethodName().equals("onInvoke")) {
