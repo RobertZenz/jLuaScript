@@ -53,7 +53,7 @@ public class ClassLoadingFunction extends OneArgFunction {
 			
 			return coercedStaticClass;
 		} catch (ClassNotFoundException e) {
-			throw new LuaError("Class <" + arg.tojstring() + "> could not be loaded.");
+			throw new LuaError(e);
 		}
 	}
 }
