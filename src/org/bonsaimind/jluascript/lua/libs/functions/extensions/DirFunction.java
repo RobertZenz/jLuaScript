@@ -19,14 +19,12 @@
 
 package org.bonsaimind.jluascript.lua.libs.functions.extensions;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Iterator;
 
+import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.bonsaimind.jluascript.lua.libs.functions.AbstractIteratorFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.LuaError;
@@ -40,28 +38,16 @@ public class DirFunction extends AbstractIteratorFunction {
 	
 	@Override
 	protected IteratingFunction createIteratingFunction(Varargs args) {
-		return new PathEntryIteratingFunction(getIterator(args.arg1()), coercer);
+		return new PathEntryIteratingFunction(getIterator(args), coercer);
 	}
 	
 	@Override
-	protected Iterator<?> getIterator(LuaValue luaValue) {
-		return walk(getPath(luaValue).normalize(), 1);
+	protected Iterator<?> getIterator(Varargs args) {
+		return walk(getPath(args).normalize(), 1);
 	}
 	
-	protected Path getPath(LuaValue luaValue) {
-		Object javaValue = coercer.coerceLuaToJava(luaValue);
-		
-		if (javaValue instanceof Path) {
-			return (Path)javaValue;
-		} else if (javaValue instanceof File) {
-			return ((File)javaValue).toPath();
-		} else if (javaValue instanceof String) {
-			return Paths.get((String)javaValue);
-		} else if (javaValue instanceof URI) {
-			return Paths.get((URI)javaValue);
-		} else {
-			throw new LuaError("Cannot iterator over given value.");
-		}
+	protected Path getPath(Varargs args) {
+		return LuaUtil.varargsToPath(args);
 	}
 	
 	protected Iterator<?> walk(Path path, int depth) {

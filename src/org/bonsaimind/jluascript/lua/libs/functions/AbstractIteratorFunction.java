@@ -46,7 +46,7 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 		if (iteratingFunction != null) {
 			return varargsOf(new LuaValue[] {
 					iteratingFunction,
-					args.arg(1),
+					LuaValue.NIL,
 					LuaValue.ZERO
 			});
 		} else if (originalIterationFunction != null) {
@@ -66,7 +66,9 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 		}
 	}
 	
-	protected Iterator<?> getIterator(LuaValue luaValue) {
+	protected Iterator<?> getIterator(Varargs args) {
+		LuaValue luaValue = args.arg1();
+		
 		if (luaValue.isuserdata(Iterable.class)) {
 			return ((Iterable<?>)luaValue.touserdata()).iterator();
 		} else if (luaValue.isuserdata(Iterator.class)) {

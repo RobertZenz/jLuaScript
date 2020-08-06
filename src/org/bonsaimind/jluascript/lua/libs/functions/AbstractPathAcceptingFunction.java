@@ -20,10 +20,9 @@
 package org.bonsaimind.jluascript.lua.libs.functions;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
+import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
@@ -38,23 +37,7 @@ public abstract class AbstractPathAcceptingFunction extends VarArgFunction {
 			throw new LuaError("Expected the path as parameters.");
 		}
 		
-		Path path = Paths.get("");
-		
-		for (int index = 1; index <= args.narg(); index++) {
-			LuaValue arg = args.arg(index);
-			
-			if (arg != null && !arg.isnil()) {
-				if (arg.isuserdata(Path.class)) {
-					path = path.resolve((Path)arg.touserdata());
-				} else if (arg.isstring()) {
-					path = path.resolve(arg.tojstring());
-				} else {
-					path = path.resolve(arg.toString());
-				}
-			}
-		}
-		
-		return performAction(path);
+		return performAction(LuaUtil.varargsToPath(args));
 	}
 	
 	protected abstract Varargs performAction(Path path);

@@ -19,8 +19,12 @@
 
 package org.bonsaimind.jluascript.lua;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 
 /**
  * The {@link LuaUtil} provides various helper methods for interacting with
@@ -58,5 +62,31 @@ public final class LuaUtil {
 		}
 		
 		previousPackageTable.set(clazz.getSimpleName(), coercedStaticInstance);
+	}
+	
+	/**
+	 * Converts the given {@link Varargs} to a combined {@link Path}.
+	 * 
+	 * @param args The {@link Varargs} to convert.
+	 * @return The {@link Path} created, it is empty if {@code args} is empty.
+	 */
+	public static final Path varargsToPath(Varargs args) {
+		Path path = Paths.get("");
+		
+		for (int index = 1; index <= args.narg(); index++) {
+			LuaValue arg = args.arg(index);
+			
+			if (arg != null && !arg.isnil()) {
+				if (arg.isuserdata(Path.class)) {
+					path = path.resolve((Path)arg.touserdata());
+				} else if (arg.isstring()) {
+					path = path.resolve(arg.tojstring());
+				} else {
+					path = path.resolve(arg.toString());
+				}
+			}
+		}
+		
+		return path;
 	}
 }

@@ -22,7 +22,7 @@ package org.bonsaimind.jluascript.lua.libs.functions.extensions;
 import java.util.Iterator;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
-import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 
 public class TreeDirFunction extends DirFunction {
 	public TreeDirFunction(Coercer coercer) {
@@ -30,7 +30,7 @@ public class TreeDirFunction extends DirFunction {
 	}
 	
 	@Override
-	protected Iterator<?> getIterator(LuaValue luaValue) {
-		return walk(getPath(luaValue).normalize(), Integer.MAX_VALUE);
+	protected Iterator<?> getIterator(Varargs args) {
+		return walk(getPath(args).normalize(), Integer.MAX_VALUE);
 	}
 }
