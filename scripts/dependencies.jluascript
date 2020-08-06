@@ -58,7 +58,7 @@ end
 local function writeTo(file, content)
 	Files.write(
 			file,
-			String.new(content):getBytes(StandardCharsets.UTF_8))
+			content:getBytes(StandardCharsets.UTF_8))
 end
 
 local function runAntIvy()
