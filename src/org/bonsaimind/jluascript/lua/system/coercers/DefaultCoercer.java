@@ -23,13 +23,13 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.lua.system.types.ArrayUserData;
 import org.bonsaimind.jluascript.lua.system.types.InstanceUserData;
 import org.bonsaimind.jluascript.lua.system.types.StaticUserData;
 import org.luaj.vm2.LuaBoolean;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaNumber;
 import org.luaj.vm2.LuaString;
-import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
 /**
@@ -79,7 +79,7 @@ public class DefaultCoercer implements Coercer {
 		}
 		
 		if (object.getClass().isArray()) {
-			return coerceArray((Object[])object);
+			return coerceArray(object);
 		}
 		
 		if (object instanceof String) {
@@ -160,14 +160,8 @@ public class DefaultCoercer implements Coercer {
 	 * @return The coerced array.
 	 * @throw LuaError If the conversion has failed or is not possible.
 	 */
-	protected LuaValue coerceArray(Object[] array) throws LuaError {
-		LuaTable luaTable = new LuaTable();
-		
-		for (int index = 0; index < array.length; index++) {
-			luaTable.set(index + 1, coerceJavaToLua(array[index]));
-		}
-		
-		return luaTable;
+	protected LuaValue coerceArray(Object array) throws LuaError {
+		return new ArrayUserData(array, this);
 	}
 	
 	/**

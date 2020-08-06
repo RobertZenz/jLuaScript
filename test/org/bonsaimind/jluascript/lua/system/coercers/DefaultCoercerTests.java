@@ -55,6 +55,33 @@ public class DefaultCoercerTests {
 	}
 	
 	@Test
+	public void testCoerceJavaToLuaPrimitiveArray() {
+		Object value = coercer.coerceLuaToJava(coercer.coerceJavaToLua(new float[] { 0, 1, 2, 3, 4, 5 }));
+		
+		Assertions.assertNotNull(value);
+		Assertions.assertTrue(value.getClass().isArray());
+		Assertions.assertEquals(float.class, value.getClass().getComponentType());
+		
+		value = coercer.coerceLuaToJava(coercer.coerceJavaToLua(new int[] { 0, 1, 2, 3, 4, 5 }));
+		
+		Assertions.assertNotNull(value);
+		Assertions.assertTrue(value.getClass().isArray());
+		Assertions.assertEquals(int.class, value.getClass().getComponentType());
+		
+		value = coercer.coerceLuaToJava(coercer.coerceJavaToLua(new short[] { 0, 1, 2, 3, 4, 5 }));
+		
+		Assertions.assertNotNull(value);
+		Assertions.assertTrue(value.getClass().isArray());
+		Assertions.assertEquals(short.class, value.getClass().getComponentType());
+		
+		value = coercer.coerceLuaToJava(coercer.coerceJavaToLua(new byte[] { 0, 1, 2, 3, 4, 5 }));
+		
+		Assertions.assertNotNull(value);
+		Assertions.assertTrue(value.getClass().isArray());
+		Assertions.assertEquals(byte.class, value.getClass().getComponentType());
+	}
+	
+	@Test
 	public void testCoerceJavaToLuaString() {
 		Assertions.assertTrue(coercer.coerceJavaToLua("AAA").isstring());
 		Assertions.assertEquals("AAA", coercer.coerceJavaToLua("AAA").tojstring());
