@@ -1,0 +1,112 @@
+#!/usr/bin/env jluascript
+
+-- This is a helper script which allows you to define dependencies inside
+-- your script and resolve them using Ant and Ivy. Obviously, Ant and Ivy must
+-- be installed on your machine and available through the PATH.
+-- 
+-- There are two new global functions:
+-- 
+--  * dependency(org, name, rev) Defines a new dependency.
+--  * resolve() Resolves the dependencies, runs Ant/Ivy if necessary and loads
+--              all jars.
+-- 
+-- The dependencies will be stored in SCRIPT_DIR/lib and will only be resolved
+-- when one of the *defined* dependencies is not found. If one of the implicit
+-- dependencies is missing, you can either remove the whole lib directory, or
+-- run resolve() with the argument { force = true }. Resolving the dependencies
+-- using Ant/Ivy will output information to stdout. This script will create
+-- an ivy.xml and build.xml file in the same directory as the script.
+--
+-- Usage example:
+-- 
+--     loadFile("/path/to/this/script/dependencies.jluascript")
+--     
+--     dependency("com.udojava", "EvalEx", "2.5")
+--     dependency("com.sibvisions.jvx", "jvxall", "2.8")
+--     resolve()
+-- 
+--     -- Classes are available and can be imported.
+
+local StandardCharsets = loadClass("java.nio.charset.StandardCharsets")
+local Files = loadClass("java.nio.file.Files")
+local Paths = loadClass("java.nio.file.Paths")
+
+local BUILD_XML = Paths.get(SCRIPT_DIR, "build.xml")
+local IVY_XML = Paths.get(SCRIPT_DIR, "ivy.xml")
+local LIB_DIR = Paths.get(SCRIPT_DIR, "lib")
+
+local dependencies = {}
+
+local function isAnyDependencyMissing()
+	for index, dependency in ipairs(dependencies) do
+		local jarPath = LIB_DIR:resolve(dependency.name .. "-" .. dependency.rev .. ".jar")
+		
+		if not Files.exists(jarPath) then
+			return true
+		end
+	end
+	
+	return false
+end
+
+local function loadDependencies()
+	for jarName, jarPath in dir(LIB_DIR) do
+		loadJar(jarPath)
+	end
+end
+
+local function writeTo(file, content)
+	Files.write(
+			file,
+			String.new(content):getBytes(StandardCharsets.UTF_8))
+end
+
+local function runAntIvy()
+	local ivyXmlContent = "<ivy-module version=\"2.0\">\n"
+			.. "\t<info organisation=\"org.bonsaimind.jluascript\" module=\"" .. SCRIPT_FILE .. "\" />\n"
+			.. "\n"
+			.. "\t<dependencies>\n"
+	
+	for index, dependency in ipairs(dependencies) do
+		ivyXmlContent = ivyXmlContent
+				.. "\t\t<dependency org=\"" .. dependency.org .. "\" name=\"" .. dependency.name .. "\" rev=\"" .. dependency.rev .. "\"/>\n"
+	end
+	
+	ivyXmlContent = ivyXmlContent
+			.. "\t</dependencies>\n"
+			.. "</ivy-module>\n"
+	
+	writeTo(IVY_XML,
+			ivyXmlContent)
+	writeTo(BUILD_XML,
+			"<project xmlns:ivy=\"antlib:org.apache.ivy.ant\" name=\"" .. SCRIPT_FILE .. "\" default=\"resolve\">\n"
+			.. "\t<target name=\"resolve\">\n"
+			.. "\t\t<ivy:retrieve />\n"
+			.. "\t</target>\n"
+			.. "</project>")
+	
+	local exitCode = run("ant", "resolve")
+	
+	if exitCode ~= 0 then
+		error("Failed to fetch dependencies, ant failed with code <" .. exitCode .. ">.")
+	end
+end
+
+-- Public API
+
+function dependency(org, name, rev)
+	table.insert(dependencies, {
+		org = org,
+		name = name,
+		rev = rev
+	})
+end
+
+function resolve(arguments)
+	if (arguments ~= nil and arguments.force)
+			or isAnyDependencyMissing() then
+		runAntIvy()
+	end
+	
+	loadDependencies()
+end
