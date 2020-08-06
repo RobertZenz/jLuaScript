@@ -48,6 +48,7 @@ public class StringExtendingLib extends TwoArgFunction {
 	public LuaValue call(LuaValue modname, LuaValue environment) {
 		LuaTable stringTable = (LuaTable)environment.get("string");
 		
+		extendWith(stringTable, "getBytes");
 		extendWith(stringTable, "charAt");
 		extendWith(stringTable, "concat");
 		extendWith(stringTable, "contains");
