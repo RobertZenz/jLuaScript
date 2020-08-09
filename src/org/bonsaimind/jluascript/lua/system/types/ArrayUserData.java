@@ -44,15 +44,9 @@ public class ArrayUserData extends LuaUserdata {
 			
 			if (index >= 0 && index < length) {
 				return coercer.coerceJavaToLua(Array.get(m_instance, index));
-			} else {
-				return LuaValue.NIL;
 			}
-		} else {
-			return LuaValue.NIL;
 		}
-	}
-	
-	protected boolean isPrimitive() {
-		return m_instance.getClass().getComponentType().isPrimitive();
+		
+		return LuaValue.NIL;
 	}
 }
