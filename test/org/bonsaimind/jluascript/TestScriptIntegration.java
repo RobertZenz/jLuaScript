@@ -4,6 +4,7 @@
 
 package org.bonsaimind.jluascript;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,7 +75,9 @@ public class TestScriptIntegration {
 	
 	@Test
 	public void testForLoop() throws Exception {
-		runFile("for-loop");
+		runFile("for-loop",
+				new int[] { 1, 2, 3 },
+				new BigDecimal[] { BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.TEN });
 	}
 	
 	@Test

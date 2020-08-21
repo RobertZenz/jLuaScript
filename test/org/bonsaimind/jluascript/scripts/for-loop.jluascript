@@ -3,11 +3,96 @@
 
 -- This script tests the usability of for loops.
 
+import("java.math.BigDecimal")
 import("java.util.ArrayList")
 import("java.util.HashMap")
 
 
 local counter = 0;
+
+-- Test with a primitive array.
+
+counter = 0
+
+for index, item in ipairs(ARGS[1]) do
+	counter = counter + 1
+	
+	if index == 1 and item ~= 1 then
+		error("First item expected to be <1> but was <" .. item ..">")
+	elseif index == 2 and item ~= 2 then
+		error("First item expected to be <2> but was <" .. item ..">")
+	elseif index == 3 and item ~= 3 then
+		error("First item expected to be <3> but was <" .. item ..">")
+	elseif index <= 0 or index >= 4 then
+		error("Index <" .. index .. "> out of range.")
+	end
+end
+
+if counter ~= 3 then
+	error("Expected <3> iterations, but were <" .. counter .. ">")
+end
+
+counter = 0
+
+for index, item in pairs(ARGS[1]) do
+	counter = counter + 1
+	
+	if index == 1 and item ~= 1 then
+		error("First item expected to be <1> but was <" .. item ..">")
+	elseif index == 2 and item ~= 2 then
+		error("First item expected to be <2> but was <" .. item ..">")
+	elseif index == 3 and item ~= 3 then
+		error("First item expected to be <3> but was <" .. item ..">")
+	elseif index <= 0 or index >= 4 then
+		error("Index <" .. index .. "> out of range.")
+	end
+end
+
+if counter ~= 3 then
+	error("Expected <3> iterations, but were <" .. counter .. ">")
+end
+
+-- Test with an object array.
+
+counter = 0
+
+for index, item in ipairs(ARGS[2]) do
+	counter = counter + 1
+	
+	if index == 1 and not BigDecimal.ZERO:equals(item) then
+		error("First item expected to be <BigDecimal.ZERO> but was <" .. item:toString() ..">")
+	elseif index == 2 and not BigDecimal.ONE:equals(item) then
+		error("First item expected to be <BigDecimal.ONE> but was <" .. item:toString() ..">")
+	elseif index == 3 and not BigDecimal.TEN:equals(item) then
+		error("First item expected to be <BigDecimal.TEN> but was <" .. item:toString() ..">")
+	elseif index <= 0 or index >= 4 then
+		error("Index <" .. index .. "> out of range.")
+	end
+end
+
+if counter ~= 3 then
+	error("Expected <3> iterations, but were <" .. counter .. ">")
+end
+
+counter = 0
+
+for index, item in pairs(ARGS[2]) do
+	counter = counter + 1
+	
+	if index == 1 and not BigDecimal.ZERO:equals(item) then
+		error("First item expected to be <BigDecimal.ZERO> but was <" .. item:toString() ..">")
+	elseif index == 2 and not BigDecimal.ONE:equals(item) then
+		error("First item expected to be <BigDecimal.ONE> but was <" .. item:toString() ..">")
+	elseif index == 3 and not BigDecimal.TEN:equals(item) then
+		error("First item expected to be <BigDecimal.TEN> but was <" .. item:toString() ..">")
+	elseif index <= 0 or index >= 4 then
+		error("Index <" .. index .. "> out of range.")
+	end
+end
+
+if counter ~= 3 then
+	error("Expected <3> iterations, but were <" .. counter .. ">")
+end
 
 -- Test with a list.
 

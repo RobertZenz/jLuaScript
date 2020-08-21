@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.lua.system.types.ArrayUserData;
+import org.bonsaimind.jluascript.support.ArrayIterator;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
@@ -69,7 +71,13 @@ public abstract class AbstractIteratorFunction extends VarArgFunction {
 	protected Iterator<?> getIterator(Varargs args) {
 		LuaValue luaValue = args.arg1();
 		
-		if (luaValue.isuserdata(Iterable.class)) {
+		if (luaValue == null || luaValue.isnil()) {
+			return null;
+		} else if (luaValue instanceof ArrayUserData) {
+			ArrayUserData arrayUserData = (ArrayUserData)luaValue;
+			
+			return new ArrayIterator(arrayUserData.getRawArray());
+		} else if (luaValue.isuserdata(Iterable.class)) {
 			return ((Iterable<?>)luaValue.touserdata()).iterator();
 		} else if (luaValue.isuserdata(Iterator.class)) {
 			return (Iterator<?>)luaValue.touserdata();

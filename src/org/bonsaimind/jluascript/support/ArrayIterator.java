@@ -17,40 +17,28 @@
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.bonsaimind.jluascript.lua.system.types;
+package org.bonsaimind.jluascript.support;
 
 import java.lang.reflect.Array;
+import java.util.Iterator;
 
-import org.bonsaimind.jluascript.lua.system.Coercer;
-import org.luaj.vm2.LuaUserdata;
-import org.luaj.vm2.LuaValue;
-
-public class ArrayUserData extends LuaUserdata {
-	protected Coercer coercer = null;
+public class ArrayIterator implements Iterator<Object> {
+	protected Object array = null;
+	protected int index = 0;
 	
-	public ArrayUserData(Object array, Coercer coercer) {
-		super(array);
+	public ArrayIterator(Object array) {
+		super();
 		
-		this.coercer = coercer;
+		this.array = array;
 	}
 	
 	@Override
-	public LuaValue get(LuaValue key) {
-		if (key.equals("length")) {
-			return LuaValue.valueOf(Array.getLength(m_instance));
-		} else if (key.isint()) {
-			int index = key.toint() - 1;
-			int length = Array.getLength(m_instance);
-			
-			if (index >= 0 && index < length) {
-				return coercer.coerceJavaToLua(Array.get(m_instance, index));
-			}
-		}
-		
-		return LuaValue.NIL;
+	public boolean hasNext() {
+		return index < Array.getLength(array);
 	}
 	
-	public Object getRawArray() {
-		return m_instance;
+	@Override
+	public Object next() {
+		return Array.get(array, index++);
 	}
 }
