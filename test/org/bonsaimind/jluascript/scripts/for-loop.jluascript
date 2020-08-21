@@ -21,11 +21,11 @@ counter = 0
 for index, item in ipairs(list) do
 	counter = counter + 1
 	
-	if index == 1 and not item == "Alpha" then
+	if index == 1 and item ~= "Alpha" then
 		error("First item expected to be <Alpha> but was <" .. item ..">")
-	elseif index == 2 and not item == "Bravo" then
+	elseif index == 2 and item ~= "Bravo" then
 		error("First item expected to be <Bravo> but was <" .. item ..">")
-	elseif index == 3 and not item == "Charly" then
+	elseif index == 3 and item ~= "Charly" then
 		error("First item expected to be <Charly> but was <" .. item ..">")
 	elseif index <= 0 or index >= 4 then
 		error("Index <" .. index .. "> out of range.")
@@ -41,11 +41,11 @@ counter = 0
 for index, item in pairs(list) do
 	counter = counter + 1
 	
-	if index == 1 and not item == "Alpha" then
+	if index == 1 and item ~= "Alpha" then
 		error("First item expected to be <Alpha> but was <" .. item ..">")
-	elseif index == 2 and not item == "Bravo" then
+	elseif index == 2 and item ~= "Bravo" then
 		error("First item expected to be <Bravo> but was <" .. item ..">")
-	elseif index == 3 and not item == "Charly" then
+	elseif index == 3 and item ~= "Charly" then
 		error("First item expected to be <Charly> but was <" .. item ..">")
 	elseif index <= 0 or index >= 4 then
 		error("Index <" .. index .. "> out of range.")
@@ -63,11 +63,11 @@ counter = 0
 for key, item in pairs(list) do
 	counter = counter + 1
 	
-	if key == 1 and not item == "Alpha" then
+	if key == 1 and item ~= "Alpha" then
 		error("First item expected to be <Alpha> but was <" .. item ..">")
-	elseif key == 2 and not item == "Bravo" then
+	elseif key == 2 and item ~= "Bravo" then
 		error("First item expected to be <Bravo> but was <" .. item ..">")
-	elseif key == 3 and not item == "Charly" then
+	elseif key == 3 and item ~= "Charly" then
 		error("First item expected to be <Charly> but was <" .. item ..">")
 	elseif key <= 0 or key >= 4 then
 		error("Key <" .. key .. "> out of range.")
@@ -107,11 +107,11 @@ counter = 0
 for key, item in pairs(map) do
 	counter = counter + 1
 	
-	if key == "A" and not item == "Alpha" then
+	if key == "A" and item ~= "Alpha" then
 		error("First item expected to be <Alpha> but was <" .. item ..">")
-	elseif key == "B" and not item == "Bravo" then
+	elseif key == "B" and item ~= "Bravo" then
 		error("First item expected to be <Bravo> but was <" .. item ..">")
-	elseif key == "C" and not item == "Charly" then
+	elseif key == "C" and item ~= "Charly" then
 		error("First item expected to be <Charly> but was <" .. item ..">")
 	elseif key ~= "A" and key ~= "B" and key ~= "C" then
 		error("Key <" .. key .. "> out of range.")
