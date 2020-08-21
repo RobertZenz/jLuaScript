@@ -107,7 +107,7 @@ public class TestScriptIntegration {
 		runFile("string");
 	}
 	
-	protected <PARAMETER_TYPE extends Object> void runFile(String scriptName, PARAMETER_TYPE... arguments) throws Exception {
+	protected void runFile(String scriptName, Object... arguments) throws Exception {
 		List<Object> args = null;
 		
 		if (arguments != null) {
@@ -117,7 +117,7 @@ public class TestScriptIntegration {
 		environment.execute(Paths.get("./test/org/bonsaimind/jluascript/scripts", scriptName + ".jluascript"), args);
 	}
 	
-	protected <PARAMETER_TYPE extends Object> void runString(String scriptName, PARAMETER_TYPE... arguments) throws Exception {
+	protected void runString(String scriptName, Object... arguments) throws Exception {
 		List<Object> args = null;
 		
 		if (arguments != null) {
