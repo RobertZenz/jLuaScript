@@ -48,7 +48,17 @@ public class InstanceUserData extends AbstractInterjectingUserData {
 			if (!Modifier.isStatic(field.getModifiers())
 					&& Modifier.isPublic(field.getModifiers())
 					&& field.getName().equals(name)) {
-				return field;
+				try {
+					// We must "refetch" the field from the declared class,
+					// otherwise we run into issues on Java 9+ and similar that
+					// certain fields might be visible, but not accessible.
+					Field declaredField = field.getDeclaringClass().getField(field.getName());
+					
+					return declaredField;
+				} catch (ReflectiveOperationException e) {
+					// Should not occur as the method clearly exists.
+					throw new IllegalStateException(e);
+				}
 			}
 		}
 		
@@ -92,10 +102,23 @@ public class InstanceUserData extends AbstractInterjectingUserData {
 			if (!Modifier.isStatic(method.getModifiers())
 					&& Modifier.isPublic(method.getModifiers())
 					&& method.getName().equals(name)) {
-				// Workaround that certain methods might not be accessible for
-				// us even though they should.
-				method.setAccessible(true);
-				methods.add(method);
+				try {
+					// We must "refetch" the method from the declared class,
+					// otherwise we run into issues on Java 9+ and similar that
+					// certain methods might be visible, but not accessible.
+					// Methods on Path/UnixPath are the most prominent example,
+					// as UnixPath is a Path implementation, but the methods
+					// are not legally accessible directly, we must use
+					// the methods of the interface instead.
+					Method declaredMethod = method.getDeclaringClass().getMethod(
+							method.getName(),
+							method.getParameterTypes());
+					
+					methods.add(declaredMethod);
+				} catch (ReflectiveOperationException e) {
+					// Should not occur as the method clearly exists.
+					throw new IllegalStateException(e);
+				}
 			}
 		}
 		
