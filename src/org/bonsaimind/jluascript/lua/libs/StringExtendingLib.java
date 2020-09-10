@@ -48,24 +48,32 @@ public class StringExtendingLib extends TwoArgFunction {
 	public LuaValue call(LuaValue modname, LuaValue environment) {
 		LuaTable stringTable = (LuaTable)environment.get("string");
 		
-		extendWith(stringTable, "getBytes");
 		extendWith(stringTable, "charAt");
+		extendWith(stringTable, "codePointAt");
+		extendWith(stringTable, "codePointBefore");
+		extendWith(stringTable, "codePointCount");
+		extendWith(stringTable, "compareTo");
+		extendWith(stringTable, "compareToIgnoreCase");
 		extendWith(stringTable, "concat");
 		extendWith(stringTable, "contains");
 		extendWith(stringTable, "contentEquals");
 		extendWith(stringTable, "endsWith");
 		extendWith(stringTable, "equalsIgnoreCase");
+		extendWith(stringTable, "getBytes");
 		extendWith(stringTable, "indexOf");
 		extendWith(stringTable, "isEmpty");
 		extendWith(stringTable, "lastIndexOf");
 		extendWith(stringTable, "length");
 		extendWith(stringTable, "matches");
+		extendWith(stringTable, "offsetByCodePoints");
+		extendWith(stringTable, "regionMatches");
 		extendWith(stringTable, "replace");
 		extendWith(stringTable, "replaceAll");
 		extendWith(stringTable, "replaceFirst");
 		extendWith(stringTable, "split");
 		extendWith(stringTable, "startsWith");
 		extendWith(stringTable, "substring");
+		extendWith(stringTable, "toCharArray");
 		extendWith(stringTable, "toLowerCase");
 		extendWith(stringTable, "toUpperCase");
 		extendWith(stringTable, "trim");
