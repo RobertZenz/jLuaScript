@@ -75,7 +75,7 @@ public class InstanceMethodInvokingFunction extends AbstractExecutableInvokingFu
 			}
 		}
 		
-		if (!parameters.isEmpty()) {
+		if (!methodParameters.isEmpty()) {
 			methodSignature.delete(methodSignature.length() - 2, methodSignature.length());
 		}
 		
