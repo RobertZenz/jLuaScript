@@ -35,6 +35,28 @@ local BUILD_XML = Paths.get(SCRIPT_DIR, "build.xml")
 local IVY_XML = Paths.get(SCRIPT_DIR, "ivy.xml")
 local LIB_DIR = Paths.get(SCRIPT_DIR, "lib")
 
+local BUILD_XML_CONTENT = [[
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name=" .. SCRIPT_FILE .. " default="resolve">
+	<target name="resolve">
+		<ivy:retrieve type="jar"/>
+	</target>
+</project>
+]]
+
+local IVY_XML_CONTENT_START = [[
+<ivy-module version="2.0">
+	<info organisation="org.bonsaimind.jluascript" module="%s"/>
+	
+	<dependencies>
+]]
+local IVY_XML_CONTENT_DEPENDENCY = [[
+		<dependency org="%s" name="%s" rev="%s"/>
+]]
+local IVY_XML_CONTENT_END = [[
+	</dependencies>
+</ivy-module>
+]]
+
 local dependencies = {}
 
 local function isAnyDependencyMissing()
@@ -62,28 +84,19 @@ local function writeTo(file, content)
 end
 
 local function runAntIvy()
-	local ivyXmlContent = "<ivy-module version=\"2.0\">\n"
-			.. "\t<info organisation=\"org.bonsaimind.jluascript\" module=\"" .. SCRIPT_FILE .. "\"/>\n"
-			.. "\n"
-			.. "\t<dependencies>\n"
+	local ivyXmlContent = String.format(IVY_XML_CONTENT_START, SCRIPT_FILE)
 	
 	for index, dependency in ipairs(dependencies) do
-		ivyXmlContent = ivyXmlContent
-				.. "\t\t<dependency org=\"" .. dependency.org .. "\" name=\"" .. dependency.name .. "\" rev=\"" .. dependency.rev .. "\"/>\n"
+		ivyXmlContent = ivyXmlContent .. String.format(IVY_XML_CONTENT_DEPENDENCY,
+				dependency.org,
+				dependency.name,
+				dependency.rev)
 	end
 	
-	ivyXmlContent = ivyXmlContent
-			.. "\t</dependencies>\n"
-			.. "</ivy-module>\n"
+	ivyXmlContent = ivyXmlContent .. IVY_XML_CONTENT_END
 	
-	writeTo(IVY_XML,
-			ivyXmlContent)
-	writeTo(BUILD_XML,
-			"<project xmlns:ivy=\"antlib:org.apache.ivy.ant\" name=\"" .. SCRIPT_FILE .. "\" default=\"resolve\">\n"
-			.. "\t<target name=\"resolve\">\n"
-			.. "\t\t<ivy:retrieve type=\"jar\"/>\n"
-			.. "\t</target>\n"
-			.. "</project>")
+	writeTo(IVY_XML, ivyXmlContent)
+	writeTo(BUILD_XML, BUILD_XML_CONTENT)
 	
 	local exitCode = run("ant", "resolve")
 	
