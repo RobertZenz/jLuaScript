@@ -56,6 +56,15 @@ public class InstanceMethodInvokingFunction extends AbstractExecutableInvokingFu
 	}
 	
 	@Override
+	protected void foldVarargs(Method executable, List<Object> parameters) {
+		Object instanceParameter = parameters.remove(0);
+		
+		super.foldVarargs(executable, parameters);
+		
+		parameters.add(0, instanceParameter);
+	}
+	
+	@Override
 	protected String getRequestedMethodSignature(List<Object> parameters) {
 		StringBuilder methodSignature = new StringBuilder();
 		methodSignature.append(clazz.getSimpleName())

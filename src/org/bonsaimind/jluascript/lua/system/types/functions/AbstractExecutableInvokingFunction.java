@@ -84,23 +84,7 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		}
 		
 		if (hasVargArgsParameter(executable)) {
-			Parameter varArgParameter = executable.getParameters()[executable.getParameterCount() - 1];
-			
-			if (parameters.size() >= executable.getParameterCount()) {
-				Object[] varargs = (Object[])Array.newInstance(
-						varArgParameter.getType().getComponentType(),
-						parameters.size() - executable.getParameterCount() + 1);
-				
-				for (int index = 0; index < varargs.length; index++) {
-					varargs[index] = parameters.remove(executable.getParameterCount() - 1);
-				}
-				
-				parameters.add(varargs);
-			} else {
-				parameters.add(Array.newInstance(
-						varArgParameter.getType().getComponentType(),
-						0));
-			}
+			foldVarargs(executable, parameters);
 		}
 		
 		try {
@@ -136,6 +120,26 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		}
 		
 		return null;
+	}
+	
+	protected void foldVarargs(EXECUTABLE executable, List<Object> parameters) {
+		Parameter varArgParameter = executable.getParameters()[executable.getParameterCount() - 1];
+		
+		if (parameters.size() >= executable.getParameterCount()) {
+			Object[] varargs = (Object[])Array.newInstance(
+					varArgParameter.getType().getComponentType(),
+					parameters.size() - executable.getParameterCount() + 1);
+			
+			for (int index = 0; index < varargs.length; index++) {
+				varargs[index] = parameters.remove(executable.getParameterCount() - 1);
+			}
+			
+			parameters.add(varargs);
+		} else {
+			parameters.add(Array.newInstance(
+					varArgParameter.getType().getComponentType(),
+					0));
+		}
 	}
 	
 	protected String getMethodSignature(EXECUTABLE executable) {
