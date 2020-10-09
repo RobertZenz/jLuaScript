@@ -63,7 +63,7 @@ end
 
 local function runAntIvy()
 	local ivyXmlContent = "<ivy-module version=\"2.0\">\n"
-			.. "\t<info organisation=\"org.bonsaimind.jluascript\" module=\"" .. SCRIPT_FILE .. "\" />\n"
+			.. "\t<info organisation=\"org.bonsaimind.jluascript\" module=\"" .. SCRIPT_FILE .. "\"/>\n"
 			.. "\n"
 			.. "\t<dependencies>\n"
 	
@@ -81,7 +81,7 @@ local function runAntIvy()
 	writeTo(BUILD_XML,
 			"<project xmlns:ivy=\"antlib:org.apache.ivy.ant\" name=\"" .. SCRIPT_FILE .. "\" default=\"resolve\">\n"
 			.. "\t<target name=\"resolve\">\n"
-			.. "\t\t<ivy:retrieve />\n"
+			.. "\t\t<ivy:retrieve/>\n"
 			.. "\t</target>\n"
 			.. "</project>")
 	
