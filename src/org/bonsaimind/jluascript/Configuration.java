@@ -89,7 +89,7 @@ public class Configuration {
 			}
 		}
 		
-		if (script == null) {
+		if (script == null && !repl) {
 			printHelp = true;
 		}
 	}
