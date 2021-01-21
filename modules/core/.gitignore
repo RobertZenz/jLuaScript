@@ -1,0 +1,11 @@
+# Build
+/target/
+/TESTS-*.xml
+
+# Eclipse
+/bin/
+/.checkstyle
+/.classpath
+/.project
+/.settings/
+

@@ -1,0 +1,12 @@
+-- Licensed under Creative Commons Zero or as Public Domain.
+
+
+-- This script throws an error for testing.
+
+dofile("./src.test/org/bonsaimind/jluascript/scripts/error-include.jluascript")
+
+function outer()
+	inner()
+end
+
+outer()

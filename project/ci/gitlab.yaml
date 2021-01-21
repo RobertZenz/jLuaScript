@@ -1,0 +1,72 @@
+image: adoptopenjdk/openjdk8:alpine-slim
+
+before_script:
+  - apk update
+  - apk add apache-ant
+
+stages:
+  - build
+  - test
+  - coverage
+  - deploy
+
+reports:
+  stage: build
+  script:
+    - ant report
+  artifacts:
+    paths:
+      - "modules/*/target/ivy-report.css"
+      - "modules/*/target/*.html"
+
+build:
+  stage: build
+  script:
+    - ant compile
+  artifacts:
+    paths:
+      - "modules/*/target/"
+
+test:
+  stage: test
+  dependencies:
+    - build
+  script:
+    - ant test
+  artifacts:
+    paths:
+      - "modules/*/TESTS-*.xml"
+      - "modules/*/target/test-report/"
+      - "modules/*/target/jacoco.exec"
+      - "modules/*/target/jacoco-report.xml"
+    reports:
+      junit:
+        - "modules/*/TESTS-*.xml"
+
+coverage:
+  stage: coverage
+  dependencies:
+    - build
+    - test
+  image: haynes/jacoco2cobertura:1.0.7
+  script:
+    - "./project/ci/convert-coverage-reports.sh"
+  artifacts:
+    paths:
+      - "modules/*/target/cobertura-report.xml"
+    reports:
+      cobertura:
+        - "modules/*/target/cobertura-report.xml"
+
+deploy:
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - ant package
+  artifacts:
+    paths:
+      - "modules/*/target/*.jar"
+  rules:
+    - if: "$CI_COMMIT_BRANCH == 'master' && $CI_COMMIT_TAG"
+      when: manual

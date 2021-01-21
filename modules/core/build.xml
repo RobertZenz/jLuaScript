@@ -1,0 +1,15 @@
+<project basedir="." name="core">
+	<condition property="projectdir" value="${basedir}/../../">
+		<not>
+			<isset property="projectdir" />
+		</not>
+	</condition>
+	
+	<path id="classpath.local-dependencies"/>
+	
+	<archives id="uberjar.local-dependencies"/>
+	
+	<property name="mainclass" value=""/>
+	
+	<import file="../../build-module.xml"/>
+</project>

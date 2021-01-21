@@ -1,0 +1,21 @@
+<project basedir="." name="standalone">
+	<condition property="projectdir" value="${basedir}/../../">
+		<not>
+			<isset property="projectdir" />
+		</not>
+	</condition>
+	
+	<path id="classpath.local-dependencies">
+		<dirset dir="${basedir}/../core/target/classes/"/>
+	</path>
+	
+	<archives id="uberjar.local-dependencies">
+		<zips>
+			<fileset dir="${basedir}/../core/target/" includes="*-uberjar.jar"/>
+		</zips>
+	</archives>
+	
+	<property name="mainclass" value="org.bonsaimind.jluascript.Main"/>
+	
+	<import file="../../build-module.xml"/>
+</project>
