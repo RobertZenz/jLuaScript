@@ -126,15 +126,20 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		Parameter varArgParameter = executable.getParameters()[executable.getParameterCount() - 1];
 		
 		if (parameters.size() >= executable.getParameterCount()) {
-			Object[] varargs = (Object[])Array.newInstance(
-					varArgParameter.getType().getComponentType(),
-					parameters.size() - executable.getParameterCount() + 1);
-			
-			for (int index = 0; index < varargs.length; index++) {
-				varargs[index] = parameters.remove(executable.getParameterCount() - 1);
+			if (parameters.size() == executable.getParameterCount()
+					&& parameters.get(parameters.size() - 1).getClass().isArray()) {
+				// Keep as is.
+			} else {
+				Object[] varargs = (Object[])Array.newInstance(
+						varArgParameter.getType().getComponentType(),
+						parameters.size() - executable.getParameterCount() + 1);
+				
+				for (int index = 0; index < varargs.length; index++) {
+					varargs[index] = parameters.remove(executable.getParameterCount() - 1);
+				}
+				
+				parameters.add(varargs);
 			}
-			
-			parameters.add(varargs);
 		} else {
 			parameters.add(Array.newInstance(
 					varArgParameter.getType().getComponentType(),
@@ -235,13 +240,25 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 			
 			if (methodParameter.isVarArgs()) {
 				// Test if the remaining parameters are matching.
-				Class<?> methodParameterClass = methodParameter.getType().getComponentType();
+				Class<?> methodParameterType = methodParameter.getType();
 				
-				for (; parameterIndex < parameters.size(); parameterIndex++) {
+				if (parameterIndex < parameters.size()) {
 					Object parameter = parameters.get(parameterIndex);
 					
-					if (!methodParameterClass.isAssignableFrom(parameter.getClass())) {
-						return false;
+					if (parameter.getClass().isArray()) {
+						if (!methodParameterType.isAssignableFrom(parameter.getClass())) {
+							return false;
+						}
+					} else {
+						Class<?> methodParameterClass = methodParameterType.getComponentType();
+						
+						for (; parameterIndex < parameters.size(); parameterIndex++) {
+							parameter = parameters.get(parameterIndex);
+							
+							if (!methodParameterClass.isAssignableFrom(parameter.getClass())) {
+								return false;
+							}
+						}
 					}
 				}
 			} else {

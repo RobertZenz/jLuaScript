@@ -2,6 +2,7 @@
 package org.bonsaimind.jluascript.lua.system;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
@@ -88,6 +89,42 @@ public class ClassSystemIntegrationTests {
 	@Test
 	public void testStaticMethod() throws Exception {
 		Assertions.assertEquals("12345", run("return String.valueOf(12345)"));
+	}
+	
+	@Test
+	public void testVarargsOnlyParameterArrayArgument() throws Exception {
+		environment.addToEnvironment("Arrays", Arrays.class);
+		
+		Assertions.assertArrayEquals(
+				new Object[] { "A", "B", "C" },
+				(Object[])run("return Arrays.asList(string.split(\"ABC\", \"\")):toArray()"));
+	}
+	
+	@Test
+	public void testVarargsOnlyParameterMultipleArguments() throws Exception {
+		environment.addToEnvironment("Arrays", Arrays.class);
+		
+		Assertions.assertArrayEquals(
+				new Object[] { "A", "B", "C" },
+				(Object[])run("return Arrays.asList(\"A\", \"B\", \"C\"):toArray()"));
+	}
+	
+	@Test
+	public void testVarargsOnlyParameterNoArguments() throws Exception {
+		environment.addToEnvironment("Arrays", Arrays.class);
+		
+		Assertions.assertArrayEquals(
+				new Object[] {},
+				(Object[])run("return Arrays.asList():toArray()"));
+	}
+	
+	@Test
+	public void testVarargsOnlyParameterOneArguments() throws Exception {
+		environment.addToEnvironment("Arrays", Arrays.class);
+		
+		Assertions.assertArrayEquals(
+				new Object[] { "A" },
+				(Object[])run("return Arrays.asList(\"A\"):toArray()"));
 	}
 	
 	protected Object run(String script) throws ScriptExecutionException {
