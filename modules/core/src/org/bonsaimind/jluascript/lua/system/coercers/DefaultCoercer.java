@@ -104,7 +104,7 @@ public class DefaultCoercer implements Coercer {
 	 */
 	@Override
 	public Object coerceLuaToJava(LuaValue luaValue) throws LuaError {
-		if (luaValue == null || luaValue.isnil()) {
+		if (luaValue == null) {
 			return null;
 		}
 		
@@ -122,7 +122,7 @@ public class DefaultCoercer implements Coercer {
 				break;
 			
 			case LuaValue.TNIL:
-				break;
+				return null;
 			
 			case LuaValue.TNONE:
 				break;
