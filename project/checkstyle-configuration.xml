@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN" "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    This configuration file was written by the eclipse-cs plugin configuration editor
+-->
+<!--
+    Checkstyle-Configuration: Bonsaimind
+    Description: none
+-->
+<module name="Checker">
+  <property name="severity" value="warning"/>
+  <module name="TreeWalker">
+    <module name="JavadocMethod">
+      <property name="validateThrows" value="true"/>
+    </module>
+    <module name="JavadocMissingWhitespaceAfterAsterisk"/>
+    <module name="JavadocType">
+      <property name="tokens" value="INTERFACE_DEF,ENUM_DEF,CLASS_DEF,ANNOTATION_DEF"/>
+    </module>
+    <module name="JavadocVariable"/>
+    <module name="MissingJavadocMethod">
+      <metadata name="net.sf.eclipsecs.core.comment" value="public"/>
+      <property name="scope" value="public"/>
+    </module>
+    <module name="MissingJavadocPackage"/>
+    <module name="MissingJavadocType"/>
+    <module name="AbstractClassName"/>
+    <module name="ClassTypeParameterName">
+      <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_TYPE$"/>
+    </module>
+    <module name="ConstantName"/>
+    <module name="LocalVariableName"/>
+    <module name="LocalFinalVariableName"/>
+    <module name="MemberName"/>
+    <module name="MethodName"/>
+    <module name="MethodTypeParameterName">
+      <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_TYPE$"/>
+    </module>
+    <module name="InterfaceTypeParameterName">
+      <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_TYPE$"/>
+    </module>
+    <module name="PackageName"/>
+    <module name="ParameterName">
+      <property name="accessModifiers" value="public"/>
+    </module>
+    <module name="StaticVariableName"/>
+    <module name="TypeName"/>
+    <module name="CatchParameterName">
+      <property name="format" value="^(e|th)$"/>
+    </module>
+    <module name="AvoidStarImport"/>
+    <module name="AvoidStaticImport"/>
+    <module name="IllegalImport"/>
+    <module name="RedundantImport"/>
+    <module name="UnusedImports"/>
+    <module name="ModifierOrder"/>
+    <module name="InterfaceMemberImpliedModifier"/>
+    <module name="ClassMemberImpliedModifier"/>
+    <module name="EmptyBlock">
+      <property name="option" value="text"/>
+    </module>
+    <module name="EmptyCatchBlock"/>
+    <module name="LeftCurly"/>
+    <module name="NeedBraces">
+      <property name="tokens" value="LITERAL_DO,LITERAL_ELSE,LITERAL_IF,LITERAL_FOR,LITERAL_WHILE"/>
+    </module>
+    <module name="RightCurly"/>
+    <module name="WhitespaceAfter">
+      <property name="tokens" value="COMMA,SEMI,LITERAL_IF,LITERAL_ELSE,LITERAL_WHILE,LITERAL_DO,LITERAL_FOR,DO_WHILE"/>
+    </module>
+    <module name="EmptyLineSeparator">
+      <property name="tokens" value="PACKAGE_DEF,IMPORT,STATIC_IMPORT,CLASS_DEF,ENUM_DEF,INTERFACE_DEF,CTOR_DEF,METHOD_DEF,STATIC_INIT,INSTANCE_INIT"/>
+    </module>
+    <module name="GenericWhitespace"/>
+    <module name="SingleSpaceSeparator"/>
+    <module name="ArrayTypeStyle"/>
+    <module name="UpperEll"/>
+    <module name="OuterTypeFilename"/>
+    <module name="AvoidEscapedUnicodeCharacters"/>
+    <module name="FinalClass"/>
+    <module name="InnerTypeLast"/>
+    <module name="InterfaceIsType"/>
+    <module name="VisibilityModifier">
+      <property name="protectedAllowed" value="true"/>
+    </module>
+    <module name="OneTopLevelClass"/>
+    <module name="MissingDeprecated"/>
+    <module name="MissingOverride"/>
+    <module name="PackageAnnotation"/>
+    <module name="AnnotationLocation"/>
+    <module name="JavadocStyle"/>
+    <module name="CommentsIndentation"/>
+    <module name="AvoidDoubleBraceInitialization"/>
+    <module name="AvoidInlineConditionals"/>
+    <module name="CovariantEquals"/>
+    <module name="DeclarationOrder"/>
+    <module name="EmptyStatement"/>
+    <module name="EqualsHashCode"/>
+    <module name="HiddenField">
+      <property name="tokens" value="VARIABLE_DEF,PATTERN_VARIABLE_DEF,LAMBDA"/>
+    </module>
+    <module name="IllegalInstantiation"/>
+    <module name="MissingCtor"/>
+    <module name="MultipleVariableDeclarations"/>
+    <module name="NoArrayTrailingComma"/>
+    <module name="NoEnumTrailingComma"/>
+    <module name="NoFinalizer"/>
+    <module name="ParameterAssignment"/>
+    <module name="SimplifyBooleanExpression"/>
+    <module name="SimplifyBooleanReturn"/>
+    <module name="OneStatementPerLine"/>
+    <module name="HideUtilityClassConstructor"/>
+    <module name="AtclauseOrder"/>
+    <module name="NonEmptyAtclauseDescription">
+      <property name="javadocTokens" value="PARAM_LITERAL,RETURN_LITERAL,THROWS_LITERAL,EXCEPTION_LITERAL,DEPRECATED_LITERAL"/>
+    </module>
+    <module name="MissingJavadocMethod">
+      <metadata name="net.sf.eclipsecs.core.comment" value="protected"/>
+      <property name="scope" value="protected"/>
+    </module>
+    <module name="MissingJavadocMethod">
+      <metadata name="net.sf.eclipsecs.core.comment" value="private"/>
+    </module>
+  </module>
+  <module name="JavadocPackage"/>
+  <module name="RegexpHeader">
+    <property name="headerFile" value="/home/robert/src/bonsaimind/routing/checkstyle-header.regex"/>
+  </module>
+  <module name="BeforeExecutionExclusionFileFilter">
+    <metadata name="net.sf.eclipsecs.core.comment" value="Tests"/>
+    <property name="fileNamePattern" value="/?test(\.[a-z]+)?/.*$"/>
+  </module>
+  <module name="BeforeExecutionExclusionFileFilter">
+    <metadata name="net.sf.eclipsecs.core.comment" value="Examples"/>
+    <property name="fileNamePattern" value="/?src\.examples/.*$"/>
+  </module>
+  <module name="NewlineAtEndOfFile">
+    <property name="lineSeparator" value="lf"/>
+  </module>
+</module>

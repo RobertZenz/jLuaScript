@@ -1,0 +1,208 @@
+<project basedir="." default="package" name="jLuaScript"
+		xmlns:ivy="antlib:org.apache.ivy.ant"
+		xmlns:jacoco="antlib:org.jacoco.ant">
+	<property name="target" value="${basedir}/target"/>
+	<property name="lib" value="${basedir}/lib"/>
+	<property name="src" value="${basedir}/src"/>
+	<property name="src.test" value="${basedir}/src.test"/>
+	
+	<target name="clean">
+		<delete dir="${target}"/>
+		<delete file="TESTS-TestSuites.xml"/>
+	</target>
+	
+	<target name="compile" depends="init">
+		<ivy:resolve log="quiet" conf="module, test"/>
+		<ivy:cachepath pathid="classpath.module" conf="module"/>
+		<ivy:cachepath pathid="classpath.test" conf="test"/>
+		
+		<mkdir dir="${target}/classes"/>
+		
+		<javac
+				debug="on"
+				debuglevel="lines,vars,source"
+				destdir="${target}/classes"
+				includeantruntime="false"
+				source="${java.target}"
+				srcdir="${src}"
+				target="${java.target}">
+			<compilerarg value="-parameters"/>
+			
+			<classpath>
+				<dirset dir="${target}/classes/"/>
+			</classpath>
+			<classpath refid="classpath.local-dependencies"/>
+			<classpath refid="classpath.module"/>
+		</javac>
+		
+		<copy includeemptydirs="false" todir="${target}/classes/">
+			<fileset dir="${src}">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="compile-tests" depends="compile">
+		<ivy:resolve log="quiet" conf="module, test"/>
+		<ivy:cachepath pathid="classpath.module" conf="module"/>
+		<ivy:cachepath pathid="classpath.test" conf="test"/>
+		
+		<mkdir dir="${target}/tests"/>
+		
+		<javac
+				debug="on"
+				debuglevel="lines,vars,source"
+				destdir="${target}/tests/"
+				includeantruntime="false"
+				source="${java.target}"
+				srcdir="${src.test}"
+				target="${java.target}">
+			<compilerarg value="-parameters"/>
+			
+			<classpath>
+				<dirset dir="${target}/classes/"/>
+			</classpath>
+			<classpath refid="classpath.local-dependencies"/>
+			<classpath refid="classpath.module"/>
+			<classpath refid="classpath.test"/>
+		</javac>
+		
+		<copy includeemptydirs="false" todir="${target}/tests/">
+			<fileset dir="${src.test}">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="doc" depends="init">
+		<ivy:resolve log="quiet" conf="module"/>
+		<ivy:cachepath pathid="classpath.module" conf="module"/>
+		
+		<mkdir dir="${target}/doc"/>
+		
+		<javadoc sourcepath="${src}" destdir="${target}/doc">
+			<classpath refid="classpath.module"/>
+		</javadoc>
+	</target>
+	
+	<target name="init">
+		<mkdir dir="${target}"/>
+	</target>
+	
+	<target name="package" depends="compile, test, doc">
+		<manifest file="${target}/MANIFEST.MF">
+			<attribute name="Main-Class" value="${mainclass}"/>
+			<attribute name="Specification-Title" value="${title}"/>
+			<attribute name="Specification-Version" value="${version}"/>
+			<attribute name="Specification-Vendor" value="${credits}"/>
+			<attribute name="Implementation-Title" value="${name}-${ant.project.name}"/>
+			<attribute name="Implementation-Version" value="${version}"/>
+			<attribute name="Implementation-Vendor" value="${credits}"/>
+			<attribute name="Implementation-Build-Date" value="${now}"/>
+		</manifest>
+		
+		<jar jarfile="${target}/${name}-${ant.project.name}-${version}.jar" manifest="${target}/MANIFEST.MF">
+			<fileset dir="${target}/classes"/>
+		</jar>
+		
+		<jar jarfile="${target}/${name}-${ant.project.name}-${version}-javadoc.jar" manifest="${target}/MANIFEST.MF">
+			<fileset dir="${target}/doc"/>
+		</jar>
+		
+		<jar jarfile="${target}/${name}-${ant.project.name}-${version}-source.jar" manifest="${target}/MANIFEST.MF">
+			<fileset dir="${src}">
+				<include name="**/*.java"/>
+			</fileset>
+		</jar>
+		
+		<jar jarfile="${target}/${name}-${ant.project.name}-${version}-uberjar.jar" manifest="${target}/MANIFEST.MF">
+			<archives refid="uberjar.local-dependencies"/>
+			<zipgroupfileset dir="${lib}/module/" includes="**/*-bundle.jar"/>
+			<zipgroupfileset dir="${lib}/module/" includes="**/*-jar.jar"/>
+			<fileset dir="${target}/classes"/>
+		</jar>
+	</target>
+	
+	<target name="publish" depends="package">
+		<ivy:deliver/>
+	</target>
+	
+	<target name="report" depends="init, resolve">
+		<ivy:report conf="module" graph="false" organisation="${organisation}" module="${ant.project.name}" todir="${target}/"/>
+		<ivy:report conf="test" graph="false" organisation="${organisation}" module="${ant.project.name}" todir="${target}/"/>
+	</target>
+	
+	<target name="resolve">
+		<ivy:resolve conf="ant-junit"/>
+		<ivy:resolve conf="module"/>
+		<ivy:resolve conf="test"/>
+	</target>
+	
+	<target name="retrieve">
+		<ivy:cleancache/>
+		
+		<ivy:retrieve pattern="${lib}/[conf]/[organisation]/[artifact]-[revision]-[type].[ext]" conf="ant-junit"/>
+		<ivy:retrieve pattern="${lib}/[conf]/[organisation]/[artifact]-[revision]-[type].[ext]" conf="module"/>
+		<ivy:retrieve pattern="${lib}/[conf]/[organisation]/[artifact]-[revision]-[type].[ext]" conf="test"/>
+	</target>
+	
+	<target name="test" depends="compile-tests">
+		<ivy:resolve log="quiet" conf="ant-junit, module, test"/>
+		<ivy:cachepath pathid="classpath.ant-junit" conf="ant-junit"/>
+		<ivy:cachepath pathid="classpath.module" conf="module"/>
+		<ivy:cachepath pathid="classpath.test" conf="test"/>
+		
+		<mkdir dir="${target}/test-report/"/>
+		
+		<jacoco:agent property="jacocoagent" destfile="${target}/jacoco.exec"/>
+		
+		<junitlauncher failureProperty="testsFailed">
+			<classpath>
+				<pathelement location="${target}/classes/"/>
+				<pathelement location="${target}/tests/"/>
+			</classpath>
+			
+			<classpath refid="classpath.local-dependencies"/>
+			<classpath refid="classpath.module"/>
+			<classpath refid="classpath.test"/>
+			<classpath refid="classpath.ant-junit"/>
+			
+			<testclasses outputdir="${target}/test-report/">
+				<fileset dir="${target}/tests/"/>
+				
+				<fork dir="${basedir}">
+					<jvmarg value="${jacocoagent}"/>
+				</fork>
+				
+				<listener type="legacy-xml" sendSysErr="true" sendSysOut="true"/>
+			</testclasses>
+		</junitlauncher>
+		
+		<junitreport>
+			<fileset dir="${target}/test-report/">
+				<include name="TEST-*.xml"/>
+			</fileset>
+			
+			<report format="noframes" todir="${target}/test-report/"/>
+		</junitreport>
+		
+		<jacoco:report>
+			<executiondata>
+				<file file="${target}/jacoco.exec"/>
+			</executiondata>
+			<structure name="JaCoCo Ant Example">
+				<classfiles>
+					<fileset dir="${target}/classes/" />
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="${src}"/>
+					<fileset dir="${src.test}"/>
+				</sourcefiles>
+			</structure>
+			<html destdir="${target}/jacoco-report"/>
+			<xml destfile="${target}/jacoco-report.xml"/>
+		</jacoco:report>
+		
+		<fail if="testsFailed" message="Tests have failed, please see the generated report for details."/>
+	</target>
+</project>

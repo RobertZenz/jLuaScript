@@ -1,0 +1,24 @@
+<ivy-module version="2.0">
+	<info organisation="org.bonsaimind.jluascript" module="core"/>
+	
+	<configurations>
+		<conf name="ant-junit"/>
+		<conf name="module"/>
+		<conf name="test"/>
+	</configurations>
+	
+	<dependencies>
+		<!-- Ant JUnit libraries -->
+		<dependency org="org.junit.jupiter" name="junit-jupiter-engine" rev="5.7.0" conf="ant-junit->default"/>
+		<dependency org="org.junit.platform" name="junit-platform-launcher" rev="1.7.0" conf="ant-junit->default"/>
+		
+		<!-- Module -->
+		<dependency org="org.apache.bcel" name="bcel" rev="6.5.0"/>
+		<dependency org="org.javassist" name="javassist" rev="3.27.0-GA" />
+		<dependency org="org.luaj" name="luaj-jse" rev="3.0.1" />
+		
+		<!-- Test dependencies -->
+		<dependency org="org.junit.jupiter" name="junit-jupiter-api" rev="5.7.0" conf="test->default"/>
+	</dependencies>
+</ivy-module>
+

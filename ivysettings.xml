@@ -1,0 +1,16 @@
+<ivysettings>
+	<settings defaultResolver="central"/>
+	
+	<resolvers>
+		<filesystem name="local" checkmodified="true">
+			<ivy pattern="${modulesdir}/[artifact]/target/ivys/ivy-[revision].xml" />
+			<artifact pattern="${modulesdir}/[artifact]/target/[artifact]-[revision].[ext]" />
+		</filesystem>
+		<ibiblio name="central" m2compatible="true"/>
+	</resolvers>
+	
+	<modules>
+		<module organisation="org.bonsaimind.jluascript" name="core" resolver="local"/>
+		<module organisation="org.bonsaimind.jluascript" name="standalone" resolver="local"/>
+	</modules>
+</ivysettings>

@@ -1,0 +1,37 @@
+<ivy-module version="2.0">
+	<info organisation="org.bonsaimind.jluascript" module="standalone"/>
+	
+	<configurations>
+		<conf name="ant-junit"/>
+		<conf name="module"/>
+		<conf name="test"/>
+		
+		<conf name="local"/>
+	</configurations>
+	
+	<dependencies>
+		<!-- Project internal dependency -->
+		<dependency org="org.bonsaimind.jluascript" name="core" rev="latest.integration" changing="true" conf="local->default"/>
+		
+		<!-- Ant JUnit libraries -->
+		<dependency org="org.junit.jupiter" name="junit-jupiter-engine" rev="5.7.0" conf="ant-junit->default"/>
+		<dependency org="org.junit.platform" name="junit-platform-launcher" rev="1.7.0" conf="ant-junit->default"/>
+		
+		<!-- Module -->
+		<dependency org="org.jline" name="jline" rev="3.16.0">
+			<exclude name="jansi" />
+			<exclude name="jline-remote-jansi" />
+			<exclude name="jline-remote-ssh" />
+			<exclude name="jline-remote-telnet" />
+			<exclude name="jline-terminal-jansi" />
+			<exclude name="sshd-common" />
+			<exclude name="sshd-core" />
+			<exclude name="sshd-scp" />
+			<exclude name="sshd-sftp" />
+		</dependency>
+		
+		<!-- Test dependencies -->
+		<dependency org="org.junit.jupiter" name="junit-jupiter-api" rev="5.7.0" conf="test->default"/>
+	</dependencies>
+</ivy-module>
+
