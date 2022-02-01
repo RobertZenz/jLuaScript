@@ -1,0 +1,10 @@
+jluascript [OPTIONS] [SCRIPT] [ARGUMENTS...]
+
+OPTIONS:
+
+ -h, --help                Print this help.
+ --no-script-path-resolve  Disable that the given SCRIPT path is
+                           resolved to an absolute path first.
+ --print-java-stacktrace   Print the Java stacktraces additionally to
+                           the Lua stacktraces.
+ --repl                    Start the REPL.

@@ -19,6 +19,8 @@
 
 package org.bonsaimind.jluascript;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +32,7 @@ import org.bonsaimind.jluascript.lua.ScriptExecutionException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
+import org.jline.utils.InputStreamReader;
 
 public final class Main {
 	private Main() {
@@ -39,7 +42,7 @@ public final class Main {
 		Configuration configuration = new Configuration(args);
 		
 		if (configuration.isPrintHelp() || (configuration.getScript() == null && !configuration.isRepl())) {
-			System.out.println("jLuaScript [OPTIONS] SCRIPT [ARGUMENTS...]");
+			printHelp();
 			System.exit(1);
 		}
 		
@@ -80,6 +83,14 @@ public final class Main {
 		if (configuration.isPrintJavaStackTrace()) {
 			targetPrintStream.println();
 			e.printStackTrace(targetPrintStream);
+		}
+	}
+	
+	private static final void printHelp() {
+		try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Main.class.getResourceAsStream("/org/bonsaimind/jluascript/help.text")))) {
+			bufferedReader.lines().forEach(System.out::println);
+		} catch (IOException e) {
+			e.printStackTrace(System.err);
 		}
 	}
 	
