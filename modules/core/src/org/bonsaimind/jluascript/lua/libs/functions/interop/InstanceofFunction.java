@@ -30,8 +30,12 @@ public class InstanceofFunction extends TwoArgFunction {
 	
 	@Override
 	public LuaValue call(LuaValue arg1, LuaValue arg2) {
-		if (!arg1.isuserdata() || !arg2.isuserdata(Class.class)) {
+		if (!arg2.isuserdata(Class.class)) {
 			throw new LuaError("Expected parameters of type Object and Class.");
+		}
+		
+		if (!arg1.isuserdata()) {
+			return LuaValue.FALSE;
 		}
 		
 		Object object = arg1.touserdata();
