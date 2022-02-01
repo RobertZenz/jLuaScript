@@ -84,7 +84,53 @@ Note that jars must be loaded before the classes can be imported and that
 the order of functions is important because the classpath is extended
 dynamically.
 
-### Global variables
+#### instanceof(Object, Class)
+
+`instanceof(Object, Class)` allows to check whether the given value is of the given class.
+
+```lua
+local value = BigDecimal.new("5")
+
+if instanceof(value, BigDecimal.class) then
+    print("This is a BigDecimal.")
+end
+```
+
+### Global Helper Functions
+
+### dir Function
+
+There is a global `dir` function, which allows to iterate over directories:
+
+```lua
+for name, path in dir("/usr/share/") do
+    -- name is the name of the entry.
+    -- path is a java.nio.Path object.
+    print(name)
+end
+```
+
+### exec/execWait/run
+
+There are global function to run commands directly. All three functions are aliases of each other, they do the exact same thing. They wait for the started process to finish, forward all output and return the exit code.
+
+```lua
+exec("ls", "-l")
+```
+
+### treeDir Function
+
+There is a global `treedir` function, which allows to iterate over a whole directory tree:
+
+```lua
+for name, path in treedir("/usr/share/") do
+    -- name is the name of the entry.
+    -- path is a java.nio.Path object.
+    print(name)
+end
+```
+
+### Global Variables
 
 #### ARGS
 
@@ -154,22 +200,31 @@ print(WORKING_DIR) -- "/some/path/to/dir"
 The global `string` table has been extended with the following Java functions:
 
  * `charAt`
+ * `codePointAt`
+ * `codePointBefore`
+ * `codePointCount`
+ * `compareTo`
+ * `compareToIgnoreCase`
  * `concat`
  * `contains`
  * `contentEquals`
  * `endsWith`
  * `equalsIgnoreCase`
+ * `getBytes`
  * `indexOf`
  * `isEmpty`
  * `lastIndexOf`
  * `length`
  * `matches`
+ * `offsetByCodePoints`
+ * `regionMatches`
  * `replace`
  * `replaceAll`
  * `replaceFirst`
  * `split`
  * `startsWith`
  * `substring`
+ * `toCharArray`
  * `toLowerCase`
  * `toUpperCase`
  * `trim`
@@ -209,18 +264,6 @@ end
 ```
 
 Note that `ipairs` will return an index even for `Map`s, the order of items is still defined by the implementation of the `Map`.
-
-### dir Function
-
-There is a global `dir` function, which allows to iterate over directories:
-
-```lua
-for name, path in dir("/usr/share/") do
-    -- name is the name of the entry.
-    -- path is a java.nio.Path object.
-    print(name)
-end
-```
 
 ### Embedding
 
