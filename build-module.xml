@@ -190,7 +190,7 @@
 			<executiondata>
 				<file file="${target}/jacoco.exec"/>
 			</executiondata>
-			<structure name="JaCoCo Ant Example">
+			<structure name="${name}-${ant.project.name}">
 				<classfiles>
 					<fileset dir="${target}/classes/" />
 				</classfiles>
