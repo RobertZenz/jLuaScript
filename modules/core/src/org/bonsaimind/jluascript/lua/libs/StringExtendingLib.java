@@ -26,24 +26,39 @@ import java.util.List;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.bonsaimind.jluascript.lua.system.types.functions.InstanceMethodInvokingFunction;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
 /**
- * The {@link StringExtendingLib} provides additional functions on the
- * {@code string} class of Lua. It adds most of the {@link String} functions
- * which you would expect from a Java class.
+ * The {@link StringExtendingLib} is a {@link TwoArgFunction} extension which
+ * provides additional functions on the {@code string} class of Lua. It adds
+ * most of the {@link String} functions which you would expect from a Java
+ * class.
  */
 public class StringExtendingLib extends TwoArgFunction {
+	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
 	
+	/**
+	 * Creates a new instance of {@link StringExtendingLib}.
+	 *
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code coercer} is
+	 *         {@code null}.
+	 */
 	public StringExtendingLib(Coercer coercer) {
 		super();
+		
+		Verifier.notNull("coercer", coercer);
 		
 		this.coercer = coercer;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
 		LuaTable stringTable = (LuaTable)environment.get("string");
@@ -81,10 +96,32 @@ public class StringExtendingLib extends TwoArgFunction {
 		return environment;
 	}
 	
+	/**
+	 * Extends the given {@link LuaTable} with the String function(s) with the
+	 * given name.
+	 * 
+	 * @param stringTable The {@link LuaTable} to extend, cannot be
+	 *        {@code null}.
+	 * @param methodName The name of the function(s), cannot be {@code null} or
+	 *        empty.
+	 * @throws IllegalArgumentException If the given {@code stringTable} is
+	 *         {@code null} or {@code methodName} is {@code null} or empty.
+	 */
 	protected void extendWith(LuaTable stringTable, String methodName) {
-		stringTable.set(methodName, new InstanceMethodInvokingFunction(String.class, getMethods(methodName), coercer));
+		Verifier.notNull("stringTable", stringTable);
+		Verifier.notNullOrEmpty("methodName", methodName);
+		
+		stringTable.set(methodName, new InstanceMethodInvokingFunction(getMethods(methodName), coercer));
 	}
 	
+	/**
+	 * Gets the {@link Method}s with the given name.
+	 * 
+	 * @param name The name of the method(s), cannot be {@code null} or empty.
+	 * @return The {@link List} of {@link Method}s.
+	 * @throws IllegalArgumentException If the given {@code name} is
+	 *         {@code null} or empty.
+	 */
 	protected List<Method> getMethods(String name) {
 		List<Method> methods = new ArrayList<>();
 		

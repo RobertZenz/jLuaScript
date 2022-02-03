@@ -26,29 +26,49 @@ import java.util.List;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.bonsaimind.jluascript.lua.system.types.functions.InstanceMethodInvokingFunction;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaValue;
 
+/**
+ * The {@link InstanceUserData} is an {@link AbstractReflectiveUserData}
+ * extension which makes the instance context of an {@link Object} accessible
+ * through Lua.
+ */
 public class InstanceUserData extends AbstractReflectiveUserData {
+	/**
+	 * Creates a new instance of {@link StaticUserData}.
+	 *
+	 * @param object The {@link Object}, cannot be {@code null}.
+	 * @param coercer The {@link Coercer}, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the {@code obejct} or the
+	 *         {@code coercer} is {@code null}.
+	 */
 	public InstanceUserData(Object object, Coercer coercer) {
-		super(object, object, object.getClass(), coercer);
+		super(Verifier.notNull("object", object), object, object.getClass(), coercer);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected LuaValue coerceMethodList(List<Method> methods) {
-		return new InstanceMethodInvokingFunction(
-				clazz,
-				methods,
-				coercer);
+		return new InstanceMethodInvokingFunction(methods, coercer);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected boolean fieldMatches(Field field) {
+	protected boolean fieldIsAvailable(Field field) {
 		return !Modifier.isStatic(field.getModifiers())
 				&& Modifier.isPublic(field.getModifiers());
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected boolean methodMatches(Method method) {
+	protected boolean methodIsAvailable(Method method) {
 		return !Modifier.isStatic(method.getModifiers())
 				&& Modifier.isPublic(method.getModifiers());
 	}

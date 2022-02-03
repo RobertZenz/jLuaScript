@@ -19,12 +19,26 @@
 
 package org.bonsaimind.jluascript.lua.libs.functions.extensions;
 
-import org.bonsaimind.jluascript.lua.libs.functions.AbstractIteratorFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaValue;
 
+/**
+ * The {@link IteratorIPairsFunction} is an {@link AbstractIteratorFunction}
+ * extension which is a {@code pairs} replacement and allows to iterate over
+ * Java objects directly.
+ */
 public class IteratorPairsFunction extends AbstractIteratorFunction {
+	/**
+	 * Creates a new instance of {@link IteratorIPairsFunction}.
+	 *
+	 * @param originalPairsFunction The {@link LuaValue original pairs function}
+	 *        to replace, {@code null} if there is none.
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@link Coercer} is
+	 *         {@code null}.
+	 */
 	public IteratorPairsFunction(LuaValue originalPairsFunction, Coercer coercer) {
-		super(originalPairsFunction, coercer);
+		super(originalPairsFunction, Verifier.notNull("coercer", coercer));
 	}
 }

@@ -19,19 +19,38 @@
 
 package org.bonsaimind.jluascript.lua.libs.functions;
 
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
+/**
+ * The {@link ErrorThrowingFunction} is a {@link VarArgFunction} extension which
+ * throws a new {@link LuaError} with the given error message upon invocation.
+ */
 public class ErrorThrowingFunction extends VarArgFunction {
+	/** The message for the error. */
 	protected String message = null;
 	
+	/**
+	 * Creates a new instance of {@link ErrorThrowingFunction}.
+	 *
+	 * @param message The {@link String error message}, cannot be {@code null}
+	 *        or empty.
+	 * @throws IllegalArgumentException If the given {@code message} is
+	 *         {@code null} or empty.
+	 */
 	public ErrorThrowingFunction(String message) {
 		super();
+		
+		Verifier.notNullOrEmpty("message", message);
 		
 		this.message = message;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Varargs invoke(Varargs args) {
 		throw new LuaError(message);

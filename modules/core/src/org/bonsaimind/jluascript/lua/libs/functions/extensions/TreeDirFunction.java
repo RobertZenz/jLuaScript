@@ -24,13 +24,31 @@ import java.util.Iterator;
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.luaj.vm2.Varargs;
 
+/**
+ * The {@link TreeDirFunction} is an {@link DirFunction} extension which allows
+ * to iterate over the contents of a directory on the filesystem and recursing
+ * into all sub-directories up to an infinite depth.
+ */
 public class TreeDirFunction extends DirFunction {
+	/** Constant to recurse into sub-directories. */
+	protected static final int WALK_DEPTH_INFINITE = Integer.MAX_VALUE;
+	
+	/**
+	 * Creates a new instance of {@link TreeDirFunction}.
+	 *
+	 * @param coercer The {@link Coercer}.
+	 * @throws IllegalArgumentException If the given {@link Coercer} is
+	 *         {@code null}.
+	 */
 	public TreeDirFunction(Coercer coercer) {
 		super(coercer);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected Iterator<?> getIterator(Varargs args) {
-		return walk(getPath(args).normalize(), Integer.MAX_VALUE);
+		return walk(asPath(args).normalize(), WALK_DEPTH_INFINITE);
 	}
 }

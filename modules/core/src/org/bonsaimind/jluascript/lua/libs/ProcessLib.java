@@ -21,22 +21,36 @@ package org.bonsaimind.jluascript.lua.libs;
 
 import org.bonsaimind.jluascript.lua.libs.functions.extensions.RunFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
 /**
- * The {@link ProcessLib} provides easier to use functions for starting
- * processes.
+ * The {@link ProcessLib} is a {@link TwoArgFunction} extension which provides
+ * easier to use functions for starting processes.
  */
 public class ProcessLib extends TwoArgFunction {
+	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
 	
+	/**
+	 * Creates a new instance of {@link ProcessLib}.
+	 *
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code coercer} is
+	 *         {@code null}.
+	 */
 	public ProcessLib(Coercer coercer) {
 		super();
+		
+		Verifier.notNull("coercer", coercer);
 		
 		this.coercer = coercer;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
 		environment.set("exec", new RunFunction(coercer));

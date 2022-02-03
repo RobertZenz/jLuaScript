@@ -26,6 +26,13 @@ package org.bonsaimind.jluascript.lua;
 public class ScriptExecutionException extends Exception {
 	/**
 	 * Creates a new instance of {@link ScriptExecutionException}.
+	 */
+	public ScriptExecutionException() {
+		super();
+	}
+	
+	/**
+	 * Creates a new instance of {@link ScriptExecutionException}.
 	 *
 	 * @param message The {@link String message}.
 	 */
@@ -50,5 +57,19 @@ public class ScriptExecutionException extends Exception {
 	 */
 	public ScriptExecutionException(Throwable cause) {
 		super(cause);
+	}
+	
+	/**
+	 * Creates a new instance of {@link ScriptExecutionException}.
+	 *
+	 * @param message The {@link String message}.
+	 * @param cause The {@link Throwable cause}.
+	 * @param enableSuppression Whether or not suppression is enabled or
+	 *        disabled.
+	 * @param writableStackTrace whether or not the stack trace should be
+	 *        writable.
+	 */
+	protected ScriptExecutionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
 }

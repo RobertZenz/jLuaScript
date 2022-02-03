@@ -21,22 +21,37 @@ package org.bonsaimind.jluascript.lua.libs;
 
 import org.bonsaimind.jluascript.lua.libs.functions.interop.JarLoadingFunction;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
 /**
- * The {@link JarLoaderLib} adds the facilities to load jars from the filesystem
- * into the environment.
+ * The {@link JarLoaderLib} is a {@link TwoArgFunction} extension which adds the
+ * facilities to load jars from the filesystem into the environment.
  */
 public class JarLoaderLib extends TwoArgFunction {
+	/** The {@link DynamicClassLoader} to append the jars to. */
 	protected DynamicClassLoader classLoader = null;
 	
+	/**
+	 * Creates a new instance of {@link JarLoaderLib}.
+	 *
+	 * @param classLoader The {@link DynamicClassLoader} which to use load the
+	 *        {@link Class}es, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code classLoader} is
+	 *         {@code null}.
+	 */
 	public JarLoaderLib(DynamicClassLoader classLoader) {
 		super();
+		
+		Verifier.notNull("classLoader", classLoader);
 		
 		this.classLoader = classLoader;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
 		environment.set("loadJar", new JarLoadingFunction(classLoader));

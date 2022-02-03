@@ -27,19 +27,38 @@ import java.nio.file.Path;
 
 import org.bonsaimind.jluascript.lua.libs.functions.AbstractPathAcceptingFunction;
 import org.bonsaimind.jluascript.support.ShebangSkippingInputStream;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.Varargs;
 
+/**
+ * The {@link FileLoadingFunction} is an {@link AbstractPathAcceptingFunction}
+ * extension which allows to load and execute Lua files from paths.
+ */
 public class FileLoadingFunction extends AbstractPathAcceptingFunction {
+	/** The {@link Globals} to load files into. */
 	protected Globals globals = null;
 	
+	/**
+	 * Creates a new instance of {@link FileLoadingFunction}.
+	 *
+	 * @param globals The {@link Globals} to load files into, cannot be
+	 *        {@code null}.
+	 * @throws IllegalArgumentException If the given {@code globals} is
+	 *         {@code null}.
+	 */
 	public FileLoadingFunction(Globals globals) {
 		super();
+		
+		Verifier.notNull("globals", globals);
 		
 		this.globals = globals;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected Varargs performAction(Path path) {
 		try (InputStream fileStream = Files.newInputStream(path)) {

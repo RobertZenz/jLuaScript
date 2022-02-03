@@ -19,6 +19,7 @@
 
 package org.bonsaimind.jluascript.lua.system.types;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -31,42 +32,70 @@ import org.bonsaimind.jluascript.lua.system.types.functions.ClassCreatingFunctio
 import org.bonsaimind.jluascript.lua.system.types.functions.ConstructorInvokingFunction;
 import org.bonsaimind.jluascript.lua.system.types.functions.ProxyInstanceCreatingFunction;
 import org.bonsaimind.jluascript.lua.system.types.functions.StaticMethodInvokingFunction;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaValue;
 
+/**
+ * The {@link StaticUserData} is an {@link AbstractReflectiveUserData} extension
+ * which makes the static context of a {@link Class} accessible through Lua.
+ */
 public class StaticUserData extends AbstractReflectiveUserData {
+	/** The key of the field which holds the class. */
 	public static final String CLASS_FIELD_NAME = "class";
+	/** The key of the field for the constructor. */
 	public static final String CONSTRUCTOR_NAME = "new";
+	/** The key of the field for the extend method. */
 	public static final String EXTEND_NAME = "extend";
+	/** The key of the field for the extend and instantiate method. */
 	public static final String EXTEND_NEW_NAME = "extendNew";
+	/** The key of the field for the implement method. */
 	public static final String IMPLEMENT_NAME = "implement";
+	/** The key of the field for the implement and instantiate method. */
 	public static final String IMPLEMENT_NEW_NAME = "implementNew";
 	
+	/**
+	 * Creates a new instance of {@link StaticUserData}.
+	 *
+	 * @param clazz The {@link Class}, cannot be {@code null}.
+	 * @param coercer The {@link Coercer}, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the {@code clazz} or the
+	 *         {@code coercer} is {@code null}.
+	 */
 	public StaticUserData(Class<?> clazz, Coercer coercer) {
-		super(clazz, null, clazz, coercer);
+		super(clazz, null, Verifier.notNull("clazz", clazz), Verifier.notNull("coercer", coercer));
 		
 		setup();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected LuaValue coerceMethodList(List<Method> methods) {
-		return new StaticMethodInvokingFunction(
-				clazz,
-				methods,
-				coercer);
+		return new StaticMethodInvokingFunction(methods, coercer);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected boolean fieldMatches(Field field) {
+	protected boolean fieldIsAvailable(Field field) {
 		return Modifier.isStatic(field.getModifiers())
 				&& Modifier.isPublic(field.getModifiers());
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected boolean methodMatches(Method method) {
+	protected boolean methodIsAvailable(Method method) {
 		return Modifier.isStatic(method.getModifiers())
 				&& Modifier.isPublic(method.getModifiers());
 	}
 	
+	/**
+	 * Sets this static context up.
+	 */
 	protected void setup() {
 		cache.put(CLASS_FIELD_NAME, new InstanceUserData(clazz, coercer));
 		
@@ -89,7 +118,13 @@ public class StaticUserData extends AbstractReflectiveUserData {
 			}
 			
 			if (!Modifier.isAbstract(clazz.getModifiers())) {
-				cache.put(CONSTRUCTOR_NAME, new ConstructorInvokingFunction(clazz, Arrays.asList(clazz.getConstructors()), coercer));
+				Constructor<?>[] constructors = clazz.getConstructors();
+				
+				if (constructors.length > 0) {
+					cache.put(CONSTRUCTOR_NAME, new ConstructorInvokingFunction(Arrays.asList(constructors), coercer));
+				} else {
+					cache.put(CONSTRUCTOR_NAME, new ErrorThrowingFunction(clazz.getSimpleName() + " does not have any public constructors."));
+				}
 			} else {
 				cache.put(CONSTRUCTOR_NAME, new ErrorThrowingFunction(clazz.getSimpleName() + " is an abstract class and cannot be instantiated."));
 			}

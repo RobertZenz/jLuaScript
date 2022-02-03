@@ -19,41 +19,54 @@
 
 package org.bonsaimind.jluascript.lua.libs;
 
-import org.bonsaimind.jluascript.lua.libs.functions.extensions.DirFunction;
 import org.bonsaimind.jluascript.lua.libs.functions.extensions.IteratorIPairsFunction;
 import org.bonsaimind.jluascript.lua.libs.functions.extensions.IteratorPairsFunction;
-import org.bonsaimind.jluascript.lua.libs.functions.extensions.TreeDirFunction;
 import org.bonsaimind.jluascript.lua.libs.functions.interop.FileLoadingFunction;
 import org.bonsaimind.jluascript.lua.libs.functions.interop.InstanceofFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
 /**
- * The {@link LuaJavaInteropLib} provides interoperability methods and extends
- * existing ones to make it easier to write Lua code interacting with Java
- * objects.
+ * The {@link LuaJavaInteropLib} is a {@link TwoArgFunction} extension which
+ * provides interoperability methods and extends existing ones to make it easier
+ * to write Lua code interacting with Java objects.
  */
 public class LuaJavaInteropLib extends TwoArgFunction {
+	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
+	/** The {@link Globals} to use. */
 	protected Globals globals = null;
 	
+	/**
+	 * Creates a new instance of {@link ClassImportLib}.
+	 *
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @param globals The {@link Globals} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code classLoader} or
+	 *         {@code coercer} is {@code null}.
+	 */
 	public LuaJavaInteropLib(Coercer coercer, Globals globals) {
 		super();
+		
+		Verifier.notNull("coercer", coercer);
+		Verifier.notNull("globals", globals);
 		
 		this.coercer = coercer;
 		this.globals = globals;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
-		environment.set("dir", new DirFunction(coercer));
 		environment.set("instanceof", new InstanceofFunction());
 		environment.set("ipairs", new IteratorIPairsFunction(environment.get("ipairs"), coercer));
 		environment.set("loadFile", new FileLoadingFunction(globals));
 		environment.set("pairs", new IteratorPairsFunction(environment.get("pairs"), coercer));
-		environment.set("treeDir", new TreeDirFunction(coercer));
 		
 		return environment;
 	}

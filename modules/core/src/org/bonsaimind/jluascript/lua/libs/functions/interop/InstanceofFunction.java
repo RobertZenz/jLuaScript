@@ -23,19 +23,29 @@ import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
+/**
+ * The {@link InstanceofFunction} is a {@link TwoArgFunction} extension which
+ * allows to test whether the given argument is of a certain class.
+ */
 public class InstanceofFunction extends TwoArgFunction {
+	/**
+	 * Creates a new instance of {@link InstanceofFunction}.
+	 */
 	public InstanceofFunction() {
 		super();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LuaValue call(LuaValue arg1, LuaValue arg2) {
-		if (!arg2.isuserdata(Class.class)) {
-			throw new LuaError("Expected parameters of type Object and Class.");
-		}
-		
 		if (!arg1.isuserdata()) {
 			return LuaValue.FALSE;
+		}
+		
+		if (!arg2.isuserdata(Class.class)) {
+			throw new LuaError("Expected parameters of type Object and Class.");
 		}
 		
 		Object object = arg1.touserdata();

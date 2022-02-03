@@ -22,24 +22,56 @@ package org.bonsaimind.jluascript.lua.system.types.functions;
 import org.bonsaimind.jluascript.javassist.filters.HandleOnlyNonFinalFilter;
 import org.bonsaimind.jluascript.javassist.handlers.LuaInvokingMethodHandler;
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
 
 import javassist.util.proxy.ProxyFactory;
 
+/**
+ * The {@link ProxyInstanceCreatingFunction} is an {@link OneArgFunction}
+ * extension which allows to createa a proxy instance of a {@link Class}.
+ */
 public class ProxyInstanceCreatingFunction extends OneArgFunction {
+	/** The {@link Class} to create proxy instances for. */
 	protected Class<?> clazz = null;
+	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
+	/** The default methods to use. */
 	protected LuaInvokingMethodHandler defaultMethodHandler = null;
+	/** The {@link ProxyFactory} that is being used. */
 	protected ProxyFactory proxyFactory = null;
 	
+	/**
+	 * Creates a new instance of {@link ProxyInstanceCreatingFunction}.
+	 *
+	 * @param clazz The {@link Class} from which to create a proxy instance,
+	 *        cannot be {@code null}.
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code clazz} or
+	 *         {@code coercer} is {@code null}.
+	 */
 	public ProxyInstanceCreatingFunction(Class<?> clazz, Coercer coercer) {
 		this(clazz, null, coercer);
 	}
 	
+	/**
+	 * Creates a new instance of {@link ProxyInstanceCreatingFunction}.
+	 *
+	 * @param clazz The {@link Class} from which to create a proxy instance,
+	 *        cannot be {@code null}.
+	 * @param defaultLuaFunctions The {@link LuaValue Lua table} containing the
+	 *        default functions to invoke.
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code clazz} or
+	 *         {@code coercer} is {@code null}.
+	 */
 	public ProxyInstanceCreatingFunction(Class<?> clazz, LuaValue defaultLuaFunctions, Coercer coercer) {
 		super();
+		
+		Verifier.notNull("clazz", clazz);
+		Verifier.notNull("coercer", coercer);
 		
 		this.clazz = clazz;
 		this.coercer = coercer;
@@ -59,10 +91,14 @@ public class ProxyInstanceCreatingFunction extends OneArgFunction {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LuaValue call(LuaValue luaFunctions) {
-		if (luaFunctions.isnil() && defaultMethodHandler == null) {
-			throw new LuaError("Table with functions has been expected.");
+		if (luaFunctions == null
+				|| (luaFunctions.isnil() && defaultMethodHandler == null)) {
+			throw new LuaError("Argument must be a table with functions.");
 		}
 		
 		LuaInvokingMethodHandler methodHandler = defaultMethodHandler;

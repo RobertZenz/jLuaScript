@@ -32,6 +32,7 @@ import javassist.util.proxy.MethodHandler;
  * implementation which invokes a {@link LuaValue Lua function}.
  */
 public class LuaInvokingMethodHandler implements MethodHandler {
+	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
 	/** The {@link LuaValue Lua function} to vall. */
 	protected LuaValue luaFunctions = null;
@@ -40,6 +41,7 @@ public class LuaInvokingMethodHandler implements MethodHandler {
 	 * Creates a new instance of {@link LuaInvokingMethodHandler}.
 	 *
 	 * @param luaFunctions The {@link LuaValue Lua function} to call.
+	 * @param coercer The {@link Coercer} to use.
 	 */
 	public LuaInvokingMethodHandler(LuaValue luaFunctions, Coercer coercer) {
 		super();
@@ -68,6 +70,12 @@ public class LuaInvokingMethodHandler implements MethodHandler {
 		throw new LuaError("Method <" + superMethod.getName() + "> has not been provided but is required.");
 	}
 	
+	/**
+	 * Coerces the given array.
+	 * 
+	 * @param array The array to coerce.
+	 * @return The coerced array.
+	 */
 	protected LuaValue[] coerceArguments(Object[] array) {
 		if (array == null) {
 			return null;

@@ -20,6 +20,7 @@
 package org.bonsaimind.jluascript.lua.system.types.functions;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -30,56 +31,77 @@ import java.util.List;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.bonsaimind.jluascript.lua.system.types.reflection.LuaFunctionInvokingInvocationHandler;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
-public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Executable> extends VarArgFunction {
-	protected Class<?> clazz = null;
+/**
+ * The {@link AbstractExecutableInvokingFunction} is an {@link VarArgFunction}
+ * provides the base for invoking a Java {@link Executable} from Lua with
+ * variable arguments.
+ * 
+ * @param <EXECUTABLE_TYPE> The type of the {@link Executable} that is being
+ *        executed.
+ */
+public abstract class AbstractExecutableInvokingFunction<EXECUTABLE_TYPE extends Executable> extends VarArgFunction {
+	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
-	protected String executableName = null;
-	protected List<EXECUTABLE> executables = null;
+	/** The {@link List} of {@link Executable}s to invoke. */
+	protected List<EXECUTABLE_TYPE> executables = null;
 	
-	public AbstractExecutableInvokingFunction(Class<?> clazz, List<EXECUTABLE> executables, String executableName, Coercer coercer) {
+	/**
+	 * Creates a new instance of {@link AbstractExecutableInvokingFunction}.
+	 *
+	 * @param executables The {@link List} of {@link Executable}s to invoke,
+	 *        cannot be {@code null} or empty.
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code executables} are
+	 *         {@code null} or empty or the {@code coercer} is {@code null}.
+	 */
+	public AbstractExecutableInvokingFunction(List<EXECUTABLE_TYPE> executables, Coercer coercer) {
 		super();
 		
-		this.clazz = clazz;
+		Verifier.notNullOrEmpty("executables", executables);
+		Verifier.notNull("coercer", coercer);
+		
 		this.executables = executables;
-		this.executableName = executableName;
 		this.coercer = coercer;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Varargs invoke(Varargs args) {
 		List<Object> parameters = coerceToJavaParameters(args);
-		EXECUTABLE executable = findMatchingExecutable(parameters);
+		EXECUTABLE_TYPE executable = findMatchingExecutable(parameters);
 		
 		if (executable == null) {
 			StringBuilder candidates = new StringBuilder();
 			
-			for (EXECUTABLE candidateExecutable : executables) {
+			for (EXECUTABLE_TYPE candidateExecutable : executables) {
 				candidates.append("        ")
 						.append(getMethodSignature(candidateExecutable))
 						.append("\n");
 			}
 			
-			throw new LuaError("No matching method found for <"
-					+ getRequestedMethodSignature(parameters)
-					+ ">, possible candidates are: \n"
-					+ candidates);
+			throw new LuaError(String.format("No matching method found for <%s>, possible candidates are: \n%s",
+					getRequestedMethodSignature(parameters),
+					candidates.toString()));
 		}
 		
 		for (int index = 0; index < parameters.size(); index++) {
 			Object parameter = parameters.get(index);
 			
-			if (parameter instanceof FunctionWrapper) {
+			if (parameter instanceof LuaFunctionParameter) {
 				Class<?> parameterType = executable.getParameterTypes()[Math.min(index, executable.getParameterTypes().length - 1)];
 				
 				parameters.set(index, Proxy.newProxyInstance(
 						getClass().getClassLoader(),
 						new Class<?>[] { parameterType },
-						new LuaFunctionInvokingInvocationHandler(((FunctionWrapper)parameter).getLuaFunction(), coercer)));
+						new LuaFunctionInvokingInvocationHandler(((LuaFunctionParameter)parameter).getLuaFunction(), coercer)));
 			}
 		}
 		
@@ -94,14 +116,26 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		}
 	}
 	
+	/**
+	 * Coerces the given {@link Varargs} into a {@link List} of Java
+	 * {@link Object}s.
+	 * 
+	 * @param args The {@link Varargs} to coerce, cannot be {@code null}.
+	 * @return The {@link List} of coerced {@link Object}s, never {@code null}
+	 *         but may be empty.
+	 * @throws IllegalArgumentException If the given {@code args} is
+	 *         {@code null}.
+	 */
 	protected List<Object> coerceToJavaParameters(Varargs args) {
+		Verifier.notNull("args", args);
+		
 		List<Object> javaParameters = new ArrayList<>();
 		
 		for (int index = 1; index <= args.narg(); index++) {
 			LuaValue arg = args.arg(index);
 			
 			if (arg.isfunction()) {
-				javaParameters.add(new FunctionWrapper(arg));
+				javaParameters.add(new LuaFunctionParameter(arg));
 			} else {
 				javaParameters.add(coercer.coerceLuaToJava(arg));
 			}
@@ -110,10 +144,30 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		return javaParameters;
 	}
 	
-	protected abstract Object execute(EXECUTABLE executable, List<Object> parameters) throws Exception;
+	/**
+	 * Executes the given {@link Executable} with the given parameters.
+	 * 
+	 * @param executable The {@link Executable}, cannot be {@code null}.
+	 * @param parameters The {@link List} of parameters, cannot be {@code null}
+	 *        but may be empty.
+	 * @return The return value of the {@link Executable}s execution.
+	 * @throws Exception Any thrown by the given {@link Executable}.
+	 */
+	protected abstract Object execute(EXECUTABLE_TYPE executable, List<Object> parameters) throws Exception;
 	
-	protected EXECUTABLE findMatchingExecutable(List<Object> parameters) {
-		for (EXECUTABLE executable : executables) {
+	/**
+	 * Findes the {@link Executable} which matches the given parameters.
+	 * 
+	 * @param parameters The parameters that must match, cannot be {@code null}
+	 *        but may be empty.
+	 * @return The matching {@link Executable}, or {@code null} if none matched.
+	 * @throws IllegalArgumentException If the given {@code parameters} are
+	 *         {@code null}.
+	 */
+	protected EXECUTABLE_TYPE findMatchingExecutable(List<Object> parameters) {
+		Verifier.notNull("parameters", parameters);
+		
+		for (EXECUTABLE_TYPE executable : executables) {
 			if (isMatching(executable, parameters)) {
 				return executable;
 			}
@@ -122,7 +176,21 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		return null;
 	}
 	
-	protected void foldVarargs(EXECUTABLE executable, List<Object> parameters) {
+	/**
+	 * Folds any vararg paremters into an array at the end of the given
+	 * {@code parameters}.
+	 * 
+	 * @param executable The {@link Executable} which is going to be executed,
+	 *        cannot be {@code null}.
+	 * @param parameters The parameters to use, cannot be {@code null} but may
+	 *        be empty.
+	 * @throws IllegalArgumentException If the given {@code executable} or
+	 *         {@code parameters} is {@code null}.
+	 */
+	protected void foldVarargs(EXECUTABLE_TYPE executable, List<Object> parameters) {
+		Verifier.notNull("executable", executable);
+		Verifier.notNull("parameters", parameters);
+		
 		Parameter varArgParameter = executable.getParameters()[executable.getParameterCount() - 1];
 		
 		if (parameters.size() >= executable.getParameterCount()) {
@@ -147,10 +215,40 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		}
 	}
 	
-	protected String getMethodSignature(EXECUTABLE executable) {
+	/**
+	 * Builds a {@link String} of the method signature of the given
+	 * {@link Executable} for debugging/logging purposes.
+	 * 
+	 * @param executable The {@link Executable} from which to build the
+	 *        signature, cannot be {@code null}.
+	 * @return The method siganture.
+	 * @throws IllegalArgumentException If the given {@code executable} is
+	 *         {@code null}.
+	 */
+	protected String getMethodSignature(EXECUTABLE_TYPE executable) {
+		Verifier.notNull("executable", executable);
+		
 		StringBuilder signature = new StringBuilder();
 		
-		signature.append(executable.getName()).append("(");
+		signature
+				.append("(")
+				.append(executable.getDeclaringClass().getPackage().getName())
+				.append(")")
+				.append(executable.getDeclaringClass().getSimpleName());
+		
+		if (Modifier.isStatic(executable.getModifiers()) || executable instanceof Constructor<?>) {
+			signature.append(".");
+		} else {
+			signature.append(":");
+		}
+		
+		if (executable instanceof Constructor<?>) {
+			signature.append("new");
+		} else {
+			signature.append(executable.getName());
+		}
+		
+		signature.append("(");
 		
 		for (Parameter parameter : executable.getParameters()) {
 			signature.append(parameter.getParameterizedType().getTypeName());
@@ -166,12 +264,20 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		return signature.toString();
 	}
 	
+	/**
+	 * Builds a {@link String} of the signature of the given parameters for
+	 * debugging/logging purposes.
+	 * 
+	 * @param parameters The parameters from which to build the signature,
+	 *        cannot be {@code null} but may be empty.
+	 * @return The method siganture.
+	 * @throws IllegalArgumentException If the given {@code parameters} is
+	 *         {@code null}.
+	 */
 	protected String getRequestedMethodSignature(List<Object> parameters) {
+		Verifier.notNull("parameters", parameters);
+		
 		StringBuilder methodSignature = new StringBuilder();
-		methodSignature.append(clazz.getSimpleName())
-				.append(".")
-				.append(executableName)
-				.append("(");
 		
 		for (Object parameter : parameters) {
 			if (parameter != null) {
@@ -186,17 +292,37 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 			methodSignature.delete(methodSignature.length() - 2, methodSignature.length());
 		}
 		
-		methodSignature.append(")");
-		
 		return methodSignature.toString();
 	}
 	
+	/**
+	 * Tests if the given {@link Executable} has a varargs parameter.
+	 * 
+	 * @param executable The {@link Executable} to test, cannot be {@code null}.
+	 * @return {@code true} if the given {@link Executable} has a varargs
+	 *         parameter.
+	 * @throws IllegalArgumentException If the given {@code executable} is
+	 *         {@code null}.
+	 */
 	protected boolean hasVargArgsParameter(Executable executable) {
+		Verifier.notNull("executable", executable);
+		
 		return executable.getParameterCount() > 0
 				&& executable.getParameters()[executable.getParameterCount() - 1].isVarArgs();
 	}
 	
+	/**
+	 * Tests if given {@link Class} is a functional interface.
+	 * 
+	 * @param clazz The {@link Class} to test, cannot be {@code null}.
+	 * @return {@code true} if the given {@link Class} is a functional
+	 *         interface.
+	 * @throws IllegalArgumentException If the given {@code clazz} is
+	 *         {@code null}.
+	 */
 	protected boolean isFunctionalInterface(Class<?> clazz) {
+		Verifier.notNull("clazz", clazz);
+		
 		if (!clazz.isInterface()) {
 			return false;
 		}
@@ -210,7 +336,21 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		return true;
 	}
 	
+	/**
+	 * Tests if the given {@link Class}es can be considered matching.
+	 * 
+	 * @param expectedClass The {@link Class} that is being expected, cannot be
+	 *        {@code null}.
+	 * @param clazz The {@link Class} that is given, cannot be {@code null}.
+	 * @return {@code true} if the two given {@link Class}es can be considered
+	 *         the same.
+	 * @throws IllegalArgumentException If the given {@code expectedClass} or
+	 *         {@code clazz} is {@code null}.
+	 */
 	protected boolean isMatching(Class<?> expectedClass, Class<?> clazz) {
+		Verifier.notNull("expectedClass", expectedClass);
+		Verifier.notNull("clazz", clazz);
+		
 		return expectedClass.isAssignableFrom(clazz)
 				|| (expectedClass == byte.class && clazz == Byte.class)
 				|| (expectedClass == short.class && (clazz == Byte.class
@@ -226,7 +366,22 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 				|| (expectedClass == double.class && (clazz == Float.class || clazz == Double.class));
 	}
 	
+	/**
+	 * Tests if the given parameters match the given {@link Executable}.
+	 * 
+	 * @param executable The {@link Executable} that is wanted, cannot be
+	 *        {@code null}.
+	 * @param parameters The parameters that should match, cannot be
+	 *        {@code null} but may be empty.
+	 * @return {@code true} if the given parameters match the given
+	 *         {@link Executable}.
+	 * @throws IllegalArgumentException If the given {@code executable} or
+	 *         {@code parameters} is {@code null}.
+	 */
 	protected boolean isMatching(Executable executable, List<Object> parameters) {
+		Verifier.notNull("executable", executable);
+		Verifier.notNull("parameters", parameters);
+		
 		Parameter[] methodParameters = executable.getParameters();
 		
 		if (parameters.size() != methodParameters.length
@@ -269,7 +424,7 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 				Object parameter = parameters.get(parameterIndex);
 				
 				if (parameter != null) {
-					if (parameter instanceof FunctionWrapper) {
+					if (parameter instanceof LuaFunctionParameter) {
 						if (!isFunctionalInterface(methodParameter.getType())) {
 							return false;
 						}
@@ -283,15 +438,34 @@ public abstract class AbstractExecutableInvokingFunction<EXECUTABLE extends Exec
 		return true;
 	}
 	
-	protected static class FunctionWrapper {
+	/**
+	 * A simple wrapper around a {@link LuaValue} that is a function.
+	 */
+	protected static class LuaFunctionParameter {
+		/** The function. */
 		protected LuaValue luaFunction = null;
 		
-		public FunctionWrapper(LuaValue luaFunction) {
+		/**
+		 * Creates a new instance of {@link LuaFunctionParameter}.
+		 *
+		 * @param luaFunction The {@link LuaValue Lua function}, cannot be
+		 *        {@code null}.
+		 * @throws IllegalArgumentException If the given {@code luaFunction} is
+		 *         {@code null}.
+		 */
+		public LuaFunctionParameter(LuaValue luaFunction) {
 			super();
+			
+			Verifier.notNull("luaFunction", luaFunction);
 			
 			this.luaFunction = luaFunction;
 		}
 		
+		/**
+		 * Gets the {@link LuaValue Lua function}.
+		 * 
+		 * @return the {@link LuaValue Lua function}, cannot be {@code null}.
+		 */
 		public LuaValue getLuaFunction() {
 			return luaFunction;
 		}

@@ -29,15 +29,28 @@ import java.util.List;
 
 import org.bonsaimind.jluascript.lua.LuaEnvironment;
 import org.bonsaimind.jluascript.lua.ScriptExecutionException;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
 import org.jline.utils.InputStreamReader;
 
+/**
+ * The main entry point.
+ */
 public final class Main {
+	/**
+	 * No instantiation allowed.
+	 */
 	private Main() {
 	}
 	
+	/**
+	 * The main entry point.
+	 * 
+	 * @param args The arguments passed from the command line, should not be
+	 *        {@code null}.
+	 */
 	public static void main(String[] args) {
 		Configuration configuration = new Configuration(args);
 		
@@ -57,7 +70,18 @@ public final class Main {
 		}
 	}
 	
+	/**
+	 * Gets the first cause in the exception chain.
+	 * 
+	 * @param throwable The {@link Throwable} from which to get the cause,
+	 *        cannot be {@code null}.
+	 * @return The cause of the exception, never {@code null}.
+	 * @throws IllegalArgumentException If the given {@code throwable} is
+	 *         {@code null}.
+	 */
 	private static final Throwable getFirstCause(Throwable throwable) {
+		Verifier.notNull("throwable", throwable);
+		
 		Throwable firstThrowable = throwable;
 		
 		while (firstThrowable != null && firstThrowable.getCause() != null) {
@@ -67,12 +91,28 @@ public final class Main {
 		return firstThrowable;
 	}
 	
-	private static final void printException(ScriptExecutionException e, PrintStream targetPrintStream, Configuration configuration) {
-		Throwable cause = getFirstCause(e);
+	/**
+	 * Prints the given exception.
+	 * 
+	 * @param exception The exception that should be printed, cannot be
+	 *        {@code null}.
+	 * @param targetPrintStream The target, cannot be {@code null}.
+	 * @param configuration The current {@link Configuration}, cannot be
+	 *        {@code null}.
+	 * @throws IllegalArgumentException If the {@code exception} or
+	 *         {@code targetPrintStream} or {@code configuration} is
+	 *         {@code null}.
+	 */
+	private static final void printException(ScriptExecutionException exception, PrintStream targetPrintStream, Configuration configuration) {
+		Verifier.notNull("exception", exception);
+		Verifier.notNull("targetPrintStream", targetPrintStream);
+		Verifier.notNull("configuration", configuration);
+		
+		Throwable cause = getFirstCause(exception);
 		
 		targetPrintStream.println("Error while executing script: " + cause.getClass().getSimpleName() + " - " + cause.getMessage());
 		
-		for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+		for (StackTraceElement stackTraceElement : exception.getStackTrace()) {
 			if (stackTraceElement.getMethodName().equals("onInvoke")) {
 				targetPrintStream.println("    (" + stackTraceElement.getFileName() + ") <script>:" + stackTraceElement.getLineNumber());
 			} else {
@@ -82,10 +122,13 @@ public final class Main {
 		
 		if (configuration.isPrintJavaStackTrace()) {
 			targetPrintStream.println();
-			e.printStackTrace(targetPrintStream);
+			exception.printStackTrace(targetPrintStream);
 		}
 	}
 	
+	/**
+	 * Prints the helpt text to {@link System#err}.
+	 */
 	private static final void printHelp() {
 		try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Main.class.getResourceAsStream("/org/bonsaimind/jluascript/help.text")))) {
 			bufferedReader.lines().forEach(System.out::println);
@@ -94,7 +137,21 @@ public final class Main {
 		}
 	}
 	
+	/**
+	 * Runs the file from the {@link Configuration} in the given
+	 * {@link LuaEnvironment}.
+	 * 
+	 * @param environment The {@link LuaEnvironment} for execution, cannot be
+	 *        {@code null}.
+	 * @param configuration The {@link Configuration} that holds the file to
+	 *        execute, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the {@code environment} or
+	 *         {@code configuration} is {@code null}.
+	 */
 	private static final void runFile(LuaEnvironment environment, Configuration configuration) {
+		Verifier.notNull("environment", environment);
+		Verifier.notNull("configuration", configuration);
+		
 		try {
 			Path scriptPath = Paths.get(configuration.getScript());
 			List<String> scriptArguments = configuration.getScriptArguments();
@@ -119,7 +176,21 @@ public final class Main {
 		}
 	}
 	
+	/**
+	 * Runs the REPL with the given {@link Configuration} in the given
+	 * {@link LuaEnvironment}.
+	 * 
+	 * @param environment The {@link LuaEnvironment} for execution, cannot be
+	 *        {@code null}.
+	 * @param configuration The {@link Configuration} that holds the file to
+	 *        execute, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the {@code environment} or
+	 *         {@code configuration} is {@code null}.
+	 */
 	private static final void runRepl(LuaEnvironment environment, Configuration configuration) {
+		Verifier.notNull("environment", environment);
+		Verifier.notNull("configuration", configuration);
+		
 		LineReader reader = LineReaderBuilder.builder()
 				.build();
 		

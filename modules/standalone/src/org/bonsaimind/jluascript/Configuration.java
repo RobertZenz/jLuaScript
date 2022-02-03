@@ -23,25 +23,51 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * The command line parameters as configuration.
+ */
 public class Configuration {
+	/** Whether the path resolving should be disabled. */
 	protected boolean noScriptPathResolve = false;
+	/** Wether the help text should be printed. */
 	protected boolean printHelp = false;
+	/** Whether the Java stacktraces should be printed on error. */
 	protected boolean printJavaStackTrace = false;
+	/** Whether the REPL should be started. */
 	protected boolean repl = false;
+	/** The script which should be run. */
 	protected String script = null;
+	/** The arguments to pass to the run script. */
 	protected List<String> scriptArguments = new ArrayList<>();
+	/** The readonly wrapper of {@link #scriptArguments}. */
 	private List<String> readonlyScriptArguments = null;
 	
+	/**
+	 * Creates a new instance of {@link Configuration}.
+	 *
+	 * @param arguments The {@link String} array with the arguments, can be
+	 *        {@code null} or empty.
+	 */
 	public Configuration(String... arguments) {
 		super();
 		
 		init(arguments);
 	}
 	
+	/**
+	 * The script which should be run.
+	 * 
+	 * @return The path to the script which should be run.
+	 */
 	public String getScript() {
 		return script;
 	}
 	
+	/**
+	 * The arguments to pass to the run script.
+	 * 
+	 * @return The arguments to pass to the run script.
+	 */
 	public List<String> getScriptArguments() {
 		if (readonlyScriptArguments == null) {
 			readonlyScriptArguments = Collections.unmodifiableList(scriptArguments);
@@ -50,22 +76,48 @@ public class Configuration {
 		return readonlyScriptArguments;
 	}
 	
+	/**
+	 * Whether the path resolving should be disabled.
+	 * 
+	 * @return {@code true} if the path resolving should be disabled.
+	 */
 	public boolean isNoScriptPathResolve() {
 		return noScriptPathResolve;
 	}
 	
+	/**
+	 * Wether the help text should be printed.
+	 * 
+	 * @return {@code true} if the help text should be printed.
+	 */
 	public boolean isPrintHelp() {
 		return printHelp;
 	}
 	
+	/**
+	 * Whether the Java stacktraces should be printed on error.
+	 * 
+	 * @return @{code true} if the Java stacktraces should be printed on error.
+	 */
 	public boolean isPrintJavaStackTrace() {
 		return printJavaStackTrace;
 	}
 	
+	/**
+	 * Whether the REPL should be started.
+	 * 
+	 * @return {@code true} if the REPL should be started.
+	 */
 	public boolean isRepl() {
 		return repl;
 	}
 	
+	/**
+	 * Parses the given arguments.
+	 * 
+	 * @param arguments The {@link String} array with the arguments, can be
+	 *        {@code null} or empty.
+	 */
 	protected void init(String... arguments) {
 		if (arguments != null) {
 			for (String argument : arguments) {
@@ -81,6 +133,8 @@ public class Configuration {
 							repl = true;
 						} else if (script == null) {
 							script = argument;
+						} else if (argument.startsWith("--")) {
+							printHelp = true;
 						}
 					} else {
 						scriptArguments.add(argument);

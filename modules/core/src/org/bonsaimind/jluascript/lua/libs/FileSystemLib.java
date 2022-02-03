@@ -19,39 +19,34 @@
 
 package org.bonsaimind.jluascript.lua.libs;
 
-import org.bonsaimind.jluascript.lua.libs.functions.interop.ClassImportingFunction;
-import org.bonsaimind.jluascript.lua.libs.functions.interop.ClassLoadingFunction;
+import org.bonsaimind.jluascript.lua.libs.functions.extensions.DirFunction;
+import org.bonsaimind.jluascript.lua.libs.functions.extensions.TreeDirFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
 /**
- * The {@link ClassImportLib} is a {@link TwoArgFunction} extension which adds
- * the facilities to easily import new classes into the environment.
+ * The {@link FileSystemLib} is a {@link TwoArgFunction} extension which
+ * provides interoperability methods and extends existing ones to make it easier
+ * to access the filesystem.
  */
-public class ClassImportLib extends TwoArgFunction {
-	/** The {@link ClassLoader} that will be used to load {@link Class}es. */
-	protected ClassLoader classLoader = null;
+public class FileSystemLib extends TwoArgFunction {
 	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
 	
 	/**
 	 * Creates a new instance of {@link ClassImportLib}.
 	 *
-	 * @param classLoader The {@link ClassLoader} which will be used to load
-	 *        {@link Class}es, cannot be {@code null}.
 	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
-	 * @throws IllegalArgumentException If the given {@code classLoader} or
-	 *         {@code coercer} is {@code null}.
+	 * @throws IllegalArgumentException If the given {@code coercer} is
+	 *         {@code null}.
 	 */
-	public ClassImportLib(ClassLoader classLoader, Coercer coercer) {
+	public FileSystemLib(Coercer coercer) {
 		super();
 		
-		Verifier.notNull("classLoader", classLoader);
 		Verifier.notNull("coercer", coercer);
 		
-		this.classLoader = classLoader;
 		this.coercer = coercer;
 	}
 	
@@ -60,8 +55,8 @@ public class ClassImportLib extends TwoArgFunction {
 	 */
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
-		environment.set("import", new ClassImportingFunction(environment, classLoader, coercer));
-		environment.set("loadClass", new ClassLoadingFunction(classLoader, coercer));
+		environment.set("dir", new DirFunction(coercer));
+		environment.set("treeDir", new TreeDirFunction(coercer));
 		
 		return environment;
 	}

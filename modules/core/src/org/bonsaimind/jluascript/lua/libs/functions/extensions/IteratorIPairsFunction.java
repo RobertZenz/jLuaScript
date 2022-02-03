@@ -21,16 +21,33 @@ package org.bonsaimind.jluascript.lua.libs.functions.extensions;
 
 import java.util.Iterator;
 
-import org.bonsaimind.jluascript.lua.libs.functions.AbstractIteratorFunction;
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 
+/**
+ * The {@link IteratorIPairsFunction} is an {@link AbstractIteratorFunction}
+ * extension which is an {@code ipairs} replacement and allows to iterate over
+ * Java objects directly.
+ */
 public class IteratorIPairsFunction extends AbstractIteratorFunction {
+	/**
+	 * Creates a new instance of {@link IteratorIPairsFunction}.
+	 *
+	 * @param originalIPairsFunction The {@link LuaValue original ipairs
+	 *        function} to replace, {@code null} if there is none.
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@link Coercer} is
+	 *         {@code null}.
+	 */
 	public IteratorIPairsFunction(LuaValue originalIPairsFunction, Coercer coercer) {
-		super(originalIPairsFunction, coercer);
+		super(originalIPairsFunction, Verifier.notNull("coercer", coercer));
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected IteratingFunction createIteratingFunction(Varargs args) {
 		Iterator<?> iterator = getIterator(args.arg1());
@@ -42,11 +59,28 @@ public class IteratorIPairsFunction extends AbstractIteratorFunction {
 		}
 	}
 	
+	/**
+	 * The {@link IndexIteratingFunction} is an
+	 * {@link org.bonsaimind.jluascript.lua.libs.functions.extensions.AbstractIteratorFunction.IteratingFunction}
+	 * extension which always returns the index as key.
+	 */
 	protected static class IndexIteratingFunction extends IteratingFunction {
+		
+		/**
+		 * Creates a new instance of {@link IndexIteratingFunction}.
+		 *
+		 * @param iterator The {@link Iterator} to use, cannot be {@code null}.
+		 * @param coercer The {@link Coercer} to use, cannot be @{code null}.
+		 * @throws IllegalArgumentException If the given {@code iterator} or
+		 *         {@code coercer} is {@code null}.
+		 */
 		public IndexIteratingFunction(Iterator<?> iterator, Coercer coercer) {
-			super(iterator, coercer);
+			super(Verifier.notNull("iterator", iterator), Verifier.notNull("coercer", coercer));
 		}
 		
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		protected LuaValue processKey(Object key, Object value) {
 			return LuaValue.valueOf(index);
