@@ -23,19 +23,43 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaValue;
 
+/**
+ * The {@link LuaFunctionInvokingInvocationHandler} is an
+ * {@link InvocationHandler} implementation which forwards the invocation to a
+ * {@link LuaValue}.
+ */
 public class LuaFunctionInvokingInvocationHandler implements InvocationHandler {
+	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
+	/** The {@link LuaValue} that is being invoked. */
 	protected LuaValue luaFunction = null;
 	
+	/**
+	 * Creates a new instance of {@link LuaFunctionInvokingInvocationHandler}.
+	 *
+	 * @param luaFunction The {@link LuaValue} that is being invoked, cannot be
+	 *        {@code null}.
+	 * @param coercer The {@link Coercer} that should be used, cannot be
+	 *        {@code null}.
+	 * @throws IllegalArgumentException If the given {@code luaFunction} or
+	 *         {@code coercer} is {@code null}.
+	 */
 	public LuaFunctionInvokingInvocationHandler(LuaValue luaFunction, Coercer coercer) {
 		super();
+		
+		Verifier.notNull("luaFunction", luaFunction);
+		Verifier.notNull("coercer", coercer);
 		
 		this.luaFunction = luaFunction;
 		this.coercer = coercer;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (args != null && args.length > 0) {

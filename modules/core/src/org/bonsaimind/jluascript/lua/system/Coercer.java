@@ -34,7 +34,7 @@ public interface Coercer {
 	 * @return The {@link LuaValue} representing the static instance.
 	 * @throws LuaError If the given {@link Class} could not be converted.
 	 */
-	public LuaValue coerceClassToStaticLuaInstance(Class<?> clazz) throws LuaError;
+	public abstract LuaValue coerceClassToStaticLuaInstance(Class<?> clazz) throws LuaError;
 	
 	/**
 	 * Coerce the given {@link Object} to a {@link LuaValue}.
@@ -46,7 +46,7 @@ public interface Coercer {
 	 * @return The {@link Object} as {@link LuaValue}.
 	 * @throws LuaError If the given {@link Object} could not be converted.
 	 */
-	public LuaValue coerceJavaToLua(Object object) throws LuaError;
+	public abstract LuaValue coerceJavaToLua(Object object) throws LuaError;
 	
 	/**
 	 * Coerce the given {@link LuaValue} to an {@link Object}.
@@ -55,5 +55,5 @@ public interface Coercer {
 	 * @return The {@link LuaValue} as {@link Object}.
 	 * @throws LuaError If the given {@link LuaValue} could not be converted.
 	 */
-	public Object coerceLuaToJava(LuaValue luaValue) throws LuaError;
+	public abstract Object coerceLuaToJava(LuaValue luaValue) throws LuaError;
 }

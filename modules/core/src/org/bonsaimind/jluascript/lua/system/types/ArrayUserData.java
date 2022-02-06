@@ -22,14 +22,30 @@ package org.bonsaimind.jluascript.lua.system.types;
 import java.lang.reflect.Array;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaUserdata;
 import org.luaj.vm2.LuaValue;
 
+/**
+ * The {@link ArrayUserData} is a {@link LuaUserdata} extension which allows to
+ * directly access Java arrays in Lua.
+ */
 public class ArrayUserData extends LuaUserdata {
+	/** The {@link Coercer} to use for the values. */
 	protected Coercer coercer = null;
 	
+	/**
+	 * Creates a new instance of {@link ArrayUserData}.
+	 *
+	 * @param array The {@link Object array}, cannot be {@code null}.
+	 * @param coercer The {@link Coercer}, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the {@code array} or the
+	 *         {@code coercer} is {@code null}.
+	 */
 	public ArrayUserData(Object array, Coercer coercer) {
-		super(array);
+		super(Verifier.notNull("array", array));
+		
+		Verifier.notNull("coercer", coercer);
 		
 		this.coercer = coercer;
 	}
@@ -50,7 +66,12 @@ public class ArrayUserData extends LuaUserdata {
 		return LuaValue.NIL;
 	}
 	
-	public Object getRawArray() {
+	/**
+	 * Gets the underlying array.
+	 * 
+	 * @return The underlying array.
+	 */
+	public Object getArray() {
 		return m_instance;
 	}
 }

@@ -26,20 +26,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
+/**
+ * The {@link RunFunction} is a {@link VarArgFunction} extension which allows to
+ * run a new process and wait for it to exit.
+ */
 public class RunFunction extends VarArgFunction {
+	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
 	
+	/**
+	 * Creates a new instance of {@link RunFunction}.
+	 *
+	 * @param coercer The {@link Coercer} to use. Cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@link Coercer} is
+	 *         {@code null}.
+	 */
 	public RunFunction(Coercer coercer) {
 		super();
+		
+		Verifier.notNull("coercer", coercer);
 		
 		this.coercer = coercer;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Varargs invoke(Varargs args) {
 		if (args.narg() == 0) {

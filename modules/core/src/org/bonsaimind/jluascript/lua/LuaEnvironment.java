@@ -31,6 +31,7 @@ import java.util.List;
 
 import org.bonsaimind.jluascript.lua.libs.ClassImportLib;
 import org.bonsaimind.jluascript.lua.libs.DefaultImportsLib;
+import org.bonsaimind.jluascript.lua.libs.FileSystemLib;
 import org.bonsaimind.jluascript.lua.libs.JarLoaderLib;
 import org.bonsaimind.jluascript.lua.libs.LuaJavaInteropLib;
 import org.bonsaimind.jluascript.lua.libs.ProcessLib;
@@ -40,6 +41,7 @@ import org.bonsaimind.jluascript.lua.system.coercers.DefaultCoercer;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
 import org.bonsaimind.jluascript.support.ShebangSkippingInputStream;
 import org.bonsaimind.jluascript.support.ShebangSkippingReader;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LoadState;
 import org.luaj.vm2.LuaTable;
@@ -61,8 +63,12 @@ import org.luaj.vm2.luajc.LuaJC;
  * The {@link LuaEnvironment} is the main class which builds and maintains the
  * environment in which the Lua scripts can be executed.
  * <p>
- * This class is not thread-safe. If you need to sue this from different
+ * This class is not thread-safe. If you need to use this from different
  * threads, you must synchronize access to it yourself.
+ * <p>
+ * Extending classes can override the {@link #loadDefaultLibraries()} method if
+ * they need to customize the libraries which are being loaded into the
+ * environment.
  */
 public class LuaEnvironment {
 	/** The {@link DynamicClassLoader} which is being used. */
@@ -103,13 +109,8 @@ public class LuaEnvironment {
 	public LuaEnvironment(DynamicClassLoader classLoader, Coercer coercer) {
 		super();
 		
-		if (classLoader == null) {
-			throw new IllegalArgumentException("classLoader cannot be null.");
-		}
-		
-		if (coercer == null) {
-			throw new IllegalArgumentException("coercer cannot be null.");
-		}
+		Verifier.notNull("classLoader", classLoader);
+		Verifier.notNull("coercer", coercer);
 		
 		this.classLoader = classLoader;
 		this.coercer = coercer;
@@ -137,13 +138,7 @@ public class LuaEnvironment {
 	 *         {@code null} or empty.
 	 */
 	public LuaEnvironment addToEnvironment(String luaVariableName, Object value) {
-		if (luaVariableName == null) {
-			throw new IllegalArgumentException("luaVariableName cannot be null.");
-		}
-		
-		if (luaVariableName.isEmpty()) {
-			throw new IllegalArgumentException("luaVariableName cannot be empty.");
-		}
+		Verifier.notNullOrEmpty("luaVariableName", luaVariableName);
 		
 		if (value != null && value instanceof Class<?>) {
 			environment.set(luaVariableName, coercer.coerceClassToStaticLuaInstance((Class<?>)value));
@@ -159,15 +154,24 @@ public class LuaEnvironment {
 	 * <p>
 	 * This method does perform automatic Shebang stripping on the input.
 	 * 
+	 * @param <RETURN_TYPE> The type of the returned value. Note that an
+	 *        explicit cast is being performed on the value returned by the
+	 *        script, which my lead to a {@link ClassCastException}.
 	 * @param file The {@link File} to execute, cannot be {@code null}.
 	 * @param args The arguments to use, can be {@code null} for none.
+	 * @return The return value of the executed script. Note that an explicit
+	 *         cast to the expected type is performed, therefor a
+	 *         {@link ClassCastException} might be thrown if that cast is not
+	 *         possile.
+	 * @throws ClassCastException If the returned value from the script cannot
+	 *         be cast to the expected value.
+	 * @throws IllegalArgumentException If the given {@link File} is
+	 *         {@code null}.
 	 * @throws ScriptExecutionException If there was an error when executing the
 	 *         given script.
 	 */
-	public <TYPE> TYPE execute(File file, List<? extends Object> args) throws ScriptExecutionException {
-		if (file == null) {
-			throw new IllegalArgumentException("file cannot be null.");
-		}
+	public <RETURN_TYPE> RETURN_TYPE execute(File file, List<? extends Object> args) throws ScriptExecutionException {
+		Verifier.notNull("file", file);
 		
 		return execute(file.toPath(), args);
 	}
@@ -177,15 +181,24 @@ public class LuaEnvironment {
 	 * <p>
 	 * This method does perform automatic Shebang stripping on the input.
 	 * 
+	 * @param <RETURN_TYPE> The type of the returned value. Note that an
+	 *        explicit cast is being performed on the value returned by the
+	 *        script, which my lead to a {@link ClassCastException}.
 	 * @param file The {@link Path} to execute, cannot be {@code null}.
 	 * @param args The arguments to use, can be {@code null} for none.
+	 * @return The return value of the executed script. Note that an explicit
+	 *         cast to the expected type is performed, therefor a
+	 *         {@link ClassCastException} might be thrown if that cast is not
+	 *         possile.
+	 * @throws ClassCastException If the returned value from the script cannot
+	 *         be cast to the expected value.
+	 * @throws IllegalArgumentException If the given {@link Path} is
+	 *         {@code null}.
 	 * @throws ScriptExecutionException If there was an error when executing the
 	 *         given script.
 	 */
-	public <TYPE> TYPE execute(Path file, List<? extends Object> args) throws ScriptExecutionException {
-		if (file == null) {
-			throw new IllegalArgumentException("file cannot be null.");
-		}
+	public <RETURN_TYPE> RETURN_TYPE execute(Path file, List<? extends Object> args) throws ScriptExecutionException {
+		Verifier.notNull("file", file);
 		
 		if (!Files.isRegularFile(file)) {
 			throw new IllegalArgumentException("<" + file.toString() + "> is not a file.");
@@ -209,7 +222,7 @@ public class LuaEnvironment {
 					"bt",
 					environment);
 			
-			return (TYPE)coercer.coerceLuaToJava(loadedScript.call());
+			return (RETURN_TYPE)coercer.coerceLuaToJava(loadedScript.call());
 		} catch (Exception e) {
 			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script <" + file.toString() + ">.", e);
 			exception.setStackTrace(extractLuaStacktrace(getRootCause(e).getStackTrace()));
@@ -223,15 +236,24 @@ public class LuaEnvironment {
 	 * <p>
 	 * This method does perform automatic Shebang stripping on the input.
 	 * 
+	 * @param <RETURN_TYPE> The type of the returned value. Note that an
+	 *        explicit cast is being performed on the value returned by the
+	 *        script, which my lead to a {@link ClassCastException}.
 	 * @param script The {@link String} to execute, cannot be {@code null}.
 	 * @param args The arguments to use, can be {@code null} for none.
+	 * @return The return value of the executed script. Note that an explicit
+	 *         cast to the expected type is performed, therefor a
+	 *         {@link ClassCastException} might be thrown if that cast is not
+	 *         possile.
+	 * @throws ClassCastException If the returned value from the script cannot
+	 *         be cast to the expected value.
+	 * @throws IllegalArgumentException If the given {@link Reader script} is
+	 *         {@code null}.
 	 * @throws ScriptExecutionException If there was an error when executing the
 	 *         given script.
 	 */
-	public <TYPE> TYPE execute(Reader script, List<Object> args) throws ScriptExecutionException {
-		if (script == null) {
-			throw new IllegalArgumentException("script cannot be null.");
-		}
+	public <RETURN_TYPE> RETURN_TYPE execute(Reader script, List<Object> args) throws ScriptExecutionException {
+		Verifier.notNull("script", script);
 		
 		updateEnvironmentVariables(args, "", "");
 		
@@ -241,7 +263,7 @@ public class LuaEnvironment {
 					"@script",
 					environment);
 			
-			return (TYPE)coercer.coerceLuaToJava(loadedScript.call());
+			return (RETURN_TYPE)coercer.coerceLuaToJava(loadedScript.call());
 		} catch (Exception e) {
 			ScriptExecutionException exception = new ScriptExecutionException("Failed to execute script.", e);
 			exception.setStackTrace(extractLuaStacktrace(getRootCause(e).getStackTrace()));
@@ -255,15 +277,24 @@ public class LuaEnvironment {
 	 * <p>
 	 * This method does perform automatic Shebang stripping on the input.
 	 * 
+	 * @param <RETURN_TYPE> The type of the returned value. Note that an
+	 *        explicit cast is being performed on the value returned by the
+	 *        script, which my lead to a {@link ClassCastException}.
 	 * @param script The {@link String} to execute, cannot be {@code null}.
 	 * @param args The arguments to use, can be {@code null} for none.
+	 * @return The return value of the executed script. Note that an explicit
+	 *         cast to the expected type is performed, therefor a
+	 *         {@link ClassCastException} might be thrown if that cast is not
+	 *         possile.
+	 * @throws ClassCastException If the returned value from the script cannot
+	 *         be cast to the expected value.
+	 * @throws IllegalArgumentException If the given {@link String script} is
+	 *         {@code null}.
 	 * @throws ScriptExecutionException If there was an error when executing the
 	 *         given script.
 	 */
-	public <TYPE> TYPE execute(String script, List<Object> args) throws ScriptExecutionException {
-		if (script == null) {
-			throw new IllegalArgumentException("script cannot be null.");
-		}
+	public <RETURN_TYPE> RETURN_TYPE execute(String script, List<Object> args) throws ScriptExecutionException {
+		Verifier.notNull("script", script);
 		
 		return execute(new StringReader(script), args);
 	}
@@ -285,32 +316,35 @@ public class LuaEnvironment {
 	 * To check whether a variable exists, use {@link #getEnvironment()} and
 	 * access the Lua environment directly.
 	 * 
+	 * @param <VARIABLE_TYPE> The type of the returned value. Note that an
+	 *        explicit cast is being performed on the value returned by the
+	 *        script, which my lead to an {@link ClassCastException}.
 	 * @param luaVariableName The name of the Lua variable, cannot be
 	 *        {@code null} or empty.
 	 * @return The value with the given name, {@code null} if there is none or
 	 *         is {@code nil}.
+	 * @throws ClassCastException If the returned value from the script cannot
+	 *         be cast to the expected value.
 	 * @throws IllegalArgumentException If the given Lua variable name is
 	 *         {@code null} or empty.
 	 */
-	public <TYPE> TYPE getFromEnvironment(String luaVariableName) {
-		if (luaVariableName == null) {
-			throw new IllegalArgumentException("luaVariableName cannot be null.");
-		}
+	public <VARIABLE_TYPE> VARIABLE_TYPE getFromEnvironment(String luaVariableName) {
+		Verifier.notNullOrEmpty("luaVariableName", luaVariableName);
 		
-		if (luaVariableName.isEmpty()) {
-			throw new IllegalArgumentException("luaVariableName cannot be empty.");
-		}
-		
-		return (TYPE)coercer.coerceLuaToJava(environment.get(luaVariableName));
+		return (VARIABLE_TYPE)coercer.coerceLuaToJava(environment.get(luaVariableName));
 	}
 	
 	/**
 	 * Imports the given {@link Class} into the environment.
 	 * 
-	 * @param clazz The {@link Class} to import.
+	 * @param clazz The {@link Class} to import, cannot be {@code null}.
 	 * @return This instance.
+	 * @throws IllegalArgumentException If the given {@code clazz} is
+	 *         {@code null}.
 	 */
 	public LuaEnvironment importClass(Class<?> clazz) {
+		Verifier.notNull("clazz", clazz);
+		
 		LuaValue coercedStaticClass = coercer.coerceClassToStaticLuaInstance(clazz);
 		
 		environment.set(clazz.getSimpleName(), coercedStaticClass);
@@ -322,10 +356,17 @@ public class LuaEnvironment {
 	/**
 	 * Imports the given {@link Class} with the given name into the environment.
 	 * 
-	 * @param className The {@link Class} to import.
+	 * @param className The {@link Class} to import, cannot be {@code null} or
+	 *        empty.
 	 * @return This instance.
+	 * @throws ClassNotFoundException If the given class could not be loaded by
+	 *         that name.
+	 * @throws IllegalArgumentException If the given {@code className} is
+	 *         {@code null} or empty.
 	 */
 	public LuaEnvironment importClass(String className) throws ClassNotFoundException {
+		Verifier.notNull("className", className);
+		
 		importClass(classLoader.loadClass(className));
 		
 		return this;
@@ -339,9 +380,7 @@ public class LuaEnvironment {
 	 * @throws IllegalArgumentException If {@code library} is {@code null}.
 	 */
 	public LuaEnvironment loadLibrary(LuaValue library) {
-		if (library == null) {
-			throw new IllegalArgumentException("library cannot be null.");
-		}
+		Verifier.notNull("library", library);
 		
 		environment.load(library);
 		
@@ -358,13 +397,7 @@ public class LuaEnvironment {
 	 *         {@code null} or empty.
 	 */
 	public LuaEnvironment removeFromEnvironment(String luaVariableName) {
-		if (luaVariableName == null) {
-			throw new IllegalArgumentException("luaVariableName cannot be null.");
-		}
-		
-		if (luaVariableName.isEmpty()) {
-			throw new IllegalArgumentException("luaVariableName cannot be empty.");
-		}
+		Verifier.notNullOrEmpty("luaVariableName", luaVariableName);
 		
 		environment.set(luaVariableName, (LuaValue)null);
 		
@@ -480,6 +513,14 @@ public class LuaEnvironment {
 		return currentException;
 	}
 	
+	/**
+	 * Checks whether the given {@link StackTraceElement} is part of the
+	 * stacktrace from inside the Lua script.
+	 * 
+	 * @param stackTraceElement The {@link StackTraceElement} to check.
+	 * @return {@code true} if the given {@link StackTraceElement} is part of
+	 *         the stacktrace from inside the Lua script.
+	 */
 	protected boolean isLuaStackTraceElement(StackTraceElement stackTraceElement) {
 		return stackTraceElement.getFileName() != null
 				&& stackTraceElement.getFileName().endsWith(".lua");
@@ -510,6 +551,7 @@ public class LuaEnvironment {
 		
 		loadLibrary(new ClassImportLib(classLoader, coercer));
 		loadLibrary(new DefaultImportsLib(coercer));
+		loadLibrary(new FileSystemLib(coercer));
 		loadLibrary(new JarLoaderLib(classLoader));
 		loadLibrary(new LuaJavaInteropLib(coercer, environment));
 		loadLibrary(new ProcessLib(coercer));

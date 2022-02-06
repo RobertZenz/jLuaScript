@@ -23,12 +23,31 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.utils.Verifier;
 
+/**
+ * The {@link ConstructorInvokingFunction} is an
+ * {@link AbstractExecutableInvokingFunction} extension which invokes
+ * {@link Constructor}s.
+ */
 public class ConstructorInvokingFunction extends AbstractExecutableInvokingFunction<Constructor<?>> {
-	public ConstructorInvokingFunction(Class<?> clazz, List<Constructor<?>> constructors, Coercer coercer) {
-		super(clazz, constructors, "new", coercer);
+	/**
+	 * Creates a new instance of {@link ConstructorInvokingFunction}.
+	 *
+	 * @param constructors The {@link List} of {@link Constructor}s to invoke,
+	 *        cannot be {@code null} or empty.
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code clazz},
+	 *         {@code constructors} are {@code null} or empty or {@code coercer}
+	 *         is {@code null}.
+	 */
+	public ConstructorInvokingFunction(List<Constructor<?>> constructors, Coercer coercer) {
+		super(Verifier.notNullOrEmpty("constructors", constructors), Verifier.notNull("coercer", coercer));
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected Object execute(Constructor<?> executable, List<Object> parameters) throws Exception {
 		return executable.newInstance(parameters.toArray());

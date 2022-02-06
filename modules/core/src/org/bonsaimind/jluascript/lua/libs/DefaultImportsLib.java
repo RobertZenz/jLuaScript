@@ -21,22 +21,36 @@ package org.bonsaimind.jluascript.lua.libs;
 
 import org.bonsaimind.jluascript.lua.LuaUtil;
 import org.bonsaimind.jluascript.lua.system.Coercer;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 
 /**
- * The {@link DefaultImportsLib} provides imports for "default" classes, like
- * {@link String} and {@link Long}.
+ * The {@link DefaultImportsLib} is a {@link TwoArgFunction} extension which
+ * provides imports for "default" classes, like {@link String} and {@link Long}.
  */
 public class DefaultImportsLib extends TwoArgFunction {
+	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
 	
+	/**
+	 * Creates a new instance of {@link DefaultImportsLib}.
+	 *
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code coercer} is
+	 *         {@code null}.
+	 */
 	public DefaultImportsLib(Coercer coercer) {
 		super();
+		
+		Verifier.notNull("coercer", coercer);
 		
 		this.coercer = coercer;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LuaValue call(LuaValue modname, LuaValue environment) {
 		importDefaults(environment);
@@ -44,14 +58,38 @@ public class DefaultImportsLib extends TwoArgFunction {
 		return environment;
 	}
 	
+	/**
+	 * Imports the given {@link Class} into the given {@link LuaValue Lua
+	 * enviroment}.
+	 * 
+	 * @param environment The {@link LuaValue Lua enviroment} to import into,
+	 *        cannot be {@code null}.
+	 * @param clazz The {@link Class} to import, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code enviroment} or
+	 *         {@code clazz} is {@code null}.
+	 */
 	protected void importClass(LuaValue environment, Class<?> clazz) {
+		Verifier.notNull("environment", environment);
+		Verifier.notNull("clazz", clazz);
+		
 		LuaValue staticInstance = coercer.coerceClassToStaticLuaInstance(clazz);
 		
 		environment.set(clazz.getSimpleName(), staticInstance);
 		LuaUtil.addClassByPackage(environment, clazz, staticInstance);
 	}
 	
+	/**
+	 * Imports the default {@link Class}es into the given {@link LuaValue Lua
+	 * enviroment}.
+	 * 
+	 * @param environment The {@link LuaValue Lua enviroment} to import into,
+	 *        cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code enviroment} is
+	 *         {@code null}.
+	 */
 	protected void importDefaults(LuaValue environment) {
+		Verifier.notNull("environment", environment);
+		
 		importClass(environment, Byte.class);
 		importClass(environment, Character.class);
 		importClass(environment, Double.class);

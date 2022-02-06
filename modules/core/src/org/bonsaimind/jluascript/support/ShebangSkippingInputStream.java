@@ -23,34 +23,70 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
+import org.bonsaimind.jluascript.utils.Verifier;
+
+/**
+ * The {@link ShebangSkippingInputStream} is an {@link InputStream} extension
+ * and wrapper which skips over a Shebang line at the start of the stream, if
+ * one is present.
+ */
 public class ShebangSkippingInputStream extends InputStream {
+	/** The CR as int. */
 	protected static final int CARRIAGE_RETURN = 0x0d;
+	/** The LF as int. */
 	protected static final int LINE_FEED = 0x0a;
+	/** The line marker for a Shebang line. */
 	protected static final String SHEBANG_START = "#!";
 	
+	/** The buffer for reading the Shebang marker. */
 	protected byte[] buffer = new byte[2];
+	/** How many bytes have been read into the buffer. */
 	protected int bufferLength = 0;
+	/** The {@link Charset} of the wrapped stream. */
 	protected Charset charset = null;
+	/** Whether this is the first read operation on the stream. */
 	protected boolean firstRead = true;
+	/** The wrapped source {@link InputStream}. */
 	protected InputStream sourceStream = null;
 	
+	/**
+	 * Creates a new instance of {@link ShebangSkippingInputStream}.
+	 *
+	 * @param sourceStream The {@link InputStream} that is going to be wrapped,
+	 *        cannot be {@code null}.
+	 * @param charset The {@link Charset} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code inputStream} or
+	 *         {@code charset} is {@code null}.
+	 */
 	public ShebangSkippingInputStream(InputStream sourceStream, Charset charset) {
 		super();
+		
+		Verifier.notNull("sourceStream", sourceStream);
+		Verifier.notNull("charset", charset);
 		
 		this.sourceStream = sourceStream;
 		this.charset = charset;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int available() throws IOException {
 		return sourceStream.available();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void close() throws IOException {
 		sourceStream.close();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int read() throws IOException {
 		if (firstRead) {
@@ -69,11 +105,17 @@ public class ShebangSkippingInputStream extends InputStream {
 		return sourceStream.read();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int read(byte[] b) throws IOException {
 		return read(b, 0, b.length);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		if (firstRead) {
@@ -102,6 +144,9 @@ public class ShebangSkippingInputStream extends InputStream {
 		return sourceStream.read(b, off, len);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public long skip(long n) throws IOException {
 		if (firstRead) {
@@ -114,6 +159,11 @@ public class ShebangSkippingInputStream extends InputStream {
 		return sourceStream.skip(n - bufferLength);
 	}
 	
+	/**
+	 * Discards the given amount from the {@link #buffer}.
+	 * 
+	 * @param countToDiscard The amount to discard.
+	 */
 	protected void discardBuffer(int countToDiscard) {
 		for (int index = 0; index < bufferLength - countToDiscard; index++) {
 			buffer[index] = buffer[index + countToDiscard];
@@ -122,6 +172,12 @@ public class ShebangSkippingInputStream extends InputStream {
 		bufferLength = Math.max(0, bufferLength - countToDiscard);
 	}
 	
+	/**
+	 * Skips the Shebang line in the underlying {@link #sourceStream} if there
+	 * is any.
+	 * 
+	 * @throws IOException If reading from the {@link #sourceStream} failed.
+	 */
 	protected void skipShebang() throws IOException {
 		bufferLength = sourceStream.read(buffer);
 		
@@ -129,9 +185,7 @@ public class ShebangSkippingInputStream extends InputStream {
 			return;
 		}
 		
-		String firstTwoCharacters = new String(
-				new byte[] { buffer[0], buffer[1] },
-				charset);
+		String firstTwoCharacters = new String(new byte[] { buffer[0], buffer[1] }, charset);
 		
 		if (firstTwoCharacters.equals(SHEBANG_START)) {
 			int readByte = 0;

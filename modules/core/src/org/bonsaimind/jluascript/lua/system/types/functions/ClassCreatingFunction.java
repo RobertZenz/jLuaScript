@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
 import org.bonsaimind.jluascript.lua.system.types.StaticUserData;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
@@ -32,23 +33,44 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
 
+/**
+ * The {@link ClassCreatingFunction} is an {@link OneArgFunction} extension
+ * which creates a new {@link Class} on invocation.
+ */
 public class ClassCreatingFunction extends OneArgFunction {
+	/** The {@link Class} to create a new {@link Class} from. */
 	protected Class<?> clazz = null;
+	/** The {@link Coercer} to use. */
 	protected Coercer coercer = null;
 	
+	/**
+	 * Creates a new instance of {@link ClassCreatingFunction}.
+	 *
+	 * @param clazz The {@link Class} to use as base for the new
+	 *        {@link Class}es, cannot be {@code null}.
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code clazz} or
+	 *         {@code coercer} is {@code null}.
+	 */
 	public ClassCreatingFunction(Class<?> clazz, Coercer coercer) {
 		super();
+		
+		Verifier.notNull("clazz", clazz);
+		Verifier.notNull("coercer", coercer);
 		
 		this.clazz = clazz;
 		this.coercer = coercer;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LuaValue call(LuaValue luaFunctions) {
 		if (luaFunctions == null
 				|| luaFunctions.isnil()
 				|| (!luaFunctions.istable() && !luaFunctions.isfunction())) {
-			throw new LuaError("Table with functions (or a single function) has been expected.");
+			throw new LuaError("Argument must be a table with functions (or a single function).");
 		}
 		
 		ClassPool classPool = ClassPool.getDefault();
@@ -67,15 +89,25 @@ public class ClassCreatingFunction extends OneArgFunction {
 			
 			StaticUserData luaClass = new StaticUserData(createdClass, coercer);
 			
-			luaClass.provide(StaticUserData.CONSTRUCTOR_NAME, new ProxyInstanceCreatingFunction(clazz, luaFunctions, coercer));
+			luaClass.putIntoCache(StaticUserData.CONSTRUCTOR_NAME, new ProxyInstanceCreatingFunction(clazz, luaFunctions, coercer));
 			
 			return luaClass;
-		} catch (NotFoundException | CannotCompileException e) {
+		} catch (CannotCompileException | NotFoundException e) {
 			throw new LuaError(e);
 		}
 	}
 	
+	/**
+	 * Creates a new random class anme based on the given {@link Class}.
+	 * 
+	 * @param clazz The {@link Class} to create the name from.
+	 * @return A new random class name for the given {@link Class}.
+	 * @throws IllegalArgumentException If the given {@code clazz} is
+	 *         {@code null}.
+	 */
 	protected String createClassName(Class<?> clazz) {
+		Verifier.notNull("clazz", clazz);
+		
 		return clazz.getSimpleName() + "$" + UUID.randomUUID().toString().replace("-", "");
 	}
 }

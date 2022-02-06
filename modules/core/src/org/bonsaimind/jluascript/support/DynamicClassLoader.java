@@ -22,6 +22,8 @@ package org.bonsaimind.jluascript.support;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.bonsaimind.jluascript.utils.Verifier;
+
 /**
  * The {@link DynamicClassLoader} is an {@link URLClassLoader} extension which
  * allows to add jars dynamically during runtime.
@@ -30,7 +32,7 @@ public class DynamicClassLoader extends URLClassLoader {
 	/**
 	 * Creates a new instance of {@link DynamicClassLoader}.
 	 *
-	 * @param parent The parent {@link ClassLoader}.
+	 * @param parent The parent {@link ClassLoader}. Can be {@code null}.
 	 */
 	public DynamicClassLoader(ClassLoader parent) {
 		super(new URL[0], parent);
@@ -39,14 +41,12 @@ public class DynamicClassLoader extends URLClassLoader {
 	/**
 	 * Adds the given {@link URL jar} to the classloader.
 	 *
-	 * @param url The {@link URL jar} to add.
+	 * @param url The {@link URL jar} to add. Cannot be {@code null}.
 	 * @throws IllegalArgumentException If the given {@link URL jar} is
 	 *         {@code null}.
 	 */
 	public void addJar(URL url) {
-		if (url == null) {
-			throw new IllegalArgumentException("<url> cannot be null.");
-		}
+		Verifier.notNull("url", url);
 		
 		addURL(url);
 	}

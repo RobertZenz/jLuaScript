@@ -24,11 +24,28 @@ import java.util.List;
 
 import org.bonsaimind.jluascript.lua.system.Coercer;
 
+/**
+ * The {@link StaticMethodInvokingFunction} is an
+ * {@link AbstractExecutableInvokingFunction} extension which handles invocation
+ * of static methods.
+ */
 public class StaticMethodInvokingFunction extends AbstractExecutableInvokingFunction<Method> {
-	public StaticMethodInvokingFunction(Class<?> clazz, List<Method> methods, Coercer coercer) {
-		super(clazz, methods, methods.get(0).getName(), coercer);
+	/**
+	 * Creates a new instance of {@link StaticMethodInvokingFunction}.
+	 *
+	 * @param methods The {@link List} of {@link Method}s to invoke, cannot be
+	 *        {@code null} or empty.
+	 * @param coercer The {@link Coercer} to use, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code methods} are
+	 *         {@code null} or empty or the {@code coercer} is {@code null}.
+	 */
+	public StaticMethodInvokingFunction(List<Method> methods, Coercer coercer) {
+		super(methods, coercer);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected Object execute(Method executable, List<Object> parameters) throws Exception {
 		return executable.invoke(null, parameters.toArray());

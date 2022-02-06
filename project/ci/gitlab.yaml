@@ -19,6 +19,11 @@ reports:
       - "modules/*/target/ivy-report.css"
       - "modules/*/target/*.html"
 
+checkstyle:
+  stage: build
+  script:
+    - ant checkstyle
+
 build:
   stage: build
   script:

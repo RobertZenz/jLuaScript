@@ -158,7 +158,7 @@ public class DefaultCoercer implements Coercer {
 	 * 
 	 * @param array The array to coerce.
 	 * @return The coerced array.
-	 * @throw LuaError If the conversion has failed or is not possible.
+	 * @throws LuaError If the conversion has failed or is not possible.
 	 */
 	protected LuaValue coerceArray(Object array) throws LuaError {
 		return new ArrayUserData(array, this);
@@ -169,7 +169,7 @@ public class DefaultCoercer implements Coercer {
 	 * 
 	 * @param object The {@link Object} to coerce.
 	 * @return The coerced {@link LuaValue}.
-	 * @throw LuaError If the conversion has failed or is not possible.
+	 * @throws LuaError If the conversion has failed or is not possible.
 	 */
 	protected LuaValue coerceInstance(Object object) throws LuaError {
 		return new InstanceUserData(object, this);
@@ -180,7 +180,7 @@ public class DefaultCoercer implements Coercer {
 	 * 
 	 * @param clazz The {@link Class} to coerce.
 	 * @return The coerced {@link Class}.
-	 * @throw LuaError If the conversion has failed or is not possible.
+	 * @throws LuaError If the conversion has failed or is not possible.
 	 */
 	protected LuaValue coerceStaticInstance(Class<?> clazz) throws LuaError {
 		return new StaticUserData(clazz, this);

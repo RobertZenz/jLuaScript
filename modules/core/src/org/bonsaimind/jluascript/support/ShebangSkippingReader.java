@@ -22,27 +22,57 @@ package org.bonsaimind.jluascript.support;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.bonsaimind.jluascript.utils.Verifier;
+
+/**
+ * The {@link ShebangSkippingReader} is an {@link Reader} extension and wrapper
+ * which skips over a Shebang line at the start of the reader, if one is
+ * present.
+ */
 public class ShebangSkippingReader extends Reader {
+	/** The CR as char. */
 	protected static final char CARRIAGE_RETURN = 0x0d;
+	/** The LF as char. */
 	protected static final char LINE_FEED = 0x0a;
+	/** The line marker for a Shebang line. */
 	protected static final String SHEBANG_START = "#!";
 	
+	/** The buffer for reading the Shebang marker. */
 	protected char[] buffer = new char[2];
+	/** How many bytes have been read into the buffer. */
 	protected int bufferLength = 0;
+	/** Whether this is the first read operation on the reader. */
 	protected boolean firstRead = true;
+	/** The wrapped source {@link Reader}. */
 	protected Reader sourceReader = null;
 	
+	/**
+	 * Creates a new instance of {@link ShebangSkippingInputStream}.
+	 *
+	 * @param sourceReader The {@link Reader} that is going to be wrapped,
+	 *        cannot be {@code null}.
+	 * @throws IllegalArgumentException If the given {@code reader} is
+	 *         {@code null}.
+	 */
 	public ShebangSkippingReader(Reader sourceReader) {
 		super();
+		
+		Verifier.notNull("sourceReader", sourceReader);
 		
 		this.sourceReader = sourceReader;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void close() throws IOException {
 		sourceReader.close();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int read(char[] cbuf, int off, int len) throws IOException {
 		if (firstRead) {
@@ -71,6 +101,11 @@ public class ShebangSkippingReader extends Reader {
 		return sourceReader.read(cbuf, off, len);
 	}
 	
+	/**
+	 * Discards the given amount from the {@link #buffer}.
+	 * 
+	 * @param countToDiscard The amount to discard.
+	 */
 	protected void discardBuffer(int countToDiscard) {
 		for (int index = 0; index < bufferLength - countToDiscard; index++) {
 			buffer[index] = buffer[index + countToDiscard];
@@ -79,6 +114,12 @@ public class ShebangSkippingReader extends Reader {
 		bufferLength = Math.max(0, bufferLength - countToDiscard);
 	}
 	
+	/**
+	 * Skips the Shebang line in the underlying {@link #sourceReader} if there
+	 * is any.
+	 * 
+	 * @throws IOException If reading from the {@link #sourceReader} failed.
+	 */
 	protected void skipShebang() throws IOException {
 		bufferLength = sourceReader.read(buffer);
 		

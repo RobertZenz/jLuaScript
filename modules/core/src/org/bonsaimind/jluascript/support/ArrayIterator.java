@@ -22,21 +22,45 @@ package org.bonsaimind.jluascript.support;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 
+import org.bonsaimind.jluascript.utils.Verifier;
+
+/**
+ * THe {@link ArrayIterator} is an {@link Iterator} implementation which allows
+ * to iterate over a given {@link Object} array.
+ */
 public class ArrayIterator implements Iterator<Object> {
+	/** The array to iterate over. */
 	protected Object array = null;
+	/** The current index at which the iterator is. */
 	protected int index = 0;
 	
+	/**
+	 * Creates a new instance of {@link ArrayIterator}.
+	 *
+	 * @param array The {@link Object array} to iterate over. Cannot be
+	 *        {@code null}, but can be empty.
+	 * @throws IllegalArgumentException If the given {@link Object array} is
+	 *         {@code null} or not an array.
+	 */
 	public ArrayIterator(Object array) {
 		super();
+		
+		Verifier.notNull("array", array);
 		
 		this.array = array;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean hasNext() {
 		return index < Array.getLength(array);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object next() {
 		return Array.get(array, index++);

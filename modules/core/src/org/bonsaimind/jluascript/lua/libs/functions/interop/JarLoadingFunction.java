@@ -24,19 +24,38 @@ import java.nio.file.Path;
 
 import org.bonsaimind.jluascript.lua.libs.functions.AbstractPathAcceptingFunction;
 import org.bonsaimind.jluascript.support.DynamicClassLoader;
+import org.bonsaimind.jluascript.utils.Verifier;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 
+/**
+ * The {@link JarLoadingFunction} is an {@link AbstractPathAcceptingFunction}
+ * extension which allows to add jars to the given {@link ClassLoader}.
+ */
 public class JarLoadingFunction extends AbstractPathAcceptingFunction {
+	/** The {@link ClassLoader} to use to load {@link Class}es. */
 	protected DynamicClassLoader classLoader = null;
 	
+	/**
+	 * Creates a new instance of {@link JarLoadingFunction}.
+	 *
+	 * @param classLoader The {@link ClassLoader} to use to load
+	 *        {@link Class}es, cannot be {@code null}.
+	 * @throws IllegalArgumentException If the {@code classLoader} is
+	 *         {@code null}.
+	 */
 	public JarLoadingFunction(DynamicClassLoader classLoader) {
 		super();
+		
+		Verifier.notNull("classLoader", classLoader);
 		
 		this.classLoader = classLoader;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected Varargs performAction(Path path) {
 		try {

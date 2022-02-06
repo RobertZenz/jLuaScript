@@ -31,6 +31,10 @@
 		</ivy:buildlist>
 	</target>
 	
+	<target name="checkstyle" depends="build-modules-list">
+		<subant buildpathref="modules" target="checkstyle" inheritAll="true"/>
+	</target>
+	
 	<target name="clean" depends="build-modules-list">
 		<subant buildpathref="modules" target="clean" inheritAll="true"/>
 	</target>

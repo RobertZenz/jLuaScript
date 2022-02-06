@@ -125,7 +125,8 @@
   </module>
   <module name="JavadocPackage"/>
   <module name="RegexpHeader">
-    <property name="headerFile" value="/home/robert/src/bonsaimind/routing/checkstyle-header.regex"/>
+    <property name="headerFile" value="${project_loc}/../../project/checkstyle-header.regex"/>
+    <property name="fileExtensions" value=".java"/>
   </module>
   <module name="BeforeExecutionExclusionFileFilter">
     <metadata name="net.sf.eclipsecs.core.comment" value="Tests"/>
