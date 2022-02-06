@@ -6,6 +6,34 @@
 	<property name="src" value="${basedir}/src"/>
 	<property name="src.test" value="${basedir}/src.test"/>
 	
+	<target name="checkstyle" depends="init">
+		<java
+				fork="true"
+				jar="${projectdir}/project/ci/checkstyle-9.3-all.jar"
+				outputproperty="output">
+			<sysproperty key="project_loc" value ="${basedir}"/>
+			<arg value="-c"/>
+			<arg value="${projectdir}/project/checkstyle-configuration.xml"/>
+			<arg value="${basedir}/src/"/>
+			
+			<redirector>
+				<outputfilterchain>
+					<!-- Trim leading and trailing line, log messages from Checkstyle. -->
+					<headfilter skip="1"/>
+					<tailfilter skip="1"/>
+				</outputfilterchain>
+			</redirector>
+		</java>
+		
+		<fail message="Checkstyle has failed, please see the output for details.${line.separator}${line.separator}${output}">
+			<condition>
+				<not>
+					<equals arg1="${output}" arg2=""/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+	
 	<target name="clean">
 		<delete dir="${target}"/>
 		<delete file="TESTS-TestSuites.xml"/>
