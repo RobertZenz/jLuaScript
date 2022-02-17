@@ -1,6 +1,14 @@
 Changes
 =======
 
+1.3
+---
+
+ * Large-scale rewrite for better interoperability and behavior of the Lua bindings.
+ * Added REPL.
+ * Scripts can now start with a Shebang.
+ * Added additional helper functions.
+
 
 1.2
 ---
